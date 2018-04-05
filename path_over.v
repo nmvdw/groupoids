@@ -283,7 +283,7 @@ Section groupoid.
   Definition path_over_inv
              {a₁ a₂ : A}
              {p : a₁ = a₂}
-             (c₁ : C a₁) (c₂ : C a₂)
+             {c₁ : C a₁} {c₂ : C a₂}
              (q : path_over C p c₁ c₂)
     : path_over C p^ c₂ c₁
     := match q with
@@ -302,3 +302,6 @@ Section groupoid.
     exact (path_over_id _).
   Defined.
 End groupoid.
+
+Arguments path_over_inv {A C a₁ a₂ p c₁ c₂} q.
+Arguments path_over_concat {A C a₁ a₂ a₃ p₁ p₂ c₁ c₂ c₃} q₁ q₂.
