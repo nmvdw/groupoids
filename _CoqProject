@@ -1,0 +1,4 @@
+-R . "GR" COQC = hoqc COQDEP = hoqdep
+heterogeneous_equality.v
+path_over.v
+square.v
