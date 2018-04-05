@@ -2,3 +2,5 @@
 heterogeneous_equality.v
 path_over.v
 square.v
+polynomial.v
+groupoid.v

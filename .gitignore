@@ -1,3 +1,5 @@
+Makefile
+Makefile.conf
 .*.aux
 *.a
 *.cma
