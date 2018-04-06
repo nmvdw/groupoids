@@ -226,12 +226,12 @@ Section operations.
          {A C : Type}
          {a₁ a₂ : A} {p : a₁ = a₂}
          {c₁ c₂ : C}
-    : IsEquiv (@path_over_const A C a₁ a₂ p c₁ c₂).
+    : IsEquiv (@const_path_over A C a₁ a₂ p c₁ c₂).
   Proof.
-    simple refine (isequiv_adjointify _ (@const_path_over A C a₁ a₂ p c₁ c₂) _ _).
-    - intros q ; induction p, q.
-      reflexivity.
+    simple refine (isequiv_adjointify _ path_over_const _ _).
     - intros q ; induction q.
+      reflexivity.
+    - intros q ; induction p, q.
       reflexivity.
   Defined.
 
@@ -330,4 +330,28 @@ Definition const_path_over_concat
 Proof.
   induction p₁, p₂, q₁, q₂.
   reflexivity.
+Defined.
+
+Definition apd_po_const
+           {A C : Type}
+           (f : A -> C)
+           {a₁ a₂ : A} (p : a₁ = a₂)
+  : apd_po f p = const_path_over (ap f p)
+  := match p with
+     | idpath => idpath
+     end.
+
+Definition const_path_over_inj
+           {A C : Type}
+           {a₁ a₂ : A}
+           (p : a₁ = a₂)
+           {c₁ c₂ : C}
+           (q₁ q₂ : c₁ = c₂)
+           (h : (const_path_over q₁ : path_over (fun _ => C) p c₁ c₂)
+                = const_path_over q₂)
+  : q₁ = q₂.
+Proof.
+  pose (ap const_path_over^-1 h) as s.
+  rewrite !eissect in s.
+  exact s.
 Defined.

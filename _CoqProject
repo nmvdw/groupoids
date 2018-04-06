@@ -6,3 +6,4 @@ globe_over.v
 polynomial.v
 groupoid.v
 groupoid_quotient.v
+gquot_prop.v

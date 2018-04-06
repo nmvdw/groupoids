@@ -58,7 +58,7 @@ Module Export gquot.
          | gcl a => fun _ _ _ _ _ => gclY a
           end) geqclY geY ginvY gconcatY truncY.
 
-    Axiom gquot_beta_geqclY : forall (a₁ a₂ : A) (g : hom G a₁ a₂),
+    Axiom gquot_ind_beta_geqcl : forall (a₁ a₂ : A) (g : hom G a₁ a₂),
         apd_po gquot_ind (geqcl G g)
         =
         geqclY a₁ a₂ g.
@@ -115,6 +115,14 @@ Module Export gquot.
                             (path_to_globe (gconcatY a₁ a₂ a₃ g₁ g₂))
                          )
                       ).
+    Defined.
+
+    Definition gquot_rec_beta_geqcl (a₁ a₂ : A) (g : hom G a₁ a₂)
+      : ap gquot_rec (geqcl G g) = geqclY a₁ a₂ g.
+    Proof.
+      apply (const_path_over_inj (geqcl G g)).
+      refine ((apd_po_const _ _)^ @ _).
+      apply gquot_ind_beta_geqcl.
     Defined.
   End gquot_rec.
 End gquot.

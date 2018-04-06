@@ -20,6 +20,29 @@ Definition path_to_globe
        end
      end.
 
+Definition globe_to_path
+           {A : Type}
+           {a₁ a₂ : A}
+           {p q : a₁ = a₂}
+           (h : globe p q)
+  : p = q
+  := match h with
+     | globe_id _ => idpath
+     end.
+
+Global Instance path_to_globe_isequiv
+       {A : Type}
+       {a₁ a₂ : A}
+       {p q : a₁ = a₂}
+  : IsEquiv (@path_to_globe A a₁ a₂ p q).
+Proof.
+  simple refine (isequiv_adjointify _ globe_to_path _ _).
+  - intros x.
+    induction x ; reflexivity.
+  - intros x.
+    induction x, p ; reflexivity.
+Defined.
+
 Arguments globe_id {_} {_}.
 
 Inductive globe_over
@@ -64,3 +87,24 @@ Definition globe_over_whisker
   := match s₁, s₂ with
      | idpath, idpath => idmap
      end.
+
+Definition path_to_globe_over
+           {A : Type}
+           (Y : A -> Type)
+           {a₁ a₂ : A}
+           {c₁ : Y a₁} {c₂ : Y a₂}
+           {p₁ p₂ : a₁ = a₂}
+           (h : globe p₁ p₂)
+           (q₁ : path_over Y p₁ c₁ c₂)
+           (q₂ : path_over Y p₂ c₁ c₂)
+           (s : path_over_to_path (transport (fun r => path_over Y r c₁ c₂)
+                                             (globe_to_path h)
+                                             q₁)
+                = path_over_to_path q₂)
+  : globe_over Y h q₁ q₂.
+Proof.
+  pose (ap path_over_to_path^-1 s) as p.
+  rewrite !eissect in p.
+  induction p, h ; clear s.
+  exact (globe_over_id Y q₁).
+Defined.
