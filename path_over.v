@@ -305,3 +305,29 @@ End groupoid.
 
 Arguments path_over_inv {A C a₁ a₂ p c₁ c₂} q.
 Arguments path_over_concat {A C a₁ a₂ a₃ p₁ p₂ c₁ c₂ c₃} q₁ q₂.
+
+Definition const_path_over_inv
+           {A C : Type}
+           {a₁ a₂ : A} {p : a₁ = a₂}
+           {c₁ c₂ : C}
+           (q : c₁ = c₂)
+  : (const_path_over q^ : path_over (fun _ => C) p^ c₂ c₁)
+    =
+    path_over_inv (const_path_over q)
+  := match q, p with
+     | idpath, idpath => idpath
+     end.
+
+Definition const_path_over_concat
+           {A C : Type}
+           {a₁ a₂ a₃ : A}
+           {p₁ : a₁ = a₂} {p₂ : a₂ = a₃}
+           {c₁ c₂ c₃ : C}
+           (q₁ : c₁ = c₂) (q₂ : c₂ = c₃)
+  : (const_path_over (q₁ @ q₂) : path_over (fun _ => C) (p₁ @ p₂) c₁ c₃)
+    =
+    path_over_concat (const_path_over q₁) (const_path_over q₂).
+Proof.
+  induction p₁, p₂, q₁, q₂.
+  reflexivity.
+Defined.

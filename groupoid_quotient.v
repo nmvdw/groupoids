@@ -69,9 +69,11 @@ Module Export gquot.
              (G : groupoid A)
              (Y : Type)
              (gclY : A -> Y)
-             (geqclY : forall (a₁ a₂ : A), hom G a₁ a₂ -> gclY a₁ = gclY a₂)
+             (geqclY : forall (a₁ a₂ : A),
+                 hom G a₁ a₂ -> gclY a₁ = gclY a₂)
              (geY : forall (a : A), geqclY _ _ (e a) = idpath)
-             (ginvY : forall (a₁ a₂ : A) (g : hom G a₁ a₂), geqclY a₂ a₁ (inv g) = (geqclY a₁ a₂ g)^)
+             (ginvY : forall (a₁ a₂ : A) (g : hom G a₁ a₂),
+                 geqclY a₂ a₁ (inv g) = (geqclY a₁ a₂ g)^)
              (gconcatY : forall (a₁ a₂ a₃: A) (g₁: hom G a₁ a₂) (g₂: hom G a₂ a₃),
                  geqclY _ _ (g₁ × g₂) = geqclY _ _ g₁ @ geqclY _ _ g₂)
              (truncY : IsTrunc 1 Y).
@@ -88,22 +90,34 @@ Module Export gquot.
                                            (path_to_globe (geY a)))
                                _ _ _) ; cbn.
       - intros a₁ a₂ g.
-        pose (const_globe_over
-                 (path_to_globe (ginv G g))
-                 (geqclY a₂ a₁ (inv g))
-                 ((geqclY a₁ a₂ g)^)
-                 (path_to_globe (ginvY a₁ a₂ g))
-             ).
-        admit.
+        simple refine (globe_over_whisker
+                         (fun _ => Y)
+                         _
+                         idpath
+                         (const_path_over_inv _)
+                         (const_globe_over
+                            (path_to_globe (ginv G g))
+                            (geqclY a₂ a₁ (inv g))
+                            ((geqclY a₁ a₂ g)^)
+                            (path_to_globe (ginvY a₁ a₂ g))
+                         )
+                      ).
       - intros a₁ a₂ a₃ g₁ g₂.
-        pose (const_globe_over
-                (path_to_globe (gconcat G g₁ g₂))
-                (geqclY a₁ a₃ (g₁ × g₂))
-                (geqclY a₁ a₂ g₁ @ geqclY a₂ a₃ g₂)
-                (path_to_globe (gconcatY a₁ a₂ a₃ g₁ g₂))).
-        admit.
-    Admitted.
+        simple refine (globe_over_whisker
+                         (fun _ => Y)
+                         _
+                         idpath
+                         (const_path_over_concat _ _)
+                         (const_globe_over
+                            (path_to_globe (gconcat G g₁ g₂))
+                            (geqclY a₁ a₃ (g₁ × g₂))
+                            (geqclY a₁ a₂ g₁ @ geqclY a₂ a₃ g₂)
+                            (path_to_globe (gconcatY a₁ a₂ a₃ g₁ g₂))
+                         )
+                      ).
+    Defined.
   End gquot_rec.
 End gquot.
 
 Arguments gquot_ind {A G} Y gclY geqclY geY ginvY gconcatY truncY.
+Arguments gquot_rec {A G}.

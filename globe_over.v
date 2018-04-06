@@ -49,3 +49,18 @@ Proof.
   induction h₁, h₂.
   apply globe_over_id.
 Defined.
+
+Definition globe_over_whisker
+           {A : Type}
+           (Y : A -> Type)
+           {a₁ a₂ : A}
+           {c₁ : Y a₁} {c₂ : Y a₂}
+           {p₁ p₂ : a₁ = a₂}
+           (h : globe p₁ p₂)
+           {q₁ q₃ : path_over Y p₁ c₁ c₂}
+           {q₂ q₄ : path_over Y p₂ c₁ c₂}
+           (s₁ : q₁ = q₃) (s₂ : q₂ = q₄)
+  : globe_over Y h q₁ q₂ -> globe_over Y h q₃ q₄
+  := match s₁, s₂ with
+     | idpath, idpath => idmap
+     end.
