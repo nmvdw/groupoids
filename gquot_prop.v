@@ -68,8 +68,6 @@ End one_type_is_groupoid_quotient.
 
 Section gquot_sum.
   Variable (A B : Type).
-  Context `{HA : IsTrunc 1 A}.
-  Context `{HB : IsTrunc 1 B}.
   Variable (G1 : groupoid A)
            (G2 : groupoid B).
 
@@ -147,6 +145,29 @@ Section gquot_sum.
         rewrite gquot_rec_beta_geqcl.
         rewrite <- (ap_compose inr gquot_sum_in).
         rewrite gquot_rec_beta_geqcl.
+        apply concat_Vp.
+  Qed.
+
+  Lemma gquot_sum_in_out_sect : Sect gquot_sum_in gquot_sum_out.
+  Proof.
+    intros [Q | Q].
+    - simple refine (gquot_ind_set _ _ (fun Q => gquot_sum_out (gquot_sum_in (inl Q)) = inl Q) _ _ _ Q).
+      + intros a. reflexivity.
+      + intros a1 a2 g.
+        (* At this point we could have applied Square -> PathOver id type *)
+        apply path_to_path_over.
+        rewrite transport_paths_FlFr. hott_simpl.
+        rewrite ap_compose.
+        do 2 rewrite gquot_rec_beta_geqcl.
+        apply concat_Vp.
+    - simple refine (gquot_ind_set _ _ (fun Q => gquot_sum_out (gquot_sum_in (inr Q)) = inr Q) _ _ _ Q).
+      + intros a. reflexivity.
+      + intros a1 a2 g.
+        (* At this point we could have applied Square -> PathOver id type *)
+        apply path_to_path_over.
+        rewrite transport_paths_FlFr. hott_simpl.
+        rewrite ap_compose.
+        do 2 rewrite gquot_rec_beta_geqcl.
         apply concat_Vp.
   Qed.
 
