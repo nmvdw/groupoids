@@ -60,70 +60,76 @@ End one_type_is_groupoid_quotient.
 
 Section gquot_sum.
   Variable (A B : Type).
-  Variable (G1 : groupoid A)
-           (G2 : groupoid B).
+  Variable (G₁ : groupoid A)
+           (G₂ : groupoid B).
 
-  Definition gquot_sum_in : gquot G1 + gquot G2 -> gquot (sum_groupoid G1 G2).
+  Definition gquot_sum_in
+             (z : gquot G₁ + gquot G₂)
+    : gquot (sum_groupoid G₁ G₂).
   Proof.
-    intros [Q | Q].
-    - simple refine (gquot_rec _ _ _ _ _ _ _ Q) ; cbn.
-      + intros a. apply (gcl _ (inl a)).
-      + intros a1 a2 g; simpl.
-        refine (geqcl _ _).
-        compute. apply g.
-      + intros a. simpl.
-        etransitivity ; [ | apply ge ].
-        reflexivity.
-      + intros a1 a2 g. simpl.
-        etransitivity; [ | apply ginv ].
-        reflexivity.
-      + intros a1 a2 a3 g1 g2. simpl.
-        etransitivity; [ | apply gconcat ].
-        reflexivity.
-    - simple refine (gquot_rec _ _ _ _ _ _ _ Q) ; cbn.
-      + intros b. apply (gcl _ (inr b)).
-      + intros b1 b2 g; simpl.
-        refine (geqcl _ _).
-        compute. apply g.
-      + intros b. simpl.
-        etransitivity ; [ | apply ge ].
-        reflexivity.
-      + intros b1 b2 g. simpl.
-        etransitivity; [ | apply ginv ].
-        reflexivity.
-      + intros b1 b2 b3 g1 g2. simpl.
-        etransitivity; [ | apply gconcat ].
-        reflexivity.
+    destruct z as [x | y].
+    - exact (gquot_rec
+               _
+               (fun a => gcl _ (inl a))
+               (fun a₁ a₂ g => @geqcl _ (sum_groupoid G₁ G₂) (inl a₁) (inl a₂) g)
+               (fun a => @ge _ (sum_groupoid G₁ G₂) (inl a))
+               (fun a₁ a₂ g => @ginv _ (sum_groupoid G₁ G₂) (inl a₁) (inl a₂) g)
+               (fun a₁ a₂ a₃ g₁ g₂ =>
+                  @gconcat _
+                           (sum_groupoid G₁ G₂)
+                           (inl a₁)
+                           (inl a₂)
+                           (inl a₃)
+                           g₁
+                           g₂)
+               _
+               x).
+    - exact (gquot_rec
+               _
+               (fun b => gcl _ (inr b))
+               (fun b₁ b₂ g => @geqcl _ (sum_groupoid G₁ G₂) (inr b₁) (inr b₂) g)
+               (fun b => @ge _ (sum_groupoid G₁ G₂) (inr b))
+               (fun b₁ b₂ g => @ginv _ (sum_groupoid G₁ G₂) (inr b₁) (inr b₂) g)
+               (fun b₁ b₂ b₃ g₁ g₂ =>
+                  @gconcat _
+                           (sum_groupoid G₁ G₂)
+                           (inr b₁)
+                           (inr b₂)
+                           (inr b₃)
+                           g₁
+                           g₂)
+               _
+               y).
   Defined.
 
-  Definition gquot_sum_out : gquot (sum_groupoid G1 G2) -> gquot G1 + gquot G2.
+  Definition gquot_sum_out : gquot (sum_groupoid G₁ G₂) -> gquot G₁ + gquot G₂.
   Proof.
     simple refine (gquot_rec _ _ _ _ _ _ _) ; cbn.
-    - intros [x | x]; [ apply inl | apply inr ]; apply (gcl _ x).
-    - intros [a1 | b1] [a2 | b2] g; try refine (Empty_rec g).
-      + refine (ap inl (geqcl _ g)).
-      + refine (ap inr (geqcl _ g)).
     - intros [a | b].
-      + refine (ap _ (ge _ a)).
-      + refine (ap _ (ge _ b)).
-    - intros [a1 | b1] [a2 | b2] g; try refine (Empty_rec g).
-      + rewrite <- ap_V.
-        f_ap. apply ginv.
-      + rewrite <- ap_V.
-        f_ap. apply ginv.
-    - intros [a1 | b1] [a2 | b2] [a3 | b3] g1 g2;
-        try (refine (Empty_rec g1) || refine (Empty_rec g2)).
-      + rewrite <- ap_pp. f_ap. apply gconcat.
-      + rewrite <- ap_pp. f_ap. apply gconcat.
+      + exact (inl (gcl _ a)).
+      + exact (inr (gcl _ b)).
+    - intros [a₁ | b₁] [a₂ | b₂] g ; try refine (Empty_rec g).
+      + exact (ap inl (geqcl _ g)).
+      + exact (ap inr (geqcl _ g)).
+    - intros [a | b].
+      + exact (ap _ (ge _ a)).
+      + exact (ap _ (ge _ b)).
+    - intros [a₁ | b₁] [a₂ | b₂] g ; try refine (Empty_rec g).
+      + exact (ap (ap inl) (ginv G₁ g) @ ap_V _ _).
+      + exact (ap (ap inr) (ginv G₂ g) @ ap_V _ _).
+    - intros [a₁ | b₁] [a₂ | b₂] [a₃ | b₃] g₁ g₂;
+        try (exact (Empty_rec g₁) || exact (Empty_rec g₂)).
+      + exact (ap (ap inl) (gconcat G₁ g₁ g₂) @ ap_pp _ _ _).
+      + exact (ap (ap inr) (gconcat G₂ g₁ g₂) @ ap_pp _ _ _).
   Defined.
 
   Lemma gquot_sum_out_in_sect : Sect gquot_sum_out gquot_sum_in.
   Proof.
     intros x.
-    simple refine (gquot_ind_set _ _ (fun x => gquot_sum_in (gquot_sum_out x) = x) _ _ _ x).
-    - intros [a | b]; reflexivity.
-    - intros [a1 | b1] [a2 | b2] g; try refine (Empty_rec g);
-        compute in g.
+    simple refine (gquot_ind_set (fun x => gquot_sum_in (gquot_sum_out x) = x) _ _ _ x).
+    - intros [ | ] ; reflexivity.
+    - intros [a1 | b1] [a2 | b2] g ; try refine (Empty_rec g)
+      ; compute in g.
       + apply path_to_path_over.
         rewrite transport_paths_FlFr. hott_simpl.
         rewrite ap_compose.
@@ -142,25 +148,27 @@ Section gquot_sum.
 
   Lemma gquot_sum_in_out_sect : Sect gquot_sum_in gquot_sum_out.
   Proof.
-    intros [Q | Q].
-    - simple refine (gquot_ind_set _ _ (fun Q => gquot_sum_out (gquot_sum_in (inl Q)) = inl Q) _ _ _ Q).
-      + intros a. reflexivity.
-      + intros a1 a2 g.
-        (* At this point we could have applied Square -> PathOver id type *)
+    intros [x | y].
+    - simple refine (gquot_ind_set
+                       (fun z => gquot_sum_out (gquot_sum_in (inl z)) = inl z) _ _ _ x).
+      + exact (fun _ => idpath).
+      + intros a₁ a₂ g.
         apply path_to_path_over.
         rewrite transport_paths_FlFr. hott_simpl.
         rewrite ap_compose.
-        do 2 rewrite gquot_rec_beta_geqcl.
+        rewrite !gquot_rec_beta_geqcl.
         apply concat_Vp.
-    - simple refine (gquot_ind_set _ _ (fun Q => gquot_sum_out (gquot_sum_in (inr Q)) = inr Q) _ _ _ Q).
-      + intros a. reflexivity.
-      + intros a1 a2 g.
-        (* At this point we could have applied Square -> PathOver id type *)
+    - simple refine (gquot_ind_set
+                       (fun z => gquot_sum_out (gquot_sum_in (inr z)) = inr z) _ _ _ y).
+      + exact (fun _ => idpath).
+      + intros a₁ a₂ g.
         apply path_to_path_over.
         rewrite transport_paths_FlFr. hott_simpl.
         rewrite ap_compose.
-        do 2 rewrite gquot_rec_beta_geqcl.
+        rewrite !gquot_rec_beta_geqcl.
         apply concat_Vp.
   Qed.
 
+  Global Instance gquot_sum_out_isequiv : IsEquiv gquot_sum_out
+    := isequiv_adjointify _ gquot_sum_in gquot_sum_in_out_sect gquot_sum_out_in_sect.
 End gquot_sum.
