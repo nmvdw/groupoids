@@ -152,4 +152,5 @@ Module Export gquot.
 End gquot.
 
 Arguments gquot_ind {A G} Y gclY geqclY geY ginvY gconcatY truncY.
+Arguments gquot_ind_set {A G} Y gclY geqclY truncY.
 Arguments gquot_rec {A G}.

@@ -50,19 +50,11 @@ Section one_type_is_groupoid_quotient.
     simple refine (isequiv_adjointify _ (gcl P) _ _).
     - intros x ; reflexivity.
     - intros x.
-      simple refine (gquot_ind (fun z => _) _ _ _ _ _ _ x).
+      simple refine (gquot_ind_set (fun z => _) _ _ _ x).
       + intros a ; cbn.
         reflexivity.
-      + intros ; apply path_over_help.
       + intros.
-        apply path_to_globe_over.
-        apply path_ishprop.
-      + intros.
-        apply path_to_globe_over.
-        apply path_ishprop.
-      + intros.
-        apply path_to_globe_over.
-        apply path_ishprop.
+        apply path_over_help.
   Defined.
 End one_type_is_groupoid_quotient.
 
