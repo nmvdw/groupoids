@@ -125,6 +125,30 @@ Module Export gquot.
       apply gquot_ind_beta_geqcl.
     Defined.
   End gquot_rec.
+
+  Section gquot_ind_set.
+    Variable (A : Type)
+             (G : groupoid A)
+             (Y : gquot G -> Type)
+             (gclY : forall (a : A), Y(gcl G a))
+             (geqclY : forall (a₁ a₂ : A) (g : hom G a₁ a₂),
+                 path_over Y (geqcl G g) (gclY a₁) (gclY a₂))
+             (truncY : forall (x : gquot G), IsHSet (Y x)).
+
+    Definition gquot_ind_set : forall (g : gquot G), Y g.
+    Proof.
+      simple refine (gquot_ind A G Y gclY geqclY _ _ _ _)
+      ; intros ; apply path_to_globe_over ; apply path_ishprop.
+    Defined.
+
+    Definition gquot_ind_set_beta_geqcl : forall (a₁ a₂ : A) (g : hom G a₁ a₂),
+        apd_po gquot_ind_set (geqcl G g)
+        =
+        geqclY a₁ a₂ g.
+    Proof.
+      apply gquot_ind_beta_geqcl.
+    Defined.
+  End gquot_ind_set.
 End gquot.
 
 Arguments gquot_ind {A G} Y gclY geqclY geY ginvY gconcatY truncY.
