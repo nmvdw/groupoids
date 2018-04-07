@@ -63,7 +63,7 @@ Notation "p · q" := (comp _ (path_groupoid _) _ _ _ p q) (at level 80).
 
 (** Groupoids are closed under products. *)
 Definition prod_groupoid
-           (A B : Type) (G₁ : groupoid A) (G₂ : groupoid B)
+           {A B : Type} (G₁ : groupoid A) (G₂ : groupoid B)
   : groupoid (A * B).
 Proof.
   unshelve esplit.
@@ -88,7 +88,7 @@ Defined.
 
 (** Groupoids are closed under sums. *)
 Definition sum_groupoid
-           (A B : Type) (G₁ : groupoid A) (G₂ : groupoid B)
+           {A B : Type} (G₁ : groupoid A) (G₂ : groupoid B)
   : groupoid (A + B).
 Proof.
   unshelve esplit.

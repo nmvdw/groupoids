@@ -3,8 +3,8 @@ Require Import groupoid_quotient.
 Require Import groupoid path_over globe_over.
 
 Section one_type_is_groupoid_quotient.
-  Variable (A : Type)
-           (H : IsTrunc 1 A).
+  Variable (A : Type).
+  Context `{IsTrunc 1 A}.
 
   Definition P : groupoid A
     := {|hom := fun x y => BuildhSet(x = y) ;
