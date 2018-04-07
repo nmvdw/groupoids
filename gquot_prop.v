@@ -130,7 +130,7 @@ Section gquot_sum.
   Lemma gquot_sum_out_in_sect : Sect gquot_sum_out gquot_sum_in.
   Proof.
     intros x.
-    simple refine (gquot_ind (fun x => gquot_sum_in (gquot_sum_out x) = x) _ _ _ _ _ _ x).
+    simple refine (gquot_ind_set _ _ (fun x => gquot_sum_in (gquot_sum_out x) = x) _ _ _ x).
     - intros [a | b]; reflexivity.
     - intros [a1 | b1] [a2 | b2] g; try refine (Empty_rec g);
         compute in g.
@@ -145,12 +145,9 @@ Section gquot_sum.
         rewrite transport_paths_FlFr. hott_simpl.
         rewrite ap_compose.
         rewrite gquot_rec_beta_geqcl.
-        rewrite <- (ap_compose inl gquot_sum_in).
+        rewrite <- (ap_compose inr gquot_sum_in).
         rewrite gquot_rec_beta_geqcl.
         apply concat_Vp.
-    - intros; apply path_to_globe_over, gtrunc.
-    - intros; apply path_to_globe_over, gtrunc.
-    - intros; apply path_to_globe_over, gtrunc.
   Qed.
 
 End gquot_sum.
