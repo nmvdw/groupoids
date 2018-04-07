@@ -65,3 +65,66 @@ Section one_type_is_groupoid_quotient.
         apply path_ishprop.
   Defined.
 End one_type_is_groupoid_quotient.
+
+Section gquot_sum.
+  Variable (A B : Type).
+  Context `{HA : IsTrunc 1 A}.
+  Context `{HB : IsTrunc 1 B}.
+  Variable (G1 : groupoid A)
+           (G2 : groupoid B).
+
+  Definition gquot_sum_in : gquot G1 + gquot G2 -> gquot (sum_groupoid G1 G2).
+  Proof.
+    intros [Q | Q].
+    - simple refine (gquot_rec _ _ _ _ _ _ _ Q) ; cbn.
+      + intros a. apply (gcl _ (inl a)).
+      + intros a1 a2 g; simpl.
+        refine (geqcl _ _).
+        compute. apply g.
+      + intros a. simpl.
+        etransitivity ; [ | apply ge ].
+        reflexivity.
+      + intros a1 a2 g. simpl.
+        etransitivity; [ | apply ginv ].
+        reflexivity.
+      + intros a1 a2 a3 g1 g2. simpl.
+        etransitivity; [ | apply gconcat ].
+        reflexivity.
+    - simple refine (gquot_rec _ _ _ _ _ _ _ Q) ; cbn.
+      + intros b. apply (gcl _ (inr b)).
+      + intros b1 b2 g; simpl.
+        refine (geqcl _ _).
+        compute. apply g.
+      + intros b. simpl.
+        etransitivity ; [ | apply ge ].
+        reflexivity.
+      + intros b1 b2 g. simpl.
+        etransitivity; [ | apply ginv ].
+        reflexivity.
+      + intros b1 b2 b3 g1 g2. simpl.
+        etransitivity; [ | apply gconcat ].
+        reflexivity.
+  Defined.
+
+  Definition gquot_sum_out : gquot (sum_groupoid G1 G2) -> gquot G1 + gquot G2.
+  Proof.
+    simple refine (gquot_rec _ _ _ _ _ _ _) ; cbn.
+    - intros [x | x]; [ apply inl | apply inr ]; apply (gcl _ x).
+    - intros [a1 | b1] [a2 | b2] g; try refine (Empty_rec g).
+      + refine (ap inl (geqcl _ g)).
+      + refine (ap inr (geqcl _ g)).
+    - intros [a | b].
+      + refine (ap _ (ge _ a)).
+      + refine (ap _ (ge _ b)).
+    - intros [a1 | b1] [a2 | b2] g; try refine (Empty_rec g).
+      + rewrite <- ap_V.
+        f_ap. apply ginv.
+      + rewrite <- ap_V.
+        f_ap. apply ginv.
+    - intros [a1 | b1] [a2 | b2] [a3 | b3] g1 g2;
+        try (refine (Empty_rec g1) || refine (Empty_rec g2)).
+      + rewrite <- ap_pp. f_ap. apply gconcat.
+      + rewrite <- ap_pp. f_ap. apply gconcat.
+  Defined.
+
+End gquot_sum.
