@@ -4,6 +4,7 @@ heterogeneous_equality.v
 path_over.v
 square.v
 globe_over.v
+path_coequalizer.v
 polynomial.v
 groupoid.v
 groupoid_quotient.v
