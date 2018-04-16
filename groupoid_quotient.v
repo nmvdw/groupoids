@@ -149,8 +149,83 @@ Module Export gquot.
       apply gquot_ind_beta_geqcl.
     Defined.
   End gquot_ind_set.
+
+  Section gquot_ind_prop.
+    Variable (A : Type)
+             (G : groupoid A)
+             (Y : gquot G -> Type)
+             (gclY : forall (a : A), Y(gcl G a))
+             (truncY : forall (x : gquot G), IsHProp (Y x)).
+
+    Definition gquot_ind_prop : forall (g : gquot G), Y g.
+    Proof.
+      simple refine (gquot_ind_set A G Y gclY _ _)
+      ; intros ; apply path_to_path_over ; apply path_ishprop.
+    Defined.
+  End gquot_ind_prop.
 End gquot.
 
 Arguments gquot_ind {A G} Y gclY geqclY geY ginvY gconcatY truncY.
 Arguments gquot_ind_set {A G} Y gclY geqclY truncY.
+Arguments gquot_ind_prop {A G} Y gclY truncY.
 Arguments gquot_rec {A G}.
+
+Section gquot_double_rec.
+  Variable (A B : Type)
+           (G₁ : groupoid A)
+           (G₂ : groupoid B)
+           (Y : Type).
+  Context `{IsTrunc 1 Y}
+          `{Funext}.
+
+  Variable (f : A -> B -> Y)
+           (fr : forall (a : A) (b₁ b₂ : B), hom G₂ b₁ b₂ -> f a b₁ = f a b₂)
+           (fre : forall (a : A) (b : B), fr a b b (e b) = idpath)
+           (fri : forall (a : A) (b₁ b₂ : B) (g : hom G₂ b₁ b₂),
+               fr a b₂ b₁ (inv g) = (fr a b₁ b₂ g)^)
+           (frc : forall (a : A) (b₁ b₂ b₃ : B)
+                         (g₁ : hom G₂ b₁ b₂) (g₂ : hom G₂ b₂ b₃),
+               fr a b₁ b₃ (g₁ × g₂)
+               =
+               (fr a b₁ b₂ g₁) @ (fr a b₂ b₃ g₂))
+           (fl : forall (a₁ a₂ : A) (b : B), hom G₁ a₁ a₂ -> f a₁ b = f a₂ b)
+           (fle : forall (a : A) (b : B), fl a a b (e a) = idpath)
+           (fli : forall (a₁ a₂ : A) (b : B) (g : hom G₁ a₁ a₂),
+               fl a₂ a₁ b (inv g) = (fl a₁ a₂ b g)^)
+           (flc : forall (a₁ a₂ a₃ : A) (b : B)
+                         (g₁ : hom G₁ a₁ a₂) (g₂ : hom G₁ a₂ a₃),
+               fl a₁ a₃ b (g₁ × g₂)
+               =
+               (fl a₁ a₂ b g₁) @ (fl a₂ a₃ b g₂))
+           (fp : forall (a₁ a₂ : A) (b₁ b₂ : B)
+                        (g₁ : hom G₁ a₁ a₂) (g₂ : hom G₂ b₁ b₂),
+              ((ap (gquot_rec Y (f a₁) (fr a₁) (fre a₁) (fri a₁) (frc a₁) H)
+                   (geqcl G₂ g₂))^)
+                @ (fl a₁ a₂ b₁ g₁)
+                @ (ap (gquot_rec Y (f a₂) (fr a₂) (fre a₂) (fri a₂) (frc a₂) H)
+                      (geqcl G₂ g₂))
+              = 
+              fl a₁ a₂ b₂ g₁).
+
+  Definition gquot_double_rec : gquot G₁ -> gquot G₂ -> Y.
+  Proof.
+    intros x y.
+    simple refine (gquot_rec _ _ _ _ _ _ _ x).
+    - exact (fun a => gquot_rec Y (f a) (fr a) (fre a) (fri a) (frc a) _ y).
+    - intros a₁ a₂ g₁ ; simpl.
+      simple refine (gquot_ind_set (fun z => _) _ _ _ y).
+      + exact (fun b => fl a₁ a₂ b g₁).
+      + intros b₁ b₂ g₂.
+        apply path_to_path_over.
+        exact (transport_paths_FlFr _ _ @ fp a₁ a₂ b₁ b₂ g₁ g₂).
+    - intros a ; cbn.
+      simple refine (gquot_ind_prop (fun z => _) _ _ y).
+      exact (fun b => fle a b).
+    - intros a₁ a₂ g ; cbn.
+      simple refine (gquot_ind_prop (fun z => _) _ _ y).
+      exact (fun b => fli a₁ a₂ b g).
+    - intros a₁ a₂ a₃ g ; cbn.
+      simple refine (gquot_ind_prop (fun z => _) _ _ y).
+      exact (fun b => flc a₁ a₂ a₃ b g).
+  Defined.
+End gquot_double_rec.
