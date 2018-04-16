@@ -1,17 +1,5 @@
 Require Import HoTT.
-From GR Require Import groupoid path_over globe_over.
-
-Definition uncurry_ap
-           {X Y Z : Type}
-           (f : X -> Y -> Z)
-           {x₁ x₂ : X} {y₁ y₂ : Y}
-           (p : x₁ = x₂) (q : y₁ = y₂)
-  : ap (uncurry f) (path_prod' p q)
-    =
-    ap (fun z => f z y₁) p @ ap (f x₂) q
-  := match p, q with
-     | idpath, idpath => idpath
-     end.
+From GR Require Import groupoid path_over globe_over general.
 
 Module Export gquot.
   Private Inductive gquot {A : Type} (G : groupoid A) :=
