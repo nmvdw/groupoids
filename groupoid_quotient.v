@@ -1,12 +1,6 @@
 Require Import HoTT.
 From GR Require Import groupoid path_over globe_over.
 
-Definition uncurry
-           {X Y Z : Type}
-           (f : X -> Y -> Z)
-  : X * Y -> Z
-  := fun p => f (fst p) (snd p).
-
 Definition uncurry_ap
            {X Y Z : Type}
            (f : X -> Y -> Z)
