@@ -273,3 +273,29 @@ Section gquot_double_rec.
     apply concat_1p.
   Defined.
 End gquot_double_rec.
+
+Section gquot_double_ind_set.
+  Variable (A B : Type)
+           (G₁ : groupoid A)
+           (G₂ : groupoid B)
+           (Y : gquot G₁ -> gquot G₂ -> Type).
+  Context `{forall (a : gquot G₁) (b : gquot G₂), IsHSet (Y a b)}
+          `{Funext}.
+  
+  Variable (f : forall (a : A) (b : B), Y (gcl G₁ a) (gcl G₂ b))
+           (fr : forall (a : A) (b₁ b₂ : B) (g : hom G₂ b₁ b₂),
+               path_over (Y (gcl G₁ a)) (geqcl G₂ g) (f a b₁) (f a b₂))
+           (fl : forall (a₁ a₂ : A) (b : B) (g : hom G₁ a₁ a₂),
+               transport (fun z : gquot G₁ => Y z (gcl G₂ b)) (geqcl G₁ g) (f a₁ b) = f a₂ b).
+
+  Definition gquot_double_ind_set : forall (a : gquot G₁) (b : gquot G₂), Y a b.
+  Proof.
+    intros x y.
+    simple refine (gquot_ind_set (fun z => _) _ _ _ x).
+    - exact (fun a => gquot_ind_set (fun z => _) (f a) (fr a) _ y).
+    - intros a₁ a₂ g ; simpl.
+      apply path_to_path_over.
+      simple refine (gquot_ind_prop (fun z => _) _ _ y).
+      exact (fun b => fl a₁ a₂ b g).
+  Defined.
+End gquot_double_ind_set.
