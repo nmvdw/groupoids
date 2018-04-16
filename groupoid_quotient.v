@@ -1,6 +1,24 @@
 Require Import HoTT.
 From GR Require Import groupoid path_over globe_over.
 
+Definition uncurry
+           {X Y Z : Type}
+           (f : X -> Y -> Z)
+  : X * Y -> Z
+  := fun p => f (fst p) (snd p).
+
+Definition uncurry_ap
+           {X Y Z : Type}
+           (f : X -> Y -> Z)
+           {x₁ x₂ : X} {y₁ y₂ : Y}
+           (p : x₁ = x₂) (q : y₁ = y₂)
+  : ap (uncurry f) (path_prod' p q)
+    =
+    ap (fun z => f z y₁) p @ ap (f x₂) q
+  := match p, q with
+     | idpath, idpath => idpath
+     end.
+
 Module Export gquot.
   Private Inductive gquot {A : Type} (G : groupoid A) :=
   | gcl : A -> gquot G.
@@ -207,7 +225,7 @@ Section gquot_double_rec.
               = 
               fl a₁ a₂ b₂ g₁).
 
-  Definition gquot_double_rec : gquot G₁ -> gquot G₂ -> Y.
+  Definition gquot_double_rec' : gquot G₁ -> gquot G₂ -> Y.
   Proof.
     intros x y.
     simple refine (gquot_rec _ _ _ _ _ _ _ x).
@@ -227,5 +245,49 @@ Section gquot_double_rec.
     - intros a₁ a₂ a₃ g ; cbn.
       simple refine (gquot_ind_prop (fun z => _) _ _ y).
       exact (fun b => flc a₁ a₂ a₃ b g).
+  Defined.
+
+  Definition gquot_double_rec : gquot G₁ * gquot G₂ -> Y
+    := uncurry gquot_double_rec'.
+
+  Definition gquot_double_rec_point (a : A) (b : B)
+    : gquot_double_rec (gcl G₁ a, gcl G₂ b) = f a b
+    := idpath.
+
+  Definition gquot_double_rec_beta_gcleq
+             {a₁ a₂ : A} {b₁ b₂ : B}
+             (g₁ : hom G₁ a₁ a₂) (g₂ : hom G₂ b₁ b₂)
+    : ap gquot_double_rec (path_prod' (geqcl G₁ g₁) (geqcl G₂ g₂))
+      =
+      fl a₁ a₂ b₁ g₁ @ fr a₂ b₁ b₂ g₂.
+  Proof.
+    refine (uncurry_ap _ _ _ @ _).
+    unfold gquot_double_rec' ; simpl.
+    rewrite !gquot_rec_beta_geqcl.
+    reflexivity.
+  Defined.
+
+  Definition gquot_double_rec_beta_l_gcleq
+             {a₁ a₂ : A} (b : B) (g : hom G₁ a₁ a₂)
+    : ap gquot_double_rec (path_prod' (geqcl G₁ g) (idpath : gcl G₂ b = _))
+      =
+      fl a₁ a₂ b g.
+  Proof.
+    refine (uncurry_ap _ _ _ @ _).
+    unfold gquot_double_rec' ; simpl.
+    rewrite !gquot_rec_beta_geqcl.
+    apply concat_p1.
+  Defined.
+
+  Definition gquot_double_rec_beta_r_gcleq
+             (a : A) {b₁ b₂ : B} (g : hom G₂ b₁ b₂)
+    : ap gquot_double_rec (path_prod' (idpath  : gcl G₁ a = _) (geqcl G₂ g))
+      =
+      fr a b₁ b₂ g.
+  Proof.
+    rewrite uncurry_ap.
+    unfold gquot_double_rec' ; simpl.
+    rewrite !gquot_rec_beta_geqcl.
+    apply concat_1p.
   Defined.
 End gquot_double_rec.
