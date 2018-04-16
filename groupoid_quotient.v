@@ -274,6 +274,8 @@ Section gquot_double_rec.
   Defined.
 End gquot_double_rec.
 
+Arguments gquot_double_rec_beta_gcleq {A B G₁ G₂} Y {_ _}.
+
 Section gquot_double_ind_set.
   Variable (A B : Type)
            (G₁ : groupoid A)
@@ -299,3 +301,40 @@ Section gquot_double_ind_set.
       exact (fun b => fl a₁ a₂ b g).
   Defined.
 End gquot_double_ind_set.
+
+Arguments gquot_double_ind_set {A B G₁ G₂} Y {_ _}.
+
+Definition gquot_encode_ind
+           {A : Type}
+           {G : groupoid A}
+           (P : gquot G -> gquot G -> hSet)
+           (p : forall (a b : A), P (gcl G a) (gcl G b) -> gcl G a = gcl G b)
+           (pl : forall (a b₁ b₂ : A) (g : hom G b₁ b₂) (x : P (gcl G a) (gcl G b₂)),
+               (p a b₁ (transport (fun x0 : gquot G => P (gcl G a) x0) (geqcl G g)^ x))
+                 @ geqcl G g = p a b₂ x)
+           (pr : forall (a₁ a₂ b : A) (g : hom G a₁ a₂) (x : P (gcl G a₂) (gcl G b)),
+               ((geqcl G g)^)
+                 @ p a₁ b (transport (fun x0 : gquot G => P x0 (gcl G b)) (geqcl G g)^ x)
+               =
+               p a₂ b x)
+           `{Funext}
+  : forall (x y : gquot G), P x y -> x = y.
+Proof.
+  simple refine (gquot_double_ind_set (fun z₁ z₂ => P z₁ z₂ -> z₁ = z₂) _ _).
+  - exact p.
+  - intros a b₁ b₂ g ; simpl.
+    apply path_to_path_over.
+    funext x.
+    refine (transport_arrow _ _ _ @ transport_paths_FlFr _ _ @ _).
+    refine (ap (fun p => (p^ @ _) @ _) (ap_const _ _) @ _).
+    refine (ap (fun p => p @ _) (concat_1p _) @ _).
+    refine (ap (fun p => _ @ p) (ap_idmap _) @ _).
+    apply pl.
+  - intros a₁ a₂ b g ; simpl.
+    funext x.
+    refine (transport_arrow _ _ _ @ transport_paths_FlFr _ _ @ _).
+    refine (ap (fun p => (p^ @ _) @ _) (ap_idmap _) @ _).
+    refine (ap (fun p => _ @ p) (ap_const _ _) @ _).
+    refine (concat_p1 _ @ _).
+    apply pr.
+Defined.
