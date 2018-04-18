@@ -291,3 +291,93 @@ Section gquot_prod.
   Global Instance gquot_prod_out_isequiv : IsEquiv gquot_prod_out
     := isequiv_adjointify _ gquot_prod_in gquot_prod_in_out_sect gquot_prod_out_in_sect.
 End gquot_prod.
+
+Section encode_decode.
+  Variable (A : Type)
+           (G : groupoid A).
+  Context `{Univalence}.
+
+  Definition right_action
+        {a₁ a₂ : A} (b : A)
+        (g : hom G a₁ a₂)
+    : hom G a₁ b -> hom G a₂ b
+    := fun h => (inv g) × h.
+
+  Definition right_action_inv
+             {a₁ a₂ : A} (b : A)
+             (g : hom G a₁ a₂)
+    : hom G a₂ b -> hom G a₁ b
+    := fun h => g × h.
+
+  Global Instance right_action_equiv (a : A) {b₁ b₂ : A} (g : hom G b₁ b₂)
+    : IsEquiv (right_action a g).
+  Proof.
+    simple refine (isequiv_adjointify _ (right_action_inv a g) _ _).
+    - intros h ; compute.
+      refine (ca _ _ _ _ _ _ _ _ _ @ _).
+      exact (ap (fun z => z × h) (ic _ _ _ _ _) @ ec _ _ _ _ _).
+    - intros h ; compute.
+      refine (ca _ _ _ _ _ _ _ _ _ @ _).
+      exact (ap (fun z => z × h) (ci _ _ _ _ _) @ ec _ _ _ _ _).
+  Defined.
+  
+  Definition left_action
+        (a : A) {b₁ b₂ : A}
+        (g : hom G b₁ b₂)
+    : hom G a b₁ -> hom G a b₂
+    := fun h => h × g.
+
+  Definition left_action_inv
+             (a : A) {b₁ b₂ : A}
+             (g : hom G b₁ b₂)
+    : hom G a b₂ -> hom G a b₁
+    := fun h => h × (inv g).
+
+  Global Instance left_action_equiv (a : A) {b₁ b₂ : A} (g : hom G b₁ b₂)
+    : IsEquiv (left_action a g).
+  Proof.
+    simple refine (isequiv_adjointify _ (left_action_inv a g) _ _).
+    - intros h ; compute.
+      refine ((ca _ _ _ _ _ _ _ _ _)^ @ _).
+      exact (ap (fun z => h × z) (ic _ _ _ _ _) @ ce _ _ _ _ _).
+    - intros h ; compute.
+      refine ((ca _ _ _ _ _ _ _ _ _)^ @ _).
+      exact (ap (fun z => h × z) (ci _ _ _ _ _) @ ce _ _ _ _ _).
+  Defined.
+
+  Definition left_action_e (a b : A)
+    : left_action a (e b) = idmap.
+  Proof.
+    funext x ; compute.
+    apply ce.
+  Defined.
+
+  Definition path_hset_1 { X : hSet } : 
+    (path_hset 1%equiv = (@idpath hSet X)).
+  Proof.
+  Admitted.
+  
+  Definition test
+             {X Y : Type}
+             `{IsHSet X} `{IsHSet Y}
+             (f g : X -> Y)
+             (p : f = g)
+             `{IsEquiv _ _ f}
+             (eq_g : IsEquiv g)
+    : path_hset (BuildEquiv _ _ f _) = path_hset (BuildEquiv _ _ g eq_g).
+  Admitted.
+
+  Definition g_fam : gquot G -> gquot G -> hSet.
+  Proof.
+    simple refine (gquot_double_rec' _ _ _ _ _ _ _ _ _ _ _ _ _ _ _).
+    - exact (hom G).
+    - intros a b₁ b₂ g.
+      apply path_hset.
+      exact (BuildEquiv _ _ (left_action a g) _).
+    - intros a b ; simpl.
+      rewrite (test _ idmap (left_action_e _ _) _).
+      rewrite <- path_hset_1.
+      reflexivity.
+    - admit.
+    - admit.
+    - 
