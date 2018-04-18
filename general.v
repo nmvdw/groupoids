@@ -31,15 +31,6 @@ Definition curry_ap
      | idpath => idpath
      end.
 
-Definition path_prod'_inv
-           {X Y : Type}
-           {x₁ x₂ : X} {y₁ y₂ : Y}
-           (p : x₁ = x₂) (q : y₁ = y₂)
-  : path_prod' p^ q^ = (path_prod' p q)^
-  := match p, q with
-     | idpath, idpath => idpath
-     end.
-
 Definition ap_pair_l
            {X Y : Type}
            {x₁ x₂ : X} (y : Y)
@@ -57,3 +48,19 @@ Definition ap_pair_r
   := match q with
      | idpath => idpath
      end.
+
+Section path_hset_prop.
+  Context `{Univalence}.
+
+  Definition path_hset' {A B : hSet} (f : A -> B) {feq : IsEquiv f} : (A = B)
+  := path_hset (BuildEquiv _ _ f feq).
+
+  Lemma path_hset_1 {A : hSet} : path_hset' (fun x : A => x) = 1%path.
+  Proof.
+    cbn. hott_simpl.
+    rewrite (eta_path_universe_uncurried 1).
+    rewrite path_sigma_hprop_1.
+    hott_simpl.
+  Defined.
+
+End path_hset_prop.
