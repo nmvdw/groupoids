@@ -31,15 +31,6 @@ Definition curry_ap
      | idpath => idpath
      end.
 
-Definition path_prod'_inv
-           {X Y : Type}
-           {x₁ x₂ : X} {y₁ y₂ : Y}
-           (p : x₁ = x₂) (q : y₁ = y₂)
-  : path_prod' p^ q^ = (path_prod' p q)^
-  := match p, q with
-     | idpath, idpath => idpath
-     end.
-
 Definition ap_pair_l
            {X Y : Type}
            {x₁ x₂ : X} (y : Y)
