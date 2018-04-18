@@ -120,3 +120,10 @@ Proof.
   - apply prod_groupoid ; assumption.
   - apply sum_groupoid ; assumption.
 Defined.
+
+Definition inv_e
+           {A : Type}
+           (G : groupoid A)
+           (a : A)
+  : inv (@e _ G a) = e a
+  := (ce _ _ _ _ _)^ @ ic A G _ _ (e a).

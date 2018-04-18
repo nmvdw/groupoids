@@ -1,6 +1,6 @@
 Require Import HoTT.
 Require Import groupoid_quotient.
-Require Import groupoid path_over globe_over.
+Require Import groupoid path_over globe_over general.
 
 Section one_type_is_groupoid_quotient.
   Variable (A : Type).
@@ -172,3 +172,122 @@ Section gquot_sum.
   Global Instance gquot_sum_out_isequiv : IsEquiv gquot_sum_out
     := isequiv_adjointify _ gquot_sum_in gquot_sum_in_out_sect gquot_sum_out_in_sect.
 End gquot_sum.
+
+Section gquot_prod.
+  Variable (A B : Type).
+  Variable (G₁ : groupoid A)
+           (G₂ : groupoid B).
+
+  Context `{Funext}.
+
+  Definition gquot_prod_in
+    : gquot G₁ * gquot G₂ -> gquot (prod_groupoid G₁ G₂).
+  Proof.
+    simple refine (gquot_double_rec _ _ _ _ _ _ _ _ _ _ _ _ _ _ _).
+    - exact (fun a b => gcl _ (a, b)).
+    - intros a b₁ b₂ g ; simpl.
+      apply geqcl.
+      exact (e a, g).
+    - intros a b ; simpl.
+      apply ge.
+    - intros a b₁ b₂ g ; simpl.
+      rewrite <- ginv ; simpl.
+      rewrite inv_e.
+      reflexivity.
+    - intros a b₁ b₂ b₃ g₁ g₂ ; simpl.
+      rewrite <- gconcat ; simpl.
+      rewrite ce.
+      reflexivity.
+    - intros a₁ a₂ b g ; simpl.
+      apply geqcl.
+      exact (g, e b).
+    - intros a b ; simpl.
+      apply ge.
+    - intros a₁ a₂ b g ; simpl.
+      rewrite <- ginv ; simpl.
+      rewrite inv_e.
+      reflexivity.
+    - intros a₁ a₂ a₃ b g₁ g₂ ; simpl.
+      rewrite <- gconcat ; simpl.
+      rewrite ce.
+      reflexivity.
+    - intros a₁ a₂ b₁ b₂ g₁ g₂ ; simpl.
+      rewrite !gquot_rec_beta_geqcl.
+      rewrite <- ginv, <- !gconcat.
+      apply ap ; simpl.
+      rewrite !inv_e, !ce, ec, ic.
+      reflexivity.
+  Defined.
+
+  Definition gquot_prod_out : gquot (prod_groupoid G₁ G₂) -> gquot G₁ * gquot G₂.
+  Proof.
+    simple refine (gquot_rec _ _ _ _ _ _ _) ; cbn.
+    - exact (fun x => (gcl _ (fst x), gcl _ (snd x))).
+    - intros a₁ a₂ g ; simpl.
+      exact (path_prod' (geqcl _ (fst g)) (geqcl _ (snd g))).
+    - intros ; simpl.
+      refine (ap (fun p => path_prod' p _) (ge _ _) @ _).
+      exact (ap (fun p => path_prod' _ p) (ge _ _)).
+    - intros ; simpl.
+      refine (ap (fun p => path_prod' p _) (ginv _ _) @ _).
+      refine (ap (fun p => path_prod' _ p) (ginv _ _) @ _).
+      apply path_prod'_inv.
+    - intros ; simpl.
+      refine (ap (fun p => path_prod' p _) (gconcat _ _ _) @ _).
+      refine (ap (fun p => path_prod' _ p) (gconcat _ _ _) @ _).
+      apply path_prod_pp.
+  Defined.
+
+  Lemma gquot_prod_out_in_sect : Sect gquot_prod_out gquot_prod_in.
+  Proof.
+    simple refine (gquot_ind_set (fun x => gquot_prod_in (gquot_prod_out x) = x) _ _ _).
+    - reflexivity.
+    - intros x₁ x₂ g.
+      apply path_to_path_over.
+      rewrite transport_paths_FlFr.
+      hott_simpl.
+      rewrite ap_compose.
+      rewrite gquot_rec_beta_geqcl.
+      rewrite gquot_double_rec_beta_gcleq.
+      rewrite <- gconcat, <- ginv, <- gconcat, <- ge.
+      apply ap ; simpl.
+      rewrite !ce, !ec, !ic.
+      reflexivity.
+  Qed.
+
+  Lemma gquot_prod_in_out_sect : Sect gquot_prod_in gquot_prod_out.
+  Proof.
+    intros [x₁ x₂].
+    revert x₁ x₂.
+    simple refine (gquot_double_ind_set _ _ _).
+    - reflexivity.
+    - intros a b₁ b₂ g ; simpl.
+      apply path_to_path_over.
+      rewrite transport_paths_FlFr.
+      hott_simpl.
+      rewrite ap_compose.
+      rewrite (ap_compose _ gquot_prod_in).
+      rewrite ap_pair_r.
+      rewrite gquot_double_rec_beta_r_gcleq.
+      rewrite gquot_rec_beta_geqcl.
+      rewrite <- path_prod'_inv.
+      rewrite ge.
+      rewrite <- path_prod_pp.
+      hott_simpl.
+    - intros a b₁ b₂ g.
+      rewrite transport_paths_FlFr.
+      hott_simpl.
+      rewrite ap_compose.
+      rewrite (ap_compose _ gquot_prod_in).
+      rewrite ap_pair_l.
+      rewrite gquot_double_rec_beta_l_gcleq.
+      rewrite gquot_rec_beta_geqcl.
+      rewrite <- path_prod'_inv.
+      rewrite ge.
+      rewrite <- path_prod_pp.
+      hott_simpl.
+  Qed.
+
+  Global Instance gquot_prod_out_isequiv : IsEquiv gquot_prod_out
+    := isequiv_adjointify _ gquot_prod_in gquot_prod_in_out_sect gquot_prod_out_in_sect.
+End gquot_prod.
