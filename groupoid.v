@@ -127,3 +127,33 @@ Definition inv_e
            (a : A)
   : inv (@e _ G a) = e a
   := (ce _ _ _ _ _)^ @ ic A G _ _ (e a).
+
+Definition inv_involutive
+           {A : Type}
+           (G : groupoid A)
+           {a₁ a₂ : A}
+           (g : hom G a₁ a₂)
+  : inv (inv g) = g.
+Proof.
+  refine ((ce _ _ _ _ (inv (inv g)))^ @ _).
+  rewrite ((ic _ _ _ _ g)^).
+  rewrite ca. rewrite ic. apply ec.
+Defined.
+
+Definition inv_prod
+           {A : Type}
+           (G : groupoid A)
+           {a₁ a₂ a₃ : A}
+           (g₁ : hom G a₁ a₂)
+           (g₂ : hom G a₂ a₃)
+  : inv (g₁ × g₂) = (inv g₂ × inv g₁).
+Proof.
+  refine (_ @ (ce _ _ _ _ (inv g₂ × inv g₁))).  
+  rewrite ((ci _ _ _ _ (g₁ × g₂))^).
+  rewrite ca.
+  rewrite (ca _ _ _ _ _ _ (inv g₂ × inv g₁) g₁ g₂).
+  rewrite <- (ca _ _ _ _ _ _ (inv g₂) (inv g₁) g₁).
+  rewrite ic, ce.
+  rewrite ic, ec.
+  reflexivity.
+Defined.

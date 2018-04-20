@@ -351,33 +351,26 @@ Section encode_decode.
     apply ce.
   Defined.
 
-  Definition path_hset_1 { X : hSet } : 
-    (path_hset 1%equiv = (@idpath hSet X)).
-  Proof.
-  Admitted.
-  
-  Definition test
-             {X Y : Type}
-             `{IsHSet X} `{IsHSet Y}
-             (f g : X -> Y)
-             (p : f = g)
-             `{IsEquiv _ _ f}
-             (eq_g : IsEquiv g)
-    : path_hset (BuildEquiv _ _ f _) = path_hset (BuildEquiv _ _ g eq_g).
-  Admitted.
-
   Definition g_fam : gquot G -> gquot G -> hSet.
   Proof.
-    simple refine (gquot_double_rec' _ _ _ _ _ _ _ _ _ _ _ _).
-    - exact (hom G).
+    simple refine (gquot_relation A A G G (hom G) _ _ _ _ _ _ _ _ _).
     - intros a b₁ b₂ g.
-      apply path_hset.
-      exact (BuildEquiv _ _ (left_action a g) _).
-    - intros a b ; simpl.
-      rewrite (test _ idmap (left_action_e _ _) _).
-      rewrite <- path_hset_1.
+      exact (right_action _ g).
+    - intros a b₁ b₂ g.
+      exact (left_action _ g).
+    - apply _.
+    - apply _.
+    - intros a b. simpl. intro x.
+      unfold right_action.
+      by rewrite inv_e, ec.
+    - intros; compute. by rewrite inv_involutive.
+    - compute; intros. by rewrite inv_prod, ca.
+    - intros; compute. apply ce.
+    - intros; compute. reflexivity.
+    - compute; intros. apply ca.
+    - compute; intros.
+      do 2 rewrite <- ca.
+      rewrite ic, ce.
       reflexivity.
-    - admit.
-    - admit.
-  Admitted.
+  Defined.
 End encode_decode.
