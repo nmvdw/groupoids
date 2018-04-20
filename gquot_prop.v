@@ -421,7 +421,7 @@ Section encode_decode.
 
   Local Instance g_fam_eq_hset x y : IsHSet (g_fam x y -> x = y).
   Proof. apply trunc_forall. Defined.
-
+  
   Definition finv (x y : gquot G) : g_fam x y -> x = y.
   Proof.
     simple refine (gquot_double_ind_set (fun x y => g_fam x y -> x = y) _ _ x y).
@@ -431,28 +431,28 @@ Section encode_decode.
       funext h.
       rewrite transport_arrow, transport_paths_FlFr.
       rewrite ap_idmap, ap_const, concat_1p.
-      transport_to_ap.
       rewrite <- gconcat.
       apply (ap (geqcl G)).
+      rewrite transport_idmap_ap_set.
       rewrite ap_V.
-(*      Transparent g_fam.
-      transitivity (transport idmap
-                              (path_hset
-                                 {| equiv_fun := left_action a g;
-                                    equiv_isequiv := left_action_equiv a g |})
-                              (h × g)).
-      pose (gquot_fam_r_gcleq a g).
-      simpl.*)
-      admit.
+      rewrite (gquot_fam_r_gcleq a g).
+      rewrite <- path_hset_inv.
+      rewrite (@transport_idmap_path_hset nat) ; cbn.
+      rewrite <- ca.
+      rewrite ic.
+      apply ce.
     - intros. Opaque g_fam. simpl.
       funext h.
       rewrite transport_arrow, transport_paths_FlFr.
       rewrite ap_idmap, ap_const, concat_p1.
-      transport_to_ap.
       rewrite <- ginv, <- gconcat.
       apply (ap (geqcl G)).
-      (*rewrite gquot_fam_l_gcleq.*)
-      admit.
-  Admitted.
+      rewrite transport_idmap_ap_set.
+      rewrite (gquot_fam_l_gcleq b (inv g)).
+      rewrite (@transport_idmap_path_hset nat).
+      unfold right_action ; cbn.
+      rewrite ca, ci.
+      apply ec.
+  Defined.
 
 End encode_decode.
