@@ -183,7 +183,7 @@ Section gquot_prod.
   Definition gquot_prod_in
     : gquot G₁ * gquot G₂ -> gquot (prod_groupoid G₁ G₂).
   Proof.
-    simple refine (gquot_double_rec _ _ _ _ _ _ _ _ _ _ _ _ _ _ _).
+    simple refine (gquot_double_rec _ _ _ _ _ _ _ _ _ _ _).
     - exact (fun a b => gcl _ (a, b)).
     - intros a b₁ b₂ g ; simpl.
       apply geqcl.
@@ -212,7 +212,6 @@ Section gquot_prod.
       rewrite ce.
       reflexivity.
     - intros a₁ a₂ b₁ b₂ g₁ g₂ ; simpl.
-      rewrite !gquot_rec_beta_geqcl.
       rewrite <- ginv, <- !gconcat.
       apply ap ; simpl.
       rewrite !inv_e, !ce, ec, ic.
@@ -369,7 +368,7 @@ Section encode_decode.
 
   Definition g_fam : gquot G -> gquot G -> hSet.
   Proof.
-    simple refine (gquot_double_rec' _ _ _ _ _ _ _ _ _ _ _ _ _ _ _).
+    simple refine (gquot_double_rec' _ _ _ _ _ _ _ _ _ _ _ _).
     - exact (hom G).
     - intros a b₁ b₂ g.
       apply path_hset.
