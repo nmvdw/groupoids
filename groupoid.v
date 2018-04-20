@@ -136,8 +136,10 @@ Definition inv_involutive
   : inv (inv g) = g.
 Proof.
   refine ((ce _ _ _ _ (inv (inv g)))^ @ _).
-  rewrite ((ic _ _ _ _ g)^).
-  rewrite ca. rewrite ic. apply ec.
+  refine (ap (fun p => _ × p) (ic _ _ _ _ g)^ @ _).
+  refine (ca _ _ _ _ _ _ _ _ _ @ _).
+  refine (ap (fun p => p × _) (ic _ _ _ _ _) @ _).
+  apply ec.
 Defined.
 
 Definition inv_prod
@@ -148,12 +150,13 @@ Definition inv_prod
            (g₂ : hom G a₂ a₃)
   : inv (g₁ × g₂) = (inv g₂ × inv g₁).
 Proof.
-  refine (_ @ (ce _ _ _ _ (inv g₂ × inv g₁))).  
-  rewrite ((ci _ _ _ _ (g₁ × g₂))^).
-  rewrite ca.
-  rewrite (ca _ _ _ _ _ _ (inv g₂ × inv g₁) g₁ g₂).
-  rewrite <- (ca _ _ _ _ _ _ (inv g₂) (inv g₁) g₁).
-  rewrite ic, ce.
-  rewrite ic, ec.
-  reflexivity.
+  refine (_ @ (ce _ _ _ _ (inv g₂ × inv g₁))).
+  refine (_ @ ap (fun p => _ × p) (ci _ _ _ _ (g₁ × g₂))).
+  refine (_ @ (ca _ _ _ _ _ _ _ _ _)^).
+  refine (_ @ ap (fun p => p × _) (ca _ _ _ _ _ _ (inv g₂ × inv g₁) g₁ g₂)^).
+  refine (_ @ ap (fun p => (p × _) × _) (ca _ _ _ _ _ _ (inv g₂) (inv g₁) g₁)).
+  refine (_ @ (ap (fun p => ((_ × p) × _) × _) (ic _ _ _ _ _))^).
+  refine (_ @ (ap (fun p => (p × _) × _) (ce _ _ _ _ _))^).
+  refine (_ @ (ap (fun p => p × _) (ic _ _ _ _ _))^).
+  exact (ec _ _ _ _ _)^.
 Defined.
