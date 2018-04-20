@@ -411,7 +411,7 @@ Section encode_decode.
     - intros a₁ a₂ g.
       Opaque g_fam. simpl.
       apply path_to_path_over.
-      transport_to_ap.
+      rewrite transport_idmap_ap_set.
       admit.
       (* Need diagonal computational rule for gquot_relation *)
   Admitted.
@@ -437,7 +437,7 @@ Section encode_decode.
       rewrite ap_V.
       rewrite (gquot_fam_r_gcleq a g).
       rewrite <- path_hset_inv.
-      rewrite (@transport_idmap_path_hset nat) ; cbn.
+      rewrite transport_idmap_path_hset ; cbn.
       rewrite <- ca.
       rewrite ic.
       apply ce.
@@ -449,7 +449,7 @@ Section encode_decode.
       apply (ap (geqcl G)).
       rewrite transport_idmap_ap_set.
       rewrite (gquot_fam_l_gcleq b (inv g)).
-      rewrite (@transport_idmap_path_hset nat).
+      rewrite transport_idmap_path_hset.
       unfold right_action ; cbn.
       rewrite ca, ci.
       apply ec.
