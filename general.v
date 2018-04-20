@@ -55,15 +55,6 @@ Section path_hset_prop.
   Definition path_hset' {A B : hSet} (f : A -> B) {feq : IsEquiv f} : (A = B)
     := path_hset (BuildEquiv _ _ f feq).
 
-  Lemma path_hset_1 {A : hSet} : path_hset' (fun x : A => x) = 1%path.
-  Proof.
-    cbn.
-    rewrite concat_1p.
-    rewrite (eta_path_universe_uncurried 1).
-    rewrite path_sigma_hprop_1.
-    reflexivity.
-  Defined.
-  
   Definition path_hset_id {A : hSet} : path_hset (equiv_idmap A) = idpath.
   Proof.
     cbn.
@@ -72,6 +63,9 @@ Section path_hset_prop.
     rewrite path_sigma_hprop_1.
     reflexivity.
   Defined.
+
+  Lemma path_hset_1 {A : hSet} : path_hset' (fun x : A => x) = 1%path.
+  Proof. apply path_hset_id. Defined.
 
   Definition path_sigma_hprop_inv
         {A : Type}
@@ -82,9 +76,8 @@ Section path_hset_prop.
     : @path_sigma_hprop A B _ (v;y) (u;x) p^ = (path_sigma_hprop (u;x) (v;y) p)^.
   Proof.
     induction p ; simpl.
-    assert (q : x = y).
+    assert (x = y) as ->.
     { apply path_ishprop. }
-    rewrite q.
     rewrite path_sigma_hprop_1.
     reflexivity.
   Defined.
@@ -99,9 +92,7 @@ Section path_hset_prop.
     rewrite path_universe_V_uncurried.
     rewrite (path_sigma_hprop_inv
                (fun Z => BuildhProp (IsHSet Z))
-               (path_universe_uncurried f)
-               (istrunc_trunctype_type A)
-               (istrunc_trunctype_type B)).
+               (path_universe_uncurried f)).
     rewrite ap_V.
     reflexivity.
   Defined.
@@ -127,11 +118,10 @@ Section path_hset_prop.
       path_sigma_hprop (u;x) (v;y) p @ path_sigma_hprop (v;y) (w;z) q.
   Proof.
     induction p, q.
-    assert(r₁ : y = x).
+    assert(y = x) as ->.
     { apply path_ishprop. }
-    assert(r₂ : z = x).
+    assert(z = x) as ->.
     { apply path_ishprop. }
-    rewrite r₁, r₂.
     rewrite !path_sigma_hprop_1.
     reflexivity.
   Defined.
