@@ -351,19 +351,25 @@ Section encode_decode.
     apply ce.
   Defined.
 
+  Definition right_action_e (a b : A) :
+    right_action b (e a) == idmap.
+  Proof.
+    intro x.
+    unfold right_action.
+    by rewrite inv_e, ec.
+  Qed.
+
   Definition g_fam : gquot G -> gquot G -> hSet.
   Proof.
-    simple refine (gquot_relation A A G G (hom G) _ _ _ _ _ _ _ _ _).
-    - intros a b₁ b₂ g.
-      exact (right_action _ g).
-    - intros a b₁ b₂ g.
-      exact (left_action _ g).
-    - apply _.
-    - apply _.
-    - intros a b. simpl. intro x.
-      unfold right_action.
-      by rewrite inv_e, ec.
-    - intros; compute. by rewrite inv_involutive.
+    simple refine (gquot_relation A A G G
+                          (hom G)
+                          (fun _ _ _ g => right_action _ g)
+                          (fun _ _ _ g => left_action _ g)
+                          _ _ _ _ _ _ _
+          ).
+    - intros a b. simpl. apply right_action_e.
+    - intros. simpl. intro x. unfold right_action.
+      by rewrite inv_involutive.
     - compute; intros. by rewrite inv_prod, ca.
     - intros; compute. apply ce.
     - intros; compute. reflexivity.
@@ -373,4 +379,44 @@ Section encode_decode.
       rewrite ic, ce.
       reflexivity.
   Defined.
+
+  Local Instance g_fam_hset x : IsHSet (g_fam x x).
+  Proof. apply istrunc_trunctype_type. Defined.
+
+  Definition g_fam_refl : forall (x : gquot G), g_fam x x.
+  Proof.
+    simple refine (gquot_ind_set (fun x => g_fam x x) _ _ _).
+    - intros a. exact (e a).
+    - intros a₁ a₂ g.
+      Opaque g_fam. simpl.
+      apply path_to_path_over.
+      transport_to_ap. admit.
+      (* Need diagonal computational rule for gquot_relation *)
+  Admitted.
+
+  Definition f (x y : gquot G) : x = y -> g_fam x y :=
+    fun p => transport (g_fam x) p (g_fam_refl x).
+
+  Local Instance g_fam_eq_hset x y : IsHSet (g_fam x y -> x = y).
+  Proof. apply trunc_forall. Defined.
+
+  Definition finv (x y : gquot G) : g_fam x y -> x = y.
+  Proof.
+    simple refine (gquot_double_ind_set (fun x y => g_fam x y -> x = y) _ _ x y).
+    - intros a b. exact (geqcl G).
+    - intros. Opaque g_fam. simpl.
+      apply path_to_path_over.
+      funext h. rewrite transport_arrow.
+      rewrite transport_paths_FlFr.
+      hott_simpl.
+      transport_to_ap.
+      admit.
+    - intros. simpl.
+      funext h. rewrite transport_arrow.
+      rewrite transport_paths_FlFr.
+      hott_simpl.
+      transport_to_ap.
+      admit.
+  Admitted.
+
 End encode_decode.
