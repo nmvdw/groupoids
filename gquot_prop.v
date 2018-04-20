@@ -497,8 +497,8 @@ Section encode_decode.
   Proof.
     simple refine (gquot_double_ind_set _ _ _).
     - intros a b g.
+      unfold f, g_fam_refl.
       simpl.
-      unfold f.
       rewrite transport_idmap_ap_set.
       rewrite (gquot_fam_r_gcleq a).
       rewrite transport_idmap_path_hset.
