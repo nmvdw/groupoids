@@ -412,9 +412,19 @@ Section encode_decode.
       Opaque g_fam. simpl.
       apply path_to_path_over.
       rewrite transport_idmap_ap_set.
-      admit.
-      (* Need diagonal computational rule for gquot_relation *)
-  Admitted.
+      transitivity (transport (fun x : hSet => x)
+                              (ap (diag2 g_fam) (geqcl G g)) (e a₁)).
+      { reflexivity. }
+      rewrite (ap_diag2 g_fam (geqcl G g)).
+      rewrite (gquot_fam_r_gcleq _ g).
+      rewrite (gquot_fam_l_gcleq _ g).
+      rewrite <- path_hset_comp.
+      rewrite transport_idmap_path_hset.
+      compute.
+      rewrite ec.
+      rewrite ic.
+      reflexivity.
+  Defined.
 
   Definition f (x y : gquot G) : x = y -> g_fam x y :=
     fun p => transport (g_fam x) p (g_fam_refl x).
@@ -454,5 +464,4 @@ Section encode_decode.
       rewrite ca, ci.
       apply ec.
   Defined.
-
 End encode_decode.

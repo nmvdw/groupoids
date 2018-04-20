@@ -1,5 +1,21 @@
 Require Import HoTT.
 
+Definition diag2
+           {X Z : Type}
+           (f : X -> X -> Z)
+  : X -> Z
+  := fun x => f x x.
+
+Definition ap_diag2
+           {X Z : Type}
+           (f : X -> X -> Z)
+           {x₁ x₂ : X}
+           (p : x₁ = x₂)
+  : ap (diag2 f) p = ap (fun z => f x₁ z) p @ ap (fun z => f z x₂) p
+  := match p with
+     | idpath => idpath
+     end.
+
 Definition curry
            {X Y Z : Type}
            (f : X * Y -> Z)
@@ -169,6 +185,27 @@ Definition transport_idmap_ap_set
      | idpath => idpath
      end.
 
+Definition transport_hpath_to_transport_idmap
+           {B C : Type}
+           {BS : IsHSet B} {CS : IsHSet C}
+           (p : B = C)
+           (u : B)
+           `{Univalence}
+  : transport (fun x : hSet => x)
+              (ap (fun u0 : {X : Type & IsHSet X} => @BuildhSet u0.1 u0.2)
+                  (path_sigma_hprop (B;BS) (C;CS) p))
+              u
+    = transport idmap p u.
+Proof.
+  induction p ; cbn.
+  assert(CS = BS) as ->.
+  { apply path_ishprop. }
+  unfold path_sigma_hprop, path_sigma_uncurried.
+  cbn.
+  induction (center _).
+  reflexivity.
+Defined.
+
 Definition transport_idmap_path_hset
            {B C : hSet}
            (f : Equiv B C)
@@ -178,4 +215,8 @@ Definition transport_idmap_path_hset
     =
     f u.
 Proof.
-Admitted.
+  cbn.
+  rewrite concat_1p, concat_p1.
+  rewrite transport_hpath_to_transport_idmap.
+  apply transport_path_universe_uncurried.
+Defined.
