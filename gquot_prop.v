@@ -400,7 +400,7 @@ Section encode_decode.
     reflexivity.
   Defined.
 
-  Local Instance g_fam_hset x : IsHSet (g_fam x x).
+  Local Instance g_fam_hset x y : IsHSet (g_fam x y).
   Proof. apply istrunc_trunctype_type. Defined.
 
   Definition g_fam_refl : forall (x : gquot G), g_fam x x.
@@ -464,4 +464,48 @@ Section encode_decode.
       rewrite ca, ci.
       apply ec.
   Defined.
+
+  Definition finv_f
+             {x y : gquot G}
+             (p : x = y)
+    : finv x y (f x y p) = p.
+  Proof.
+    induction p.
+    revert x.
+    simple refine (gquot_ind_set _ _ _ _).
+    - intros a.
+      apply ge.
+    - intros a₁ a₂ g.
+      cbn.
+      apply path_to_path_over.
+      admit.
+  Admitted.
+
+  Local Instance f_finv_set (x y : gquot G)
+    : IsHSet (forall (p : g_fam x y), f x y (finv x y p) = p).
+  Proof.
+    apply (@trunc_forall _ (g_fam x y) (fun p => f x y (finv x y p) = p) 0).
+    intros a.
+    apply (@trunc_succ (-1) (f x y (finv x y a) = a)).
+    apply _.
+  Defined.
+  
+  Definition f_finv
+             {x y : gquot G}
+             (p : g_fam x y)
+    : forall {x y : gquot G} (p : g_fam x y), f x y (finv x y p) = p.
+  Proof.
+    simple refine (gquot_double_ind_set _ _ _).
+    - intros a b g.
+      simpl.
+      unfold f.
+      rewrite transport_idmap_ap_set.
+      rewrite (gquot_fam_r_gcleq a).
+      rewrite transport_idmap_path_hset.
+      compute.
+      rewrite ec.
+      reflexivity.
+    - admit.
+    - admit.
+  Admitted.      
 End encode_decode.
