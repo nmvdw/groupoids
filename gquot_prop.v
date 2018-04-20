@@ -380,17 +380,39 @@ Section encode_decode.
       reflexivity.
   Defined.
 
+  Definition gquot_fam_l_gcleq
+             {a₁ a₂ : A} (b : A) (g : hom G a₁ a₂)
+    : ap (fun z => g_fam z (gcl G b)) (geqcl G g)
+      =
+      path_hset (BuildEquiv _ _ (right_action _ g) _).
+  Proof.
+    rewrite gquot_relation_beta_l_gcleq.
+    reflexivity.
+  Defined.
+
+  Definition gquot_fam_r_gcleq
+             (a : A) {b₁ b₂ : A} (g : hom G b₁ b₂)
+    : ap (g_fam (gcl G a)) (geqcl G g)
+      =
+      path_hset (BuildEquiv _ _ (left_action _ g) _).
+  Proof.
+    rewrite gquot_relation_beta_r_gcleq.
+    reflexivity.
+  Defined.
+
   Local Instance g_fam_hset x : IsHSet (g_fam x x).
   Proof. apply istrunc_trunctype_type. Defined.
 
   Definition g_fam_refl : forall (x : gquot G), g_fam x x.
   Proof.
     simple refine (gquot_ind_set (fun x => g_fam x x) _ _ _).
-    - intros a. exact (e a).
+    - intros a.
+      exact (@e A G a).
     - intros a₁ a₂ g.
       Opaque g_fam. simpl.
       apply path_to_path_over.
-      transport_to_ap. admit.
+      transport_to_ap.
+      admit.
       (* Need diagonal computational rule for gquot_relation *)
   Admitted.
 
@@ -403,19 +425,33 @@ Section encode_decode.
   Definition finv (x y : gquot G) : g_fam x y -> x = y.
   Proof.
     simple refine (gquot_double_ind_set (fun x y => g_fam x y -> x = y) _ _ x y).
-    - intros a b. exact (geqcl G).
+    - intros a b g. exact (@geqcl A G a b g).
     - intros. Opaque g_fam. simpl.
       apply path_to_path_over.
-      funext h. rewrite transport_arrow.
-      rewrite transport_paths_FlFr.
-      hott_simpl.
+      funext h.
+      rewrite transport_arrow, transport_paths_FlFr.
+      rewrite ap_idmap, ap_const, concat_1p.
       transport_to_ap.
+      rewrite <- gconcat.
+      apply (ap (geqcl G)).
+      rewrite ap_V.
+(*      Transparent g_fam.
+      transitivity (transport idmap
+                              (path_hset
+                                 {| equiv_fun := left_action a g;
+                                    equiv_isequiv := left_action_equiv a g |})
+                              (h × g)).
+      pose (gquot_fam_r_gcleq a g).
+      simpl.*)
       admit.
-    - intros. simpl.
-      funext h. rewrite transport_arrow.
-      rewrite transport_paths_FlFr.
-      hott_simpl.
+    - intros. Opaque g_fam. simpl.
+      funext h.
+      rewrite transport_arrow, transport_paths_FlFr.
+      rewrite ap_idmap, ap_const, concat_p1.
       transport_to_ap.
+      rewrite <- ginv, <- gconcat.
+      apply (ap (geqcl G)).
+      (*rewrite gquot_fam_l_gcleq.*)
       admit.
   Admitted.
 

@@ -168,7 +168,7 @@ Section gquot_ind_prop.
   Proof.
     simple refine (gquot_ind_set Y gclY _ _)
     ; intros ; apply path_to_path_over ; apply path_ishprop.
-  Defined.
+  Qed.
 End gquot_ind_prop.
 
 Arguments gquot_ind_prop {A G} Y gclY truncY.
@@ -232,6 +232,26 @@ Section gquot_double_rec.
     - intros a₁ a₂ a₃ g ; cbn.
       simple refine (gquot_ind_prop (fun z => _) _ _ y).
       exact (fun b => flc a₁ a₂ a₃ b g).
+  Defined.
+
+  Definition gquot_double_rec'_beta_l_gcleq
+             {a₁ a₂ : A} (b : B) (g : hom G₁ a₁ a₂)
+    : ap (fun z => gquot_double_rec' z (gcl G₂ b)) (geqcl G₁ g)
+      =
+      fl a₁ a₂ b g.
+  Proof.
+    rewrite gquot_rec_beta_geqcl.
+    reflexivity.
+  Defined.
+
+  Definition gquot_double_rec'_beta_r_gcleq
+             (a : A) {b₁ b₂ : B} (g : hom G₂ b₁ b₂)
+    : ap (gquot_double_rec' (gcl G₁ a)) (geqcl G₂ g)
+      =
+      fr a b₁ b₂ g.
+  Proof.
+    rewrite gquot_rec_beta_geqcl.
+    reflexivity.
   Defined.
 
   Definition gquot_double_rec : gquot G₁ * gquot G₂ -> Y
@@ -408,5 +428,25 @@ Section gquot_relation.
       rewrite <- !path_hset_comp.
       apply path_hset_eq ; cbn.
       apply fc.
+  Defined.
+
+  Definition gquot_relation_beta_l_gcleq
+             {a₁ a₂ : A} (b : B) (g : hom G₁ a₁ a₂)
+    : ap (fun z => gquot_relation z (gcl G₂ b)) (geqcl G₁ g)
+      =
+      path_hset (BuildEquiv _ _ (fl a₁ a₂ b g) _).
+  Proof.
+    rewrite gquot_double_rec'_beta_l_gcleq.
+    reflexivity.
+  Defined.
+
+  Definition gquot_relation_beta_r_gcleq
+             (a : A) {b₁ b₂ : B} (g : hom G₂ b₁ b₂)
+    : ap (gquot_relation (gcl G₁ a)) (geqcl G₂ g)
+      =
+      path_hset (BuildEquiv _ _ (fr a b₁ b₂ g) _).
+  Proof.
+    rewrite gquot_double_rec'_beta_r_gcleq.
+    reflexivity.
   Defined.
 End gquot_relation.
