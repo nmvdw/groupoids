@@ -63,112 +63,115 @@ Module Export gquot.
         =
         geqclY a₁ a₂ g.
   End gquot_ind.
-
-  Section gquot_rec.
-    Variable (A : Type)
-             (G : groupoid A)
-             (Y : Type)
-             (gclY : A -> Y)
-             (geqclY : forall (a₁ a₂ : A),
-                 hom G a₁ a₂ -> gclY a₁ = gclY a₂)
-             (geY : forall (a : A), geqclY _ _ (e a) = idpath)
-             (ginvY : forall (a₁ a₂ : A) (g : hom G a₁ a₂),
-                 geqclY a₂ a₁ (inv g) = (geqclY a₁ a₂ g)^)
-             (gconcatY : forall (a₁ a₂ a₃: A) (g₁: hom G a₁ a₂) (g₂: hom G a₂ a₃),
-                 geqclY _ _ (g₁ × g₂) = geqclY _ _ g₁ @ geqclY _ _ g₂)
-             (truncY : IsTrunc 1 Y).
-
-    Definition gquot_rec : gquot G -> Y.
-    Proof.
-      simple refine (gquot_ind A G (fun _ => Y)
-                               gclY
-                               (fun a₁ a₂ g => const_path_over (geqclY a₁ a₂ g))
-                               (fun a => const_globe_over
-                                           (path_to_globe (ge G a))
-                                           (geqclY a a (e a))
-                                           idpath
-                                           (path_to_globe (geY a)))
-                               _ _ _) ; cbn.
-      - intros a₁ a₂ g.
-        simple refine (globe_over_whisker
-                         (fun _ => Y)
-                         _
-                         idpath
-                         (const_path_over_inv _)
-                         (const_globe_over
-                            (path_to_globe (ginv G g))
-                            (geqclY a₂ a₁ (inv g))
-                            ((geqclY a₁ a₂ g)^)
-                            (path_to_globe (ginvY a₁ a₂ g))
-                         )
-                      ).
-      - intros a₁ a₂ a₃ g₁ g₂.
-        simple refine (globe_over_whisker
-                         (fun _ => Y)
-                         _
-                         idpath
-                         (const_path_over_concat _ _)
-                         (const_globe_over
-                            (path_to_globe (gconcat G g₁ g₂))
-                            (geqclY a₁ a₃ (g₁ × g₂))
-                            (geqclY a₁ a₂ g₁ @ geqclY a₂ a₃ g₂)
-                            (path_to_globe (gconcatY a₁ a₂ a₃ g₁ g₂))
-                         )
-                      ).
-    Defined.
-
-    Definition gquot_rec_beta_geqcl (a₁ a₂ : A) (g : hom G a₁ a₂)
-      : ap gquot_rec (geqcl G g) = geqclY a₁ a₂ g.
-    Proof.
-      apply (const_path_over_inj (geqcl G g)).
-      refine ((apd_po_const _ _)^ @ _).
-      apply gquot_ind_beta_geqcl.
-    Defined.
-  End gquot_rec.
-
-  Section gquot_ind_set.
-    Variable (A : Type)
-             (G : groupoid A)
-             (Y : gquot G -> Type)
-             (gclY : forall (a : A), Y(gcl G a))
-             (geqclY : forall (a₁ a₂ : A) (g : hom G a₁ a₂),
-                 path_over Y (geqcl G g) (gclY a₁) (gclY a₂))
-             (truncY : forall (x : gquot G), IsHSet (Y x)).
-
-    Definition gquot_ind_set : forall (g : gquot G), Y g.
-    Proof.
-      simple refine (gquot_ind A G Y gclY geqclY _ _ _ _)
-      ; intros ; apply path_to_globe_over ; apply path_ishprop.
-    Defined.
-
-    Definition gquot_ind_set_beta_geqcl : forall (a₁ a₂ : A) (g : hom G a₁ a₂),
-        apd_po gquot_ind_set (geqcl G g)
-        =
-        geqclY a₁ a₂ g.
-    Proof.
-      apply gquot_ind_beta_geqcl.
-    Defined.
-  End gquot_ind_set.
-
-  Section gquot_ind_prop.
-    Variable (A : Type)
-             (G : groupoid A)
-             (Y : gquot G -> Type)
-             (gclY : forall (a : A), Y(gcl G a))
-             (truncY : forall (x : gquot G), IsHProp (Y x)).
-
-    Definition gquot_ind_prop : forall (g : gquot G), Y g.
-    Proof.
-      simple refine (gquot_ind_set A G Y gclY _ _)
-      ; intros ; apply path_to_path_over ; apply path_ishprop.
-    Defined.
-  End gquot_ind_prop.
 End gquot.
 
 Arguments gquot_ind {A G} Y gclY geqclY geY ginvY gconcatY truncY.
-Arguments gquot_ind_set {A G} Y gclY geqclY truncY.
-Arguments gquot_ind_prop {A G} Y gclY truncY.
+
+Section gquot_rec.
+  Variable (A : Type)
+           (G : groupoid A)
+           (Y : Type)
+           (gclY : A -> Y)
+           (geqclY : forall (a₁ a₂ : A),
+               hom G a₁ a₂ -> gclY a₁ = gclY a₂)
+           (geY : forall (a : A), geqclY _ _ (e a) = idpath)
+           (ginvY : forall (a₁ a₂ : A) (g : hom G a₁ a₂),
+               geqclY a₂ a₁ (inv g) = (geqclY a₁ a₂ g)^)
+           (gconcatY : forall (a₁ a₂ a₃: A) (g₁: hom G a₁ a₂) (g₂: hom G a₂ a₃),
+               geqclY _ _ (g₁ × g₂) = geqclY _ _ g₁ @ geqclY _ _ g₂)
+           (truncY : IsTrunc 1 Y).
+
+  Definition gquot_rec : gquot G -> Y.
+  Proof.
+    simple refine (gquot_ind (fun _ => Y)
+                             gclY
+                             (fun a₁ a₂ g => const_path_over (geqclY a₁ a₂ g))
+                             (fun a => const_globe_over
+                                         (path_to_globe (ge G a))
+                                         (geqclY a a (e a))
+                                         idpath
+                                         (path_to_globe (geY a)))
+                             _ _ _) ; cbn.
+    - intros a₁ a₂ g.
+      simple refine (globe_over_whisker
+                       (fun _ => Y)
+                       _
+                       idpath
+                       (const_path_over_inv _)
+                       (const_globe_over
+                          (path_to_globe (ginv G g))
+                          (geqclY a₂ a₁ (inv g))
+                          ((geqclY a₁ a₂ g)^)
+                          (path_to_globe (ginvY a₁ a₂ g))
+                       )
+                    ).
+    - intros a₁ a₂ a₃ g₁ g₂.
+      simple refine (globe_over_whisker
+                       (fun _ => Y)
+                       _
+                       idpath
+                       (const_path_over_concat _ _)
+                       (const_globe_over
+                          (path_to_globe (gconcat G g₁ g₂))
+                          (geqclY a₁ a₃ (g₁ × g₂))
+                          (geqclY a₁ a₂ g₁ @ geqclY a₂ a₃ g₂)
+                          (path_to_globe (gconcatY a₁ a₂ a₃ g₁ g₂))
+                       )
+                    ).
+  Defined.
+
+  Definition gquot_rec_beta_geqcl (a₁ a₂ : A) (g : hom G a₁ a₂)
+    : ap gquot_rec (geqcl G g) = geqclY a₁ a₂ g.
+  Proof.
+    apply (const_path_over_inj (geqcl G g)).
+    refine ((apd_po_const _ _)^ @ _).
+    apply gquot_ind_beta_geqcl.
+  Defined.
+End gquot_rec.
+
 Arguments gquot_rec {A G}.
+
+Section gquot_ind_set.
+  Variable (A : Type)
+           (G : groupoid A)
+           (Y : gquot G -> Type)
+           (gclY : forall (a : A), Y(gcl G a))
+           (geqclY : forall (a₁ a₂ : A) (g : hom G a₁ a₂),
+               path_over Y (geqcl G g) (gclY a₁) (gclY a₂))
+           (truncY : forall (x : gquot G), IsHSet (Y x)).
+
+  Definition gquot_ind_set : forall (g : gquot G), Y g.
+  Proof.
+    simple refine (gquot_ind Y gclY geqclY _ _ _ _)
+    ; intros ; apply path_to_globe_over ; apply path_ishprop.
+  Defined.
+
+  Definition gquot_ind_set_beta_geqcl : forall (a₁ a₂ : A) (g : hom G a₁ a₂),
+      apd_po gquot_ind_set (geqcl G g)
+      =
+      geqclY a₁ a₂ g.
+  Proof.
+    apply gquot_ind_beta_geqcl.
+  Defined.
+End gquot_ind_set.
+
+Arguments gquot_ind_set {A G} Y gclY geqclY truncY.
+
+Section gquot_ind_prop.
+  Variable (A : Type)
+           (G : groupoid A)
+           (Y : gquot G -> Type)
+           (gclY : forall (a : A), Y(gcl G a))
+           (truncY : forall (x : gquot G), IsHProp (Y x)).
+
+  Definition gquot_ind_prop : forall (g : gquot G), Y g.
+  Proof.
+    simple refine (gquot_ind_set Y gclY _ _)
+    ; intros ; apply path_to_path_over ; apply path_ishprop.
+  Defined.
+End gquot_ind_prop.
+
+Arguments gquot_ind_prop {A G} Y gclY truncY.
 
 Section gquot_double_rec.
   Variable (A B : Type)
@@ -199,11 +202,9 @@ Section gquot_double_rec.
                (fl a₁ a₂ b g₁) @ (fl a₂ a₃ b g₂))
            (fp : forall (a₁ a₂ : A) (b₁ b₂ : B)
                         (g₁ : hom G₁ a₁ a₂) (g₂ : hom G₂ b₁ b₂),
-              ((ap (gquot_rec Y (f a₁) (fr a₁) (fre a₁) (fri a₁) (frc a₁) H)
-                   (geqcl G₂ g₂))^)
-                @ (fl a₁ a₂ b₁ g₁)
-                @ (ap (gquot_rec Y (f a₂) (fr a₂) (fre a₂) (fri a₂) (frc a₂) H)
-                      (geqcl G₂ g₂))
+               ((fr a₁ b₁ b₂ g₂)^)
+                 @ (fl a₁ a₂ b₁ g₁)
+                @ (fr a₂ b₁ b₂ g₂)
               = 
               fl a₁ a₂ b₂ g₁).
 
@@ -217,7 +218,11 @@ Section gquot_double_rec.
       + exact (fun b => fl a₁ a₂ b g₁).
       + intros b₁ b₂ g₂.
         apply path_to_path_over.
-        exact (transport_paths_FlFr _ _ @ fp a₁ a₂ b₁ b₂ g₁ g₂).
+        refine (transport_paths_FlFr _ _ @ _).
+        refine (ap _ (gquot_rec_beta_geqcl _ _ _ _ _ _ _ _ _ _ _ _) @ _).
+        refine (ap (fun p => (p^ @ _) @ _)
+                   (gquot_rec_beta_geqcl _ _ _ _ _ _ _ _ _ _ _ _) @ _).
+        exact (fp a₁ a₂ b₁ b₂ g₁ g₂).
     - intros a ; cbn.
       simple refine (gquot_ind_prop (fun z => _) _ _ y).
       exact (fun b => fle a b).
@@ -244,8 +249,8 @@ Section gquot_double_rec.
       fl a₁ a₂ b₁ g₁ @ fr a₂ b₁ b₂ g₂.
   Proof.
     refine (uncurry_ap _ _ _ @ _).
-    unfold gquot_double_rec' ; simpl.
-    rewrite !gquot_rec_beta_geqcl.
+    rewrite (gquot_rec_beta_geqcl A).
+    rewrite (gquot_rec_beta_geqcl B G₂ _ ).
     reflexivity.
   Defined.
 
@@ -256,8 +261,7 @@ Section gquot_double_rec.
       fl a₁ a₂ b g.
   Proof.
     refine (uncurry_ap _ _ _ @ _).
-    unfold gquot_double_rec' ; simpl.
-    rewrite !gquot_rec_beta_geqcl.
+    rewrite (gquot_rec_beta_geqcl A).
     apply concat_p1.
   Defined.
 
@@ -268,12 +272,13 @@ Section gquot_double_rec.
       fr a b₁ b₂ g.
   Proof.
     rewrite uncurry_ap.
-    unfold gquot_double_rec' ; simpl.
-    rewrite !gquot_rec_beta_geqcl.
+    rewrite (gquot_rec_beta_geqcl B G₂ _ ).
     apply concat_1p.
   Defined.
 End gquot_double_rec.
 
+Arguments gquot_double_rec {A B G₁ G₂} Y {_ _}.
+Arguments gquot_double_rec' {A B G₁ G₂} Y {_ _}.
 Arguments gquot_double_rec_beta_gcleq {A B G₁ G₂} Y {_ _}.
 
 Section gquot_double_ind_set.
@@ -370,7 +375,7 @@ Section gquot_relation.
 
   Definition gquot_relation : gquot G₁ -> gquot G₂ -> hSet.
   Proof.
-    simple refine (gquot_double_rec' _ _ _ _ _ _ _ _ _ _ _ _ _ _ _).
+    simple refine (gquot_double_rec' _ _ _ _ _ _ _ _ _ _ _).
     - exact R.
     - exact (fun a b₁ b₂ g => path_hset (BuildEquiv _ _ (fr a b₁ b₂ g) _)).
     - intros a b ; simpl.
@@ -399,7 +404,6 @@ Section gquot_relation.
       apply path_hset_eq ; cbn.
       apply fl_comp.
     - intros a₁ a₂ b₁ b₂ g₁ g₂ ; simpl.
-      rewrite !gquot_rec_beta_geqcl.
       rewrite <- path_hset_inv.
       rewrite <- !path_hset_comp.
       apply path_hset_eq ; cbn.
