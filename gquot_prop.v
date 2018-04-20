@@ -231,7 +231,7 @@ Section gquot_prod.
     - intros ; simpl.
       refine (ap (fun p => path_prod' p _) (ginv _ _) @ _).
       refine (ap (fun p => path_prod' _ p) (ginv _ _) @ _).
-      apply path_prod_V.
+      apply path_prod'_inv.
     - intros ; simpl.
       refine (ap (fun p => path_prod' p _) (gconcat _ _ _) @ _).
       refine (ap (fun p => path_prod' _ p) (gconcat _ _ _) @ _).
@@ -270,7 +270,7 @@ Section gquot_prod.
       rewrite ap_pair_r.
       rewrite gquot_double_rec_beta_r_gcleq.
       rewrite gquot_rec_beta_geqcl.
-      rewrite <- path_prod_V.
+      rewrite <- path_prod'_inv.
       rewrite ge.
       rewrite <- path_prod_pp.
       hott_simpl.
@@ -282,7 +282,7 @@ Section gquot_prod.
       rewrite ap_pair_l.
       rewrite gquot_double_rec_beta_l_gcleq.
       rewrite gquot_rec_beta_geqcl.
-      rewrite <- path_prod_V.
+      rewrite <- path_prod'_inv.
       rewrite ge.
       rewrite <- path_prod_pp.
       hott_simpl.
@@ -380,4 +380,5 @@ Section encode_decode.
       reflexivity.
     - admit.
     - admit.
-    - 
+  Admitted.
+End encode_decode.

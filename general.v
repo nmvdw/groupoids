@@ -53,14 +53,105 @@ Section path_hset_prop.
   Context `{Univalence}.
 
   Definition path_hset' {A B : hSet} (f : A -> B) {feq : IsEquiv f} : (A = B)
-  := path_hset (BuildEquiv _ _ f feq).
+    := path_hset (BuildEquiv _ _ f feq).
 
   Lemma path_hset_1 {A : hSet} : path_hset' (fun x : A => x) = 1%path.
   Proof.
-    cbn. hott_simpl.
+    cbn.
+    rewrite concat_1p.
     rewrite (eta_path_universe_uncurried 1).
     rewrite path_sigma_hprop_1.
-    hott_simpl.
+    reflexivity.
+  Defined.
+  
+  Definition path_hset_id {A : hSet} : path_hset (equiv_idmap A) = idpath.
+  Proof.
+    cbn.
+    rewrite concat_1p.
+    rewrite (eta_path_universe_uncurried 1).
+    rewrite path_sigma_hprop_1.
+    reflexivity.
   Defined.
 
+  Definition path_sigma_hprop_inv
+        {A : Type}
+        (B : A -> hProp)
+        {u v : A}
+        (p : u = v)
+        (x : B u) (y : B v)
+    : @path_sigma_hprop A B _ (v;y) (u;x) p^ = (path_sigma_hprop (u;x) (v;y) p)^.
+  Proof.
+    induction p ; simpl.
+    assert (q : x = y).
+    { apply path_ishprop. }
+    rewrite q.
+    rewrite path_sigma_hprop_1.
+    reflexivity.
+  Defined.
+  
+  Definition path_hset_inv
+             {A B : hSet}
+             (f : Equiv A B)
+    : path_hset f^-1 = (path_hset f)^.
+  Proof.
+    cbn.
+    rewrite !concat_1p, !concat_p1.
+    rewrite path_universe_V_uncurried.
+    rewrite (path_sigma_hprop_inv
+               (fun Z => BuildhProp (IsHSet Z))
+               (path_universe_uncurried f)
+               (istrunc_trunctype_type A)
+               (istrunc_trunctype_type B)).
+    rewrite ap_V.
+    reflexivity.
+  Defined.
+
+  Definition path_universe_uncurried_transitive
+             {A B C : Type}
+             (f : Equiv A B) (g : Equiv B C)
+    : path_universe_uncurried (transitive_equiv A B C f g)
+      =
+      path_universe_uncurried f @ path_universe_uncurried g.
+  Proof.
+    apply path_universe_compose.
+  Defined.
+
+  Definition path_sigma_hprop_concat
+             {A : Type}
+             (B : A -> hProp)
+             {u v w : A}
+             (p : u = v) (q : v = w)
+             (x : B u) (y : B v) (z : B w)
+    : @path_sigma_hprop A B _ (u;x) (w;z) (p @ q)
+      =
+      path_sigma_hprop (u;x) (v;y) p @ path_sigma_hprop (v;y) (w;z) q.
+  Proof.
+    induction p, q.
+    assert(r₁ : y = x).
+    { apply path_ishprop. }
+    assert(r₂ : z = x).
+    { apply path_ishprop. }
+    rewrite r₁, r₂.
+    rewrite !path_sigma_hprop_1.
+    reflexivity.
+  Defined.
+  
+  Definition path_hset_comp
+             {A B C : hSet}
+             (f : Equiv A B) (g : Equiv B C)
+    : path_hset (transitive_equiv _ _ _ f g) = path_hset f @ path_hset g.
+  Proof.
+    cbn.
+    rewrite !concat_1p, !concat_p1.
+    rewrite path_universe_uncurried_transitive.
+    rewrite (path_sigma_hprop_concat
+               (fun Z => BuildhProp (IsHSet Z))
+               (path_universe_uncurried f)
+               (path_universe_uncurried g)
+               (istrunc_trunctype_type A)
+               (istrunc_trunctype_type B)
+               (istrunc_trunctype_type C)).
+    rewrite ap_pp.
+    reflexivity.
+  Defined.
 End path_hset_prop.
