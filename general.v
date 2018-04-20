@@ -157,3 +157,25 @@ Section path_hset_prop.
     exact (path_forall _ _ fg_eq).
   Qed.
 End path_hset_prop.
+
+Definition transport_idmap_ap_set
+           {A : Type}
+           (P : A -> hSet)
+           {a₁ a₂ : A}
+           (p : a₁ = a₂)
+           (u : P a₁)
+  : transport P p u = transport (idmap : hSet -> hSet) (ap P p) u
+  := match p with
+     | idpath => idpath
+     end.
+
+Definition transport_idmap_path_hset
+           {B C : hSet}
+           (f : Equiv B C)
+           (u : B)
+           `{Univalence}
+  : transport (idmap : hSet -> hSet) (path_hset f) u
+    =
+    f u.
+Proof.
+Admitted.
