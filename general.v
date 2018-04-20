@@ -156,8 +156,7 @@ Section path_hset_prop.
     rewrite <- (eisretr (issig_equiv A B) g).
     apply (ap (issig_equiv A B)).
     cbn.
-    simple refine (path_sigma' _ _ _) ; cbn.
-    - exact (path_forall _ _ fg_eq).
-    - apply path_ishprop.
+    apply path_sigma_hprop.
+    exact (path_forall _ _ fg_eq).
   Defined.
 End path_hset_prop.
