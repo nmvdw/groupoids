@@ -154,4 +154,20 @@ Section path_hset_prop.
     rewrite ap_pp.
     reflexivity.
   Defined.
+
+  Definition path_hset_eq
+             {A B : hSet}
+             (f : Equiv A B) (g : Equiv A B)
+             (fg_eq : equiv_fun f == equiv_fun g)
+    : path_hset f = path_hset g.
+  Proof.
+    refine (ap path_hset _).
+    rewrite <- (eisretr (issig_equiv A B) f).
+    rewrite <- (eisretr (issig_equiv A B) g).
+    apply (ap (issig_equiv A B)).
+    cbn.
+    simple refine (path_sigma' _ _ _) ; cbn.
+    - exact (path_forall _ _ fg_eq).
+    - apply path_ishprop.
+  Defined.
 End path_hset_prop.

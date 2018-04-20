@@ -338,3 +338,71 @@ Proof.
     refine (concat_p1 _ @ _).
     apply pr.
 Defined.
+
+Section gquot_relation.
+  Variable (A B : Type)
+           (G₁ : groupoid A)
+           (G₂ : groupoid B)
+           (R : A -> B -> hSet)
+           (fl : forall (a₁ a₂ : A) (b : B), hom G₁ a₁ a₂ -> R a₁ b -> R a₂ b)
+           (fr : forall (a : A) (b₁ b₂ : B), hom G₂ b₁ b₂ -> R a b₁ -> R a b₂).
+  
+  Context `{forall (a₁ a₂ : A) (b : B) (g : hom G₁ a₁ a₂), IsEquiv (fl a₁ a₂ b g)}
+          `{forall (a : A) (b₁ b₂ : B) (g : hom G₂ b₁ b₂), IsEquiv (fr a b₁ b₂ g)}.
+  Context `{Univalence}.
+
+  Variable (fl_id : forall (a : A) (b : B), fl a a b (e a) == idmap)
+           (fl_inv : forall (a₁ a₂ : A) (b : B) (g : hom G₁ a₁ a₂),
+               fl a₂ a₁ b (inv g) == (fl a₁ a₂ b g)^-1)
+           (fl_comp : forall (a₁ a₂ a₃ : A) (b : B) (g₁ : hom G₁ a₁ a₂) (g₂ : hom G₁ a₂ a₃),
+               fl a₁ a₃ b (g₁ × g₂) == fl a₂ a₃ b g₂ o (fl a₁ a₂ b g₁))
+           (fr_id : forall (a : A) (b : B), fr a b b (e b) == idmap)
+           (fr_inv : forall (a : A) (b₁ b₂ : B) (g : hom G₂ b₁ b₂),
+               fr a b₂ b₁ (inv g) == (fr a b₁ b₂ g)^-1)
+           (fr_comp : forall (a : A) (b₁ b₂ b₃ : B) (g₁ : hom G₂ b₁ b₂) (g₂ : hom G₂ b₂ b₃),
+               fr a b₁ b₃ (g₁ × g₂) == fr a b₂ b₃ g₂ o (fr a b₁ b₂ g₁))
+           (fc : forall (a₁ a₂ : A) (b₁ b₂ : B)
+                        (g₁ : hom G₁ a₁ a₂) (g₂ : hom G₂ b₁ b₂),
+               fr a₂ b₁ b₂ g₂ o fl a₁ a₂ b₁ g₁ o (fr a₁ b₁ b₂ g₂)^-1
+               ==
+               fl a₁ a₂ b₂ g₁
+           ).
+
+  Definition gquot_relation : gquot G₁ -> gquot G₂ -> hSet.
+  Proof.
+    simple refine (gquot_double_rec' _ _ _ _ _ _ _ _ _ _ _ _ _ _ _).
+    - exact R.
+    - exact (fun a b₁ b₂ g => path_hset (BuildEquiv _ _ (fr a b₁ b₂ g) _)).
+    - intros a b ; simpl.
+      rewrite <- path_hset_id.
+      apply path_hset_eq ; cbn.
+      apply fr_id.
+    - intros a b₁ b₂ g ; simpl.
+      rewrite <- path_hset_inv.
+      apply path_hset_eq ; cbn.
+      apply fr_inv.
+    - intros a b₁ b₂ b₃ g₁ g₂ ; simpl.
+      rewrite <- path_hset_comp.
+      apply path_hset_eq ; cbn.
+      apply fr_comp.
+    - exact (fun a₁ a₂ b g => path_hset (BuildEquiv _ _ (fl a₁ a₂ b g) _)).
+    - intros a b ; simpl.
+      rewrite <- path_hset_id.
+      apply path_hset_eq ; cbn.
+      apply fl_id.
+    - intros a₁ a₂ b g ; simpl.
+      rewrite <- path_hset_inv.
+      apply path_hset_eq ; cbn.
+      apply fl_inv.
+    - intros a₁ a₂ a₃ b g₁ g₂ ; simpl.
+      rewrite <- path_hset_comp.
+      apply path_hset_eq ; cbn.
+      apply fl_comp.
+    - intros a₁ a₂ b₁ b₂ g₁ g₂ ; simpl.
+      rewrite !gquot_rec_beta_geqcl.
+      rewrite <- path_hset_inv.
+      rewrite <- !path_hset_comp.
+      apply path_hset_eq ; cbn.
+      apply fc.
+  Defined.
+End gquot_relation.
