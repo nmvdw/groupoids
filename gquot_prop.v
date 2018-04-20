@@ -260,7 +260,7 @@ Section gquot_prod.
     revert x₁ x₂.
     simple refine (gquot_double_ind_set _ _ _).
     - reflexivity.
-    - intros a b₁ b₂ g ; simpl.
+    - intros a b₁ b₂ g.
       apply path_to_path_over.
       rewrite transport_paths_FlFr.
       hott_simpl.

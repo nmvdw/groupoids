@@ -62,10 +62,7 @@ Section path_hset_prop.
     rewrite (eta_path_universe_uncurried 1).
     rewrite path_sigma_hprop_1.
     reflexivity.
-  Defined.
-
-  Lemma path_hset_1 {A : hSet} : path_hset' (fun x : A => x) = 1%path.
-  Proof. apply path_hset_id. Defined.
+  Qed.
 
   Definition path_sigma_hprop_inv
         {A : Type}
@@ -95,7 +92,7 @@ Section path_hset_prop.
                (path_universe_uncurried f)).
     rewrite ap_V.
     reflexivity.
-  Defined.
+  Qed.
 
   Definition path_universe_uncurried_transitive
              {A B C : Type}
@@ -124,7 +121,7 @@ Section path_hset_prop.
     { apply path_ishprop. }
     rewrite !path_sigma_hprop_1.
     reflexivity.
-  Defined.
+  Qed.
   
   Definition path_hset_comp
              {A B C : hSet}
@@ -143,7 +140,7 @@ Section path_hset_prop.
                (istrunc_trunctype_type C)).
     rewrite ap_pp.
     reflexivity.
-  Defined.
+  Qed.
 
   Definition path_hset_eq
              {A B : hSet}
@@ -158,5 +155,5 @@ Section path_hset_prop.
     cbn.
     apply path_sigma_hprop.
     exact (path_forall _ _ fg_eq).
-  Defined.
+  Qed.
 End path_hset_prop.

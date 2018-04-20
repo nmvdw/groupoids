@@ -403,7 +403,7 @@ Section gquot_relation.
       rewrite <- path_hset_comp.
       apply path_hset_eq ; cbn.
       apply fl_comp.
-    - intros a₁ a₂ b₁ b₂ g₁ g₂ ; simpl.
+    - intros a₁ a₂ b₁ b₂ g₁ g₂.
       rewrite <- path_hset_inv.
       rewrite <- !path_hset_comp.
       apply path_hset_eq ; cbn.
