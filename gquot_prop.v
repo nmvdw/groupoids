@@ -1,6 +1,6 @@
 Require Import HoTT.
 Require Import groupoid_quotient.
-Require Import groupoid path_over globe_over general.
+Require Import groupoid path_over globe_over general square.
 
 Section one_type_is_groupoid_quotient.
   Variable (A : Type).
@@ -130,20 +130,24 @@ Section gquot_sum.
     - intros [ | ] ; reflexivity.
     - intros [a1 | b1] [a2 | b2] g ; try refine (Empty_rec g)
       ; compute in g.
-      + apply path_to_path_over.
-        rewrite transport_paths_FlFr. hott_simpl.
-        rewrite ap_compose.
-        rewrite gquot_rec_beta_geqcl.
-        rewrite <- (ap_compose inl gquot_sum_in).
-        rewrite gquot_rec_beta_geqcl.
-        apply concat_Vp.
-      + apply path_to_path_over.
-        rewrite transport_paths_FlFr. hott_simpl.
-        rewrite ap_compose.
-        rewrite gquot_rec_beta_geqcl.
-        rewrite <- (ap_compose inr gquot_sum_in).
-        rewrite gquot_rec_beta_geqcl.
-        apply concat_Vp.
+      + apply map_path_over.
+        refine (whisker_square idpath _ (ap_idmap _)^ idpath _).
+        * refine (_ @ (ap_compose _ _ _)^).
+          refine ((ap _ _)^).
+          apply gquot_rec_beta_geqcl.
+        * refine (whisker_square idpath _ idpath idpath _).
+          ** refine (_^ @ (ap_compose inl gquot_sum_in _)) ; simpl.
+             refine (gquot_rec_beta_geqcl _ _ _ _ _ _ _ _ _ _ _ _).
+          ** apply vrefl.
+      + apply map_path_over.
+        refine (whisker_square idpath _ (ap_idmap _)^ idpath _).
+        * refine (_ @ (ap_compose _ _ _)^).
+          refine ((ap _ _)^).
+          apply gquot_rec_beta_geqcl.
+        * refine (whisker_square idpath _ idpath idpath _).
+          ** refine (_^ @ (ap_compose inr gquot_sum_in _)) ; simpl.
+             refine (gquot_rec_beta_geqcl _ _ _ _ _ _ _ _ _ _ _ _).
+          ** apply vrefl.
   Qed.
 
   Lemma gquot_sum_in_out_sect : Sect gquot_sum_in gquot_sum_out.
@@ -153,20 +157,24 @@ Section gquot_sum.
                        (fun z => gquot_sum_out (gquot_sum_in (inl z)) = inl z) _ _ _ x).
       + exact (fun _ => idpath).
       + intros a₁ a₂ g.
-        apply path_to_path_over.
-        rewrite transport_paths_FlFr. hott_simpl.
-        rewrite ap_compose.
-        rewrite !gquot_rec_beta_geqcl.
-        apply concat_Vp.
+        apply map_path_over.
+        refine (whisker_square idpath _ idpath idpath _).
+        * refine (_ @ (ap_compose (gquot_sum_in o inl) gquot_sum_out _)^).
+          refine (ap _ _ @ _)^.
+          ** apply gquot_rec_beta_geqcl.
+          ** apply gquot_rec_beta_geqcl.
+        * apply vrefl.
     - simple refine (gquot_ind_set
                        (fun z => gquot_sum_out (gquot_sum_in (inr z)) = inr z) _ _ _ y).
       + exact (fun _ => idpath).
       + intros a₁ a₂ g.
-        apply path_to_path_over.
-        rewrite transport_paths_FlFr. hott_simpl.
-        rewrite ap_compose.
-        rewrite !gquot_rec_beta_geqcl.
-        apply concat_Vp.
+        apply map_path_over.
+        refine (whisker_square idpath _ idpath idpath _).
+        * refine (_ @ (ap_compose (gquot_sum_in o inr) gquot_sum_out _)^).
+          refine (ap _ _ @ _)^.
+          ** apply gquot_rec_beta_geqcl.
+          ** apply gquot_rec_beta_geqcl.
+        * apply vrefl.
   Qed.
 
   Global Instance gquot_sum_out_isequiv : IsEquiv gquot_sum_out
@@ -491,21 +499,21 @@ Section encode_decode.
   Defined.
   
   Definition f_finv
-             {x y : gquot G}
-             (p : g_fam x y)
     : forall {x y : gquot G} (p : g_fam x y), f x y (finv x y p) = p.
   Proof.
     simple refine (gquot_double_ind_set _ _ _).
     - intros a b g.
       unfold f, g_fam_refl.
       simpl.
-      rewrite transport_idmap_ap_set.
+      refine (transport_idmap_ap_set (fun x : gquot G => g_fam (gcl G a) x)
+                                     (geqcl G g)
+                                     (e a) @ _).
       rewrite (gquot_fam_r_gcleq a).
       rewrite transport_idmap_path_hset.
       compute.
-      rewrite ec.
-      reflexivity.
-    - admit.
+      exact (ec _ G a _ g).
+    - simpl.
+      admit.
     - admit.
   Admitted.      
 End encode_decode.
