@@ -250,16 +250,18 @@ Section gquot_prod.
     simple refine (gquot_ind_set (fun x => gquot_prod_in (gquot_prod_out x) = x) _ _ _).
     - reflexivity.
     - intros x₁ x₂ g.
-      apply path_to_path_over.
-      rewrite transport_paths_FlFr.
-      hott_simpl.
-      rewrite ap_compose.
-      rewrite gquot_rec_beta_geqcl.
-      rewrite gquot_double_rec_beta_gcleq.
-      rewrite <- gconcat, <- ginv, <- gconcat, <- ge.
-      apply ap ; simpl.
-      rewrite !ce, !ec, !ic.
-      reflexivity.
+      apply map_path_over.
+      refine (whisker_square idpath _ (ap_idmap _)^ idpath _).
+      + refine ((ap_compose _ _ _ @ ap (ap gquot_prod_in) _ @ _ @ _)^).
+        * apply gquot_rec_beta_geqcl.
+        * apply gquot_double_rec_beta_gcleq.
+        * simpl.
+          refine ((@gconcat _ (prod_groupoid G₁ G₂)
+                            _ (fst x₂, snd x₁) _
+                            (fst g, e (snd x₁)) (e (fst x₂), snd g))^ @ _).
+          apply ap.
+          exact (path_prod' (ce _ _ _ _ _) (ec _ _ _ _ _)).
+      + apply vrefl.
   Qed.
 
   Lemma gquot_prod_in_out_sect : Sect gquot_prod_in gquot_prod_out.
@@ -269,18 +271,19 @@ Section gquot_prod.
     simple refine (gquot_double_ind_set _ _ _).
     - reflexivity.
     - intros a b₁ b₂ g.
-      apply path_to_path_over.
-      rewrite transport_paths_FlFr.
-      hott_simpl.
-      rewrite ap_compose.
-      rewrite (ap_compose _ gquot_prod_in).
-      rewrite ap_pair_r.
-      rewrite gquot_double_rec_beta_r_gcleq.
-      rewrite gquot_rec_beta_geqcl.
-      rewrite <- path_prod_V.
-      rewrite ge.
-      rewrite <- path_prod_pp.
-      hott_simpl.
+      apply map_path_over.
+      refine (whisker_square idpath _ (ap_pair_r _ _)^ idpath _).
+      + refine (_ @ _ @ _ @ _)^.
+        * exact (ap_compose (fun z => gquot_prod_in (gcl G₁ a,z)) gquot_prod_out _).
+        * apply ap.
+          refine (ap_compose _ _ _ @ _).
+          apply gquot_double_rec_beta_r_gcleq.
+        * apply (gquot_rec_beta_geqcl _
+                                      (prod_groupoid G₁ G₂)
+                                      _ _ _ _ _ _ _
+                                      (a, b₁) (a, b₂) (e a, g)).
+        * exact (ap (fun z => path_prod' z (geqcl G₂ (snd (e a, g)))) (ge G₁ a)).
+      + apply vrefl.
     - intros a b₁ b₂ g.
       rewrite transport_paths_FlFr.
       hott_simpl.
