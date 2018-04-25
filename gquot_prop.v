@@ -42,7 +42,7 @@ Section one_type_is_groupoid_quotient.
       apply gquot_rec_beta_geqcl.
     - refine (ap_idmap _ @ _)^.
       apply ge.
-    - apply vrefl.
+    - exact id_square.
   Defined.
 
   Global Instance gquot_to_A_isequiv : IsEquiv gquot_to_A.
@@ -128,26 +128,21 @@ Section gquot_sum.
     intros x.
     simple refine (gquot_ind_set (fun x => gquot_sum_in (gquot_sum_out x) = x) _ _ _ x).
     - intros [ | ] ; reflexivity.
-    - intros [a1 | b1] [a2 | b2] g ; try refine (Empty_rec g)
-      ; compute in g.
+    - intros [a1 | b1] [a2 | b2] g ; try refine (Empty_rec g) ; simpl in g.
       + apply map_path_over.
-        refine (whisker_square idpath _ (ap_idmap _)^ idpath _).
-        * refine (_ @ (ap_compose _ _ _)^).
-          refine ((ap _ _)^).
-          apply gquot_rec_beta_geqcl.
-        * refine (whisker_square idpath _ idpath idpath _).
-          ** refine (_^ @ (ap_compose inl gquot_sum_in _)) ; simpl.
-             refine (gquot_rec_beta_geqcl _ _ _ _ _ _ _ _ _ _ _ _).
-          ** apply vrefl.
+        refine (whisker_square idpath _ (ap_idmap _)^ idpath (vrefl _)).
+        refine (_ @ (ap_compose _ _ _)^).
+        refine ((ap _ _ @ _)^).
+        ** apply gquot_rec_beta_geqcl.
+        ** refine ((ap_compose inl gquot_sum_in _)^ @ _).
+           apply gquot_rec_beta_geqcl.
       + apply map_path_over.
-        refine (whisker_square idpath _ (ap_idmap _)^ idpath _).
-        * refine (_ @ (ap_compose _ _ _)^).
-          refine ((ap _ _)^).
-          apply gquot_rec_beta_geqcl.
-        * refine (whisker_square idpath _ idpath idpath _).
-          ** refine (_^ @ (ap_compose inr gquot_sum_in _)) ; simpl.
-             refine (gquot_rec_beta_geqcl _ _ _ _ _ _ _ _ _ _ _ _).
-          ** apply vrefl.
+        refine (whisker_square idpath _ (ap_idmap _)^ idpath (vrefl _)).
+        refine (_ @ (ap_compose _ _ _)^).
+        refine ((ap _ _ @ _ )^).
+        ** apply gquot_rec_beta_geqcl.
+        ** refine ((ap_compose inr gquot_sum_in _)^ @ _).
+           apply gquot_rec_beta_geqcl.
   Qed.
 
   Lemma gquot_sum_in_out_sect : Sect gquot_sum_in gquot_sum_out.
@@ -158,23 +153,21 @@ Section gquot_sum.
       + exact (fun _ => idpath).
       + intros a₁ a₂ g.
         apply map_path_over.
-        refine (whisker_square idpath _ idpath idpath _).
+        refine (whisker_square idpath _ idpath idpath (vrefl _)).
         * refine (_ @ (ap_compose (gquot_sum_in o inl) gquot_sum_out _)^).
           refine (ap _ _ @ _)^.
           ** apply gquot_rec_beta_geqcl.
           ** apply gquot_rec_beta_geqcl.
-        * apply vrefl.
     - simple refine (gquot_ind_set
                        (fun z => gquot_sum_out (gquot_sum_in (inr z)) = inr z) _ _ _ y).
       + exact (fun _ => idpath).
       + intros a₁ a₂ g.
         apply map_path_over.
-        refine (whisker_square idpath _ idpath idpath _).
-        * refine (_ @ (ap_compose (gquot_sum_in o inr) gquot_sum_out _)^).
-          refine (ap _ _ @ _)^.
-          ** apply gquot_rec_beta_geqcl.
-          ** apply gquot_rec_beta_geqcl.
-        * apply vrefl.
+        refine (whisker_square idpath _ idpath idpath (vrefl _)).
+        refine (_ @ (ap_compose (gquot_sum_in o inr) gquot_sum_out _)^).
+        refine (ap _ _ @ _)^.
+        ** apply gquot_rec_beta_geqcl.
+        ** apply gquot_rec_beta_geqcl.
   Qed.
 
   Global Instance gquot_sum_out_isequiv : IsEquiv gquot_sum_out
@@ -252,17 +245,16 @@ Section gquot_prod.
     - reflexivity.
     - intros x₁ x₂ g.
       apply map_path_over.
-      refine (whisker_square idpath _ (ap_idmap _)^ idpath _).
-      + refine ((ap_compose _ _ _ @ ap (ap gquot_prod_in) _ @ _ @ _)^).
-        * apply gquot_rec_beta_geqcl.
-        * apply gquot_double_rec_beta_gcleq.
-        * simpl.
-          refine ((@gconcat _ (prod_groupoid G₁ G₂)
-                            _ (fst x₂, snd x₁) _
-                            (fst g, e (snd x₁)) (e (fst x₂), snd g))^ @ _).
-          apply ap.
-          exact (path_prod' (ce _ _ _ _ _) (ec _ _ _ _ _)).
-      + apply vrefl.
+      refine (whisker_square idpath _ (ap_idmap _)^ idpath (vrefl _)).
+      refine ((ap_compose _ _ _ @ ap (ap gquot_prod_in) _ @ _ @ _)^).
+      * apply gquot_rec_beta_geqcl.
+      * apply gquot_double_rec_beta_gcleq.
+      * simpl.
+        refine ((@gconcat _ (prod_groupoid G₁ G₂)
+                          _ (fst x₂, snd x₁) _
+                          (fst g, e (snd x₁)) (e (fst x₂), snd g))^ @ _).
+        apply ap.
+        exact (path_prod' (ce _ _ _ _ _) (ec _ _ _ _ _)).
   Qed.
 
   Lemma gquot_prod_in_out_sect : Sect gquot_prod_in gquot_prod_out.
@@ -273,32 +265,30 @@ Section gquot_prod.
     - reflexivity.
     - intros a b₁ b₂ g.
       apply map_path_over.
-      refine (whisker_square idpath _ (ap_pair_r _ _)^ idpath _).
-      + refine (_ @ _ @ _ @ _)^.
-        * exact (ap_compose (fun z => gquot_prod_in (gcl G₁ a,z)) gquot_prod_out _).
-        * apply ap.
-          refine (ap_compose _ _ _ @ _).
-          apply gquot_double_rec_beta_r_gcleq.
-        * apply (gquot_rec_beta_geqcl _
-                                      (prod_groupoid G₁ G₂)
-                                      _ _ _ _ _ _ _
-                                      (a, b₁) (a, b₂) (e a, g)).
-        * exact (ap (fun z => path_prod' z (geqcl G₂ g)) (ge G₁ a)).
-      + apply vrefl.
+      refine (whisker_square idpath _ (ap_pair_r _ _)^ idpath (vrefl _)).
+      refine (_ @ _ @ _ @ _)^.
+      * exact (ap_compose (fun z => gquot_prod_in (gcl G₁ a,z)) gquot_prod_out (geqcl G₂ g)).
+      * apply ap.
+        refine (ap_compose _ _ _ @ _).
+        apply gquot_double_rec_beta_r_gcleq.
+      * exact (gquot_rec_beta_geqcl (A * B)
+                                    (prod_groupoid G₁ G₂)
+                                    _ _ _ _ _ _ _
+                                    (a, b₁) (a, b₂) (e a, g)).
+      * exact (ap (fun z => path_prod' z (geqcl G₂ g)) (ge G₁ a)).
     - intros a₁ a₂ b g.
       apply map_path_over.
-      refine (whisker_square idpath _ (ap_pair_l _ _)^ idpath _).
-      + refine (_ @ _ @ _ @ _)^.
-        * exact (ap_compose (fun z => gquot_prod_in (z,gcl G₂ b)) gquot_prod_out _).
-        * apply ap.
-          refine (ap_compose _ _ _ @ _).
-          apply gquot_double_rec_beta_l_gcleq.
-        * apply (gquot_rec_beta_geqcl _
-                                      (prod_groupoid G₁ G₂)
-                                      _ _ _ _ _ _ _
-                                      (a₁, b) (a₂, b) (g, e b)).
-        * exact (ap (path_prod' (geqcl G₁ g)) (ge G₂ b)).
-      + apply vrefl.
+      refine (whisker_square idpath _ (ap_pair_l _ _)^ idpath (vrefl _)).
+      refine (_ @ _ @ _ @ _)^.
+      * exact (ap_compose (fun z => gquot_prod_in (z,gcl G₂ b)) gquot_prod_out (geqcl G₁ g)).
+      * apply ap.
+        refine (ap_compose _ _ _ @ _).
+        apply gquot_double_rec_beta_l_gcleq.
+      * exact (gquot_rec_beta_geqcl _
+                                    (prod_groupoid G₁ G₂)
+                                    _ _ _ _ _ _ _
+                                    (a₁, b) (a₂, b) (g, e b)).
+      * exact (ap (path_prod' (geqcl G₁ g)) (ge G₂ b)).
   Qed.
 
   Global Instance gquot_prod_out_isequiv : IsEquiv gquot_prod_out
@@ -370,7 +360,8 @@ Section encode_decode.
   Proof.
     intro x.
     unfold right_action.
-    by rewrite inv_e, ec.
+    rewrite inv_e.
+    apply ec.
   Qed.
 
   Definition g_fam : gquot G -> gquot G -> hSet.
@@ -383,8 +374,7 @@ Section encode_decode.
           ).
     - intros a b ; simpl.
       apply right_action_e.
-    - intros a b g x ; simpl.
-      unfold right_action.
+    - intros a b₁ b₂ g x ; unfold right_action ; simpl.
         by rewrite inv_involutive.
     - compute ; intros.
         by rewrite inv_prod, ca.
@@ -402,38 +392,27 @@ Section encode_decode.
              {a₁ a₂ : A} (b : A) (g : hom G a₁ a₂)
     : ap (fun z => g_fam z (gcl G b)) (geqcl G g)
       =
-      path_hset (BuildEquiv _ _ (right_action b g) _).
-  Proof.
-    exact (gquot_relation_beta_l_gcleq A A G G (hom G) _ _ _ _ _ _ _ _ _ _ g).
-  Defined.
+      path_hset (BuildEquiv _ _ (right_action b g) _)
+    := gquot_relation_beta_l_gcleq A A G G (hom G) _ _ _ _ _ _ _ _ _ _ g.
 
   Definition gquot_fam_r_gcleq
              (a : A) {b₁ b₂ : A} (g : hom G b₁ b₂)
     : ap (g_fam (gcl G a)) (geqcl G g)
       =
-      path_hset (BuildEquiv _ _ (left_action a g) _).
-  Proof.
-    exact (gquot_relation_beta_r_gcleq A A G G (hom G) _ _ _ _ _ _ _ _ _ _ g).
-  Defined.
+      path_hset (BuildEquiv _ _ (left_action a g) _)
+    := gquot_relation_beta_r_gcleq A A G G (hom G) _ _ _ _ _ _ _ _ _ _ g.
 
-  Local Instance g_fam_hset x y : IsHSet (g_fam x y).
-  Proof.
-    apply istrunc_trunctype_type.
-  Defined.
-
-  Opaque g_fam.
+  Local Instance g_fam_hset x y : IsHSet (g_fam x y)
+    := istrunc_trunctype_type _.
 
   Definition g_fam_refl : forall (x : gquot G), g_fam x x.
   Proof.
     simple refine (gquot_ind_set (fun x => g_fam x x) _ _ _).
     - intros a.
       exact (@e A G a).
-    - intros a₁ a₂ g ; simpl.
+    - intros a₁ a₂ g.
       apply path_to_path_over.
       rewrite transport_idmap_ap_set.
-      transitivity (transport (fun x : hSet => x)
-                              (ap (diag2 g_fam) (geqcl G g)) (e a₁)).
-      { reflexivity. }
       rewrite (ap_diag2 g_fam (geqcl G g)).
       rewrite (gquot_fam_r_gcleq _ g).
       rewrite (gquot_fam_l_gcleq _ g).
@@ -451,40 +430,48 @@ Section encode_decode.
   Proof.
     apply trunc_forall.
   Defined.
+
+  Opaque g_fam.
   
   Definition finv (x y : gquot G) : g_fam x y -> x = y.
   Proof.
     simple refine (gquot_double_ind_set (fun x y => g_fam x y -> x = y) _ _ x y).
     - intros a b g.
       exact (@geqcl A G a b g).
-    - intros ; simpl.
-      apply path_to_path_over.
-      funext h.
-      rewrite transport_arrow, transport_paths_FlFr.
-      rewrite ap_idmap, ap_const, concat_1p.
-      rewrite <- gconcat.
-      apply (ap (geqcl G)).
-      rewrite transport_idmap_ap_set.
-      rewrite ap_V.
-      rewrite (gquot_fam_r_gcleq a g).
-      rewrite <- path_hset_inv.
-      rewrite transport_idmap_path_hset ; cbn.
-      rewrite <- ca.
-      rewrite ic.
-      apply ce.
-    - intros ; simpl.
-      apply path_to_path_over.
-      funext h.
-      rewrite transport_arrow, transport_paths_FlFr.
-      rewrite ap_idmap, ap_const, concat_p1.
-      rewrite <- ginv, <- gconcat.
-      apply (ap (geqcl G)).
-      rewrite transport_idmap_ap_set.
-      rewrite (gquot_fam_l_gcleq b (inv g)).
-      rewrite transport_idmap_path_hset.
-      unfold right_action ; cbn.
-      rewrite ca, ci.
-      apply ec.
+    - intros.
+      simple refine (path_over_arrow _ _ _ _ _ _).
+      intros z.
+      simpl in *.
+      apply map_path_over.
+      refine (whisker_square idpath (ap_const _ _)^ (ap_idmap _)^ _ _).
+      + apply ap.
+        refine (_^ @ (transport_idmap_ap_set (g_fam (gcl G a)) (geqcl G g)^ z)^).
+        refine (ap (fun p => transport _ p z) (ap_V _ _ @ _) @ _ @ _).
+        * exact (ap inverse (gquot_fam_r_gcleq a g)).
+        * refine (ap (fun p => transport _ p z) _).
+          exact ((path_hset_inv (BuildEquiv _ _ (left_action a g) (left_action_equiv a g)))^).
+        * apply transport_idmap_path_hset.
+      + apply path_to_square.
+        refine (concat_1p _ @ _ @ gconcat _ _ _).
+        apply ap.
+        refine ((ce _ _ _ _ _)^ @ _ @ ca _ _ _ _ _ _ _ _ _).
+        refine (ap _ _)^.
+        apply ic. 
+    - intros.
+      simple refine (path_over_arrow _ _ _ _ _ _).
+      intros z.
+      simpl in *.
+      apply map_path_over.
+      refine (whisker_square idpath (ap_idmap _)^ (ap_const _ _)^ _ _).
+      + apply ap.
+        refine (_^ @ (transport_idmap_ap_set (fun z => g_fam z (gcl G b)) (geqcl G g)^ z)^).
+        refine (ap (fun p => transport _ p z) (_ @ _) @ _).
+        * refine (ap_V (fun z : gquot G => g_fam z (gcl G b)) (geqcl G g) @ _).
+          exact (ap inverse (gquot_fam_l_gcleq b g)).
+        * exact ((path_hset_inv (BuildEquiv _ _ (right_action b g) (right_action_equiv b g)))^).
+        * apply transport_idmap_path_hset.
+      + apply path_to_square.
+        exact ((gconcat _ _ _)^ @ (concat_p1 _)^).
   Defined.
 
   Definition finv_f

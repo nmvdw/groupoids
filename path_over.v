@@ -384,3 +384,20 @@ Proof.
   apply path_to_path_over.
   apply path_ishprop.
 Defined.
+
+Definition path_over_arrow
+           {A : Type}
+           (Y₁ Y₂ : A -> Type)
+           {a₁ a₂ : A}
+           (p : a₁ = a₂)
+           (f₁ : Y₁ a₁ -> Y₂ a₁) (f₂ : Y₁ a₂ -> Y₂ a₂)
+           (q : forall (x : Y₁ a₂), path_over Y₂ p (f₁ (p^ # x)) (f₂ x))
+           `{Funext}
+  : path_over (fun a => Y₁ a -> Y₂ a) p f₁ f₂.
+Proof.
+  apply path_to_path_over.
+  funext x.
+  refine (transport_arrow _ _ _ @ _).
+  apply path_over_to_path.
+  apply q.
+Defined.
