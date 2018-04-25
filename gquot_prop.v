@@ -220,9 +220,10 @@ Section gquot_prod.
       rewrite ce.
       reflexivity.
     - intros a₁ a₂ b₁ b₂ g₁ g₂ ; simpl.
-      rewrite <- ginv, <- !gconcat.
+      apply path_to_square.
+      rewrite <- !gconcat.
       apply ap ; simpl.
-      rewrite !inv_e, !ce, ec, ic.
+      rewrite !ce, !ec.
       reflexivity.
   Defined.
 
@@ -282,20 +283,22 @@ Section gquot_prod.
                                       (prod_groupoid G₁ G₂)
                                       _ _ _ _ _ _ _
                                       (a, b₁) (a, b₂) (e a, g)).
-        * exact (ap (fun z => path_prod' z (geqcl G₂ (snd (e a, g)))) (ge G₁ a)).
+        * exact (ap (fun z => path_prod' z (geqcl G₂ g)) (ge G₁ a)).
       + apply vrefl.
-    - intros a b₁ b₂ g.
-      rewrite transport_paths_FlFr.
-      hott_simpl.
-      rewrite ap_compose.
-      rewrite (ap_compose _ gquot_prod_in).
-      rewrite ap_pair_l.
-      rewrite gquot_double_rec_beta_l_gcleq.
-      rewrite gquot_rec_beta_geqcl.
-      rewrite <- path_prod_V.
-      rewrite ge.
-      rewrite <- path_prod_pp.
-      hott_simpl.
+    - intros a₁ a₂ b g.
+      apply map_path_over.
+      refine (whisker_square idpath _ (ap_pair_l _ _)^ idpath _).
+      + refine (_ @ _ @ _ @ _)^.
+        * exact (ap_compose (fun z => gquot_prod_in (z,gcl G₂ b)) gquot_prod_out _).
+        * apply ap.
+          refine (ap_compose _ _ _ @ _).
+          apply gquot_double_rec_beta_l_gcleq.
+        * apply (gquot_rec_beta_geqcl _
+                                      (prod_groupoid G₁ G₂)
+                                      _ _ _ _ _ _ _
+                                      (a₁, b) (a₂, b) (g, e b)).
+        * exact (ap (path_prod' (geqcl G₁ g)) (ge G₂ b)).
+      + apply vrefl.
   Qed.
 
   Global Instance gquot_prod_out_isequiv : IsEquiv gquot_prod_out
@@ -374,53 +377,57 @@ Section encode_decode.
   Proof.
     simple refine (gquot_relation A A G G
                           (hom G)
-                          (fun _ _ _ g => right_action _ g)
-                          (fun _ _ _ g => left_action _ g)
+                          (fun _ _ b g => right_action b g)
+                          (fun a _ _ g => left_action a g)
                           _ _ _ _ _ _ _
           ).
-    - intros a b. simpl. apply right_action_e.
-    - intros. simpl. intro x. unfold right_action.
-      by rewrite inv_involutive.
-    - compute; intros. by rewrite inv_prod, ca.
-    - intros; compute. apply ce.
-    - intros; compute. reflexivity.
-    - compute; intros. apply ca.
-    - compute; intros.
-      do 2 rewrite <- ca.
-      rewrite ic, ce.
+    - intros a b ; simpl.
+      apply right_action_e.
+    - intros a b g x ; simpl.
+      unfold right_action.
+        by rewrite inv_involutive.
+    - compute ; intros.
+        by rewrite inv_prod, ca.
+    - intros ; compute.
+      apply ce.
+    - intros ; compute.
       reflexivity.
+    - compute ; intros.
+      apply ca.
+    - compute ; intros.
+      apply ca.
   Defined.
 
   Definition gquot_fam_l_gcleq
              {a₁ a₂ : A} (b : A) (g : hom G a₁ a₂)
     : ap (fun z => g_fam z (gcl G b)) (geqcl G g)
       =
-      path_hset (BuildEquiv _ _ (right_action _ g) _).
+      path_hset (BuildEquiv _ _ (right_action b g) _).
   Proof.
-    rewrite gquot_relation_beta_l_gcleq.
-    reflexivity.
+    exact (gquot_relation_beta_l_gcleq A A G G (hom G) _ _ _ _ _ _ _ _ _ _ g).
   Defined.
 
   Definition gquot_fam_r_gcleq
              (a : A) {b₁ b₂ : A} (g : hom G b₁ b₂)
     : ap (g_fam (gcl G a)) (geqcl G g)
       =
-      path_hset (BuildEquiv _ _ (left_action _ g) _).
+      path_hset (BuildEquiv _ _ (left_action a g) _).
   Proof.
-    rewrite gquot_relation_beta_r_gcleq.
-    reflexivity.
+    exact (gquot_relation_beta_r_gcleq A A G G (hom G) _ _ _ _ _ _ _ _ _ _ g).
   Defined.
 
   Local Instance g_fam_hset x y : IsHSet (g_fam x y).
-  Proof. apply istrunc_trunctype_type. Defined.
+  Proof.
+    apply istrunc_trunctype_type.
+  Defined.
 
   Definition g_fam_refl : forall (x : gquot G), g_fam x x.
   Proof.
     simple refine (gquot_ind_set (fun x => g_fam x x) _ _ _).
     - intros a.
       exact (@e A G a).
-    - intros a₁ a₂ g.
-      Opaque g_fam. simpl.
+    - Opaque g_fam.
+      intros a₁ a₂ g ; simpl.
       apply path_to_path_over.
       rewrite transport_idmap_ap_set.
       transitivity (transport (fun x : hSet => x)
@@ -432,8 +439,7 @@ Section encode_decode.
       rewrite <- path_hset_comp.
       rewrite transport_idmap_path_hset.
       compute.
-      rewrite ec.
-      rewrite ic.
+      rewrite ec, ic.
       reflexivity.
   Defined.
 
@@ -441,13 +447,16 @@ Section encode_decode.
     fun p => transport (g_fam x) p (g_fam_refl x).
 
   Local Instance g_fam_eq_hset x y : IsHSet (g_fam x y -> x = y).
-  Proof. apply trunc_forall. Defined.
+  Proof.
+    apply trunc_forall.
+  Defined.
   
   Definition finv (x y : gquot G) : g_fam x y -> x = y.
   Proof.
     simple refine (gquot_double_ind_set (fun x y => g_fam x y -> x = y) _ _ x y).
-    - intros a b g. exact (@geqcl A G a b g).
-    - intros. Opaque g_fam. simpl.
+    - intros a b g.
+      exact (@geqcl A G a b g).
+    - intros ; simpl.
       apply path_to_path_over.
       funext h.
       rewrite transport_arrow, transport_paths_FlFr.
@@ -462,7 +471,8 @@ Section encode_decode.
       rewrite <- ca.
       rewrite ic.
       apply ce.
-    - intros. Opaque g_fam. simpl.
+    - intros ; simpl.
+      apply path_to_path_over.
       funext h.
       rewrite transport_arrow, transport_paths_FlFr.
       rewrite ap_idmap, ap_const, concat_p1.
@@ -515,8 +525,7 @@ Section encode_decode.
       rewrite transport_idmap_path_hset.
       compute.
       exact (ec _ G a _ g).
-    - simpl.
-      admit.
+    - admit.
     - admit.
   Admitted.      
 End encode_decode.

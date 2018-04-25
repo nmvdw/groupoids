@@ -355,3 +355,19 @@ Proof.
   rewrite !eissect in s.
   exact s.
 Defined.
+
+Global Instance path_over_hprop
+       {A : Type}
+       (Y : A -> Type)
+       `{forall (a : A), IsHSet (Y a)}
+       {a₁ a₂ : A}
+       (p : a₁ = a₂)
+       (c₁ : Y a₁) (c₂ : Y a₂)
+  : IsHProp (path_over Y p c₁ c₂).
+Proof.
+  apply hprop_allpath.
+  intros x y.
+  refine ((eissect path_over_to_path x)^ @ _ @ eissect path_over_to_path y).
+  apply (ap path_to_path_over).
+  apply path_ishprop.
+Defined.

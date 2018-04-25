@@ -1,5 +1,5 @@
 Require Import HoTT.
-From GR Require Import groupoid path_over globe_over general.
+From GR Require Import groupoid path_over globe_over general square.
 
 Module Export gquot.
   Private Inductive gquot {A : Type} (G : groupoid A) :=
@@ -202,11 +202,10 @@ Section gquot_double_rec.
                (fl a₁ a₂ b g₁) @ (fl a₂ a₃ b g₂))
            (fp : forall (a₁ a₂ : A) (b₁ b₂ : B)
                         (g₁ : hom G₁ a₁ a₂) (g₂ : hom G₂ b₁ b₂),
-               ((fr a₁ b₁ b₂ g₂)^)
-                 @ (fl a₁ a₂ b₁ g₁)
-                @ (fr a₂ b₁ b₂ g₂)
-              = 
-              fl a₁ a₂ b₂ g₁).
+               square (fl a₁ a₂ b₂ g₁)
+                      (fr a₁ b₁ b₂ g₂)
+                      (fr a₂ b₁ b₂ g₂)
+                      (fl a₁ a₂ b₁ g₁)).
 
   Definition gquot_double_rec' : gquot G₁ -> gquot G₂ -> Y.
   Proof.
@@ -217,19 +216,18 @@ Section gquot_double_rec.
       simple refine (gquot_ind_set (fun z => _) _ _ _ y).
       + exact (fun b => fl a₁ a₂ b g₁).
       + intros b₁ b₂ g₂.
-        apply path_to_path_over.
-        refine (transport_paths_FlFr _ _ @ _).
-        refine (ap _ (gquot_rec_beta_geqcl _ _ _ _ _ _ _ _ _ _ _ _) @ _).
-        refine (ap (fun p => (p^ @ _) @ _)
-                   (gquot_rec_beta_geqcl _ _ _ _ _ _ _ _ _ _ _ _) @ _).
-        exact (fp a₁ a₂ b₁ b₂ g₁ g₂).
-    - intros a ; cbn.
+        apply map_path_over.
+        refine (whisker_square idpath _ _ idpath _).
+        * refine (gquot_rec_beta_geqcl _ _ _ _ _ _ _ _ _ _ _ _)^.
+        * refine (gquot_rec_beta_geqcl _ _ _ _ _ _ _ _ _ _ _ _)^.
+        * exact (fp a₁ a₂ b₁ b₂ g₁ g₂).
+    - intros a.
       simple refine (gquot_ind_prop (fun z => _) _ _ y).
       exact (fun b => fle a b).
-    - intros a₁ a₂ g ; cbn.
+    - intros a₁ a₂ g.
       simple refine (gquot_ind_prop (fun z => _) _ _ y).
       exact (fun b => fli a₁ a₂ b g).
-    - intros a₁ a₂ a₃ g ; cbn.
+    - intros a₁ a₂ a₃ g.
       simple refine (gquot_ind_prop (fun z => _) _ _ y).
       exact (fun b => flc a₁ a₂ a₃ b g).
   Defined.
@@ -240,8 +238,7 @@ Section gquot_double_rec.
       =
       fl a₁ a₂ b g.
   Proof.
-    rewrite gquot_rec_beta_geqcl.
-    reflexivity.
+    apply gquot_rec_beta_geqcl.
   Defined.
 
   Definition gquot_double_rec'_beta_r_gcleq
@@ -250,8 +247,7 @@ Section gquot_double_rec.
       =
       fr a b₁ b₂ g.
   Proof.
-    rewrite gquot_rec_beta_geqcl.
-    reflexivity.
+    apply (gquot_rec_beta_geqcl _ G₂ _ _ _ _ _ _ _ _ _ _).
   Defined.
 
   Definition gquot_double_rec : gquot G₁ * gquot G₂ -> Y
@@ -269,10 +265,9 @@ Section gquot_double_rec.
       fl a₁ a₂ b₁ g₁ @ fr a₂ b₁ b₂ g₂.
   Proof.
     refine (uncurry_ap _ _ _ @ _).
-    rewrite (gquot_rec_beta_geqcl A).
-    rewrite (gquot_rec_beta_geqcl B G₂ _ ).
-    reflexivity.
-  Defined.
+    refine (ap (fun p => p @ _) (gquot_rec_beta_geqcl A G₁ _ _ _ _ _ _ _ _ _ _) @ _).
+    exact (ap (fun p => _ @ p) (gquot_rec_beta_geqcl B G₂ _ _ _ _ _ _ _ _ _ _)).
+  Qed.
 
   Definition gquot_double_rec_beta_l_gcleq
              {a₁ a₂ : A} (b : B) (g : hom G₁ a₁ a₂)
@@ -281,18 +276,18 @@ Section gquot_double_rec.
       fl a₁ a₂ b g.
   Proof.
     refine (uncurry_ap _ _ _ @ _).
-    rewrite (gquot_rec_beta_geqcl A).
+    refine (ap (fun p => p @ _) (gquot_rec_beta_geqcl A G₁ _ _ _ _ _ _ _ _ _ _) @ _).
     apply concat_p1.
-  Defined.
-
+  Qed.
+  
   Definition gquot_double_rec_beta_r_gcleq
              (a : A) {b₁ b₂ : B} (g : hom G₂ b₁ b₂)
     : ap gquot_double_rec (path_prod' (idpath  : gcl G₁ a = _) (geqcl G₂ g))
       =
       fr a b₁ b₂ g.
   Proof.
-    rewrite uncurry_ap.
-    rewrite (gquot_rec_beta_geqcl B G₂ _ ).
+    refine (uncurry_ap _ _ _ @ _).
+    refine (ap (fun p => _ @ p) (gquot_rec_beta_geqcl B G₂ _ _ _ _ _ _ _ _ _ _) @ _).
     apply concat_1p.
   Defined.
 End gquot_double_rec.
@@ -313,15 +308,14 @@ Section gquot_double_ind_set.
            (fr : forall (a : A) (b₁ b₂ : B) (g : hom G₂ b₁ b₂),
                path_over (Y (gcl G₁ a)) (geqcl G₂ g) (f a b₁) (f a b₂))
            (fl : forall (a₁ a₂ : A) (b : B) (g : hom G₁ a₁ a₂),
-               transport (fun z : gquot G₁ => Y z (gcl G₂ b)) (geqcl G₁ g) (f a₁ b) = f a₂ b).
-
+               path_over (fun z : gquot G₁ => Y z (gcl G₂ b)) (geqcl G₁ g) (f a₁ b) (f a₂ b)).
+  
   Definition gquot_double_ind_set : forall (a : gquot G₁) (b : gquot G₂), Y a b.
   Proof.
     intros x y.
     simple refine (gquot_ind_set (fun z => _) _ _ _ x).
     - exact (fun a => gquot_ind_set (fun z => _) (f a) (fr a) _ y).
     - intros a₁ a₂ g ; simpl.
-      apply path_to_path_over.
       simple refine (gquot_ind_prop (fun z => _) _ _ y).
       exact (fun b => fl a₁ a₂ b g).
   Defined.
@@ -335,11 +329,11 @@ Definition gquot_encode_ind
            (P : gquot G -> gquot G -> hSet)
            (p : forall (a b : A), P (gcl G a) (gcl G b) -> gcl G a = gcl G b)
            (pl : forall (a b₁ b₂ : A) (g : hom G b₁ b₂) (x : P (gcl G a) (gcl G b₂)),
-               (p a b₁ (transport (fun x0 : gquot G => P (gcl G a) x0) (geqcl G g)^ x))
+               (p a b₁ (transport (fun z : gquot G => P (gcl G a) z) (geqcl G g)^ x))
                  @ geqcl G g = p a b₂ x)
            (pr : forall (a₁ a₂ b : A) (g : hom G a₁ a₂) (x : P (gcl G a₂) (gcl G b)),
                ((geqcl G g)^)
-                 @ p a₁ b (transport (fun x0 : gquot G => P x0 (gcl G b)) (geqcl G g)^ x)
+                 @ p a₁ b (transport (fun z : gquot G => P z (gcl G b)) (geqcl G g)^ x)
                =
                p a₂ b x)
            `{Funext}
@@ -356,7 +350,8 @@ Proof.
     refine (ap (fun p => _ @ p) (ap_idmap _) @ _).
     apply pl.
   - intros a₁ a₂ b g ; simpl.
-    funext x.
+    apply path_to_path_over.
+    funext x.        
     refine (transport_arrow _ _ _ @ transport_paths_FlFr _ _ @ _).
     refine (ap (fun p => (p^ @ _) @ _) (ap_idmap _) @ _).
     refine (ap (fun p => _ @ p) (ap_const _ _) @ _).
@@ -388,9 +383,9 @@ Section gquot_relation.
                fr a b₁ b₃ (g₁ × g₂) == fr a b₂ b₃ g₂ o (fr a b₁ b₂ g₁))
            (fc : forall (a₁ a₂ : A) (b₁ b₂ : B)
                         (g₁ : hom G₁ a₁ a₂) (g₂ : hom G₂ b₁ b₂),
-               fr a₂ b₁ b₂ g₂ o fl a₁ a₂ b₁ g₁ o (fr a₁ b₁ b₂ g₂)^-1
+               fl a₁ a₂ b₂ g₁ o fr a₁ b₁ b₂ g₂
                ==
-               fl a₁ a₂ b₂ g₁
+               fr a₂ b₁ b₂ g₂ o fl a₁ a₂ b₁ g₁
            ).
 
   Definition gquot_relation : gquot G₁ -> gquot G₂ -> hSet.
@@ -424,7 +419,7 @@ Section gquot_relation.
       apply path_hset_eq ; cbn.
       apply fl_comp.
     - intros a₁ a₂ b₁ b₂ g₁ g₂.
-      rewrite <- path_hset_inv.
+      apply path_to_square.
       rewrite <- !path_hset_comp.
       apply path_hset_eq ; cbn.
       apply fc.
