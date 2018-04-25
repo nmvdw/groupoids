@@ -371,3 +371,16 @@ Proof.
   apply (ap path_to_path_over).
   apply path_ishprop.
 Defined.
+
+Definition path_over_path_hprop
+       {A : Type}
+       (Y : A -> Type)
+       `{forall (a : A), IsHProp (Y a)}
+       {a₁ a₂ : A}
+       (p : a₁ = a₂)
+       (c₁ : Y a₁) (c₂ : Y a₂)
+  : path_over Y p c₁ c₂.
+Proof.
+  apply path_to_path_over.
+  apply path_ishprop.
+Defined.

@@ -143,7 +143,7 @@ Section gquot_ind_set.
   Definition gquot_ind_set : forall (g : gquot G), Y g.
   Proof.
     simple refine (gquot_ind Y gclY geqclY _ _ _ _)
-    ; intros ; apply path_to_globe_over ; apply path_ishprop.
+    ; intros ; apply path_globe_over_hset ; apply _.
   Defined.
 
   Definition gquot_ind_set_beta_geqcl : forall (a₁ a₂ : A) (g : hom G a₁ a₂),
@@ -166,8 +166,8 @@ Section gquot_ind_prop.
 
   Definition gquot_ind_prop : forall (g : gquot G), Y g.
   Proof.
-    simple refine (gquot_ind_set Y gclY _ _)
-    ; intros ; apply path_to_path_over ; apply path_ishprop.
+    simple refine (gquot_ind_set Y gclY _ _).
+    intros ; apply path_over_path_hprop ; apply _.
   Qed.
 End gquot_ind_prop.
 
@@ -289,7 +289,7 @@ Section gquot_double_rec.
     refine (uncurry_ap _ _ _ @ _).
     refine (ap (fun p => _ @ p) (gquot_rec_beta_geqcl B G₂ _ _ _ _ _ _ _ _ _ _) @ _).
     apply concat_1p.
-  Defined.
+  Qed.
 End gquot_double_rec.
 
 Arguments gquot_double_rec {A B G₁ G₂} Y {_ _}.
@@ -394,33 +394,33 @@ Section gquot_relation.
     - exact R.
     - exact (fun a b₁ b₂ g => path_hset (BuildEquiv _ _ (fr a b₁ b₂ g) _)).
     - intros a b ; simpl.
-      rewrite <- path_hset_id.
+      refine (_ @ path_hset_id).
       apply path_hset_eq ; cbn.
       apply fr_id.
     - intros a b₁ b₂ g ; simpl.
-      rewrite <- path_hset_inv.
+      refine (_ @ path_hset_inv _).
       apply path_hset_eq ; cbn.
       apply fr_inv.
     - intros a b₁ b₂ b₃ g₁ g₂ ; simpl.
-      rewrite <- path_hset_comp.
+      refine (_ @ path_hset_comp _ _).
       apply path_hset_eq ; cbn.
       apply fr_comp.
     - exact (fun a₁ a₂ b g => path_hset (BuildEquiv _ _ (fl a₁ a₂ b g) _)).
     - intros a b ; simpl.
-      rewrite <- path_hset_id.
+      refine (_ @ path_hset_id).
       apply path_hset_eq ; cbn.
       apply fl_id.
     - intros a₁ a₂ b g ; simpl.
-      rewrite <- path_hset_inv.
+      refine (_ @ path_hset_inv _).
       apply path_hset_eq ; cbn.
       apply fl_inv.
     - intros a₁ a₂ a₃ b g₁ g₂ ; simpl.
-      rewrite <- path_hset_comp.
+      refine (_ @ path_hset_comp _ _).
       apply path_hset_eq ; cbn.
       apply fl_comp.
     - intros a₁ a₂ b₁ b₂ g₁ g₂.
       apply path_to_square.
-      rewrite <- !path_hset_comp.
+      refine ((path_hset_comp _ _)^ @ _ @ path_hset_comp _ _).
       apply path_hset_eq ; cbn.
       apply fc.
   Defined.
@@ -431,8 +431,7 @@ Section gquot_relation.
       =
       path_hset (BuildEquiv _ _ (fl a₁ a₂ b g) _).
   Proof.
-    rewrite gquot_double_rec'_beta_l_gcleq.
-    reflexivity.
+    exact (gquot_double_rec'_beta_l_gcleq A B G₁ G₂ hSet R _ _ _ _ _ _ _ _ _ b g).
   Defined.
 
   Definition gquot_relation_beta_r_gcleq
@@ -441,7 +440,6 @@ Section gquot_relation.
       =
       path_hset (BuildEquiv _ _ (fr a b₁ b₂ g) _).
   Proof.
-    rewrite gquot_double_rec'_beta_r_gcleq.
-    reflexivity.
+    exact (gquot_double_rec'_beta_r_gcleq A B G₁ G₂ hSet R _ _ _ _ _ _ _ _ _ a g).
   Defined.
 End gquot_relation.

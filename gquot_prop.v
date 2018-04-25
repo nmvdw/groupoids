@@ -421,13 +421,14 @@ Section encode_decode.
     apply istrunc_trunctype_type.
   Defined.
 
+  Opaque g_fam.
+
   Definition g_fam_refl : forall (x : gquot G), g_fam x x.
   Proof.
     simple refine (gquot_ind_set (fun x => g_fam x x) _ _ _).
     - intros a.
       exact (@e A G a).
-    - Opaque g_fam.
-      intros a₁ a₂ g ; simpl.
+    - intros a₁ a₂ g ; simpl.
       apply path_to_path_over.
       rewrite transport_idmap_ap_set.
       transitivity (transport (fun x : hSet => x)

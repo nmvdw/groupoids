@@ -108,3 +108,19 @@ Proof.
   induction p, h ; clear s.
   exact (globe_over_id Y q₁).
 Defined.
+
+Definition path_globe_over_hset
+           {A : Type}
+           (Y : A -> Type)
+           `{forall (a : A), IsHSet (Y a)}
+           {a₁ a₂ : A}
+           {c₁ : Y a₁} {c₂ : Y a₂}
+           {p₁ p₂ : a₁ = a₂}
+           (h : globe p₁ p₂)
+           (q₁ : path_over Y p₁ c₁ c₂)
+           (q₂ : path_over Y p₂ c₁ c₂)
+  : globe_over Y h q₁ q₂.
+Proof.
+  apply path_to_globe_over.
+  apply path_ishprop.
+Defined.
