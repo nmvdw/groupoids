@@ -35,14 +35,14 @@ Section one_type_is_groupoid_quotient.
                 idpath
                 idpath.
   Proof.
-    apply path_to_path_over.
-    rewrite transport_paths_FlFr.
-    rewrite concat_p1, ap_idmap.
-    rewrite ap_compose.
-    rewrite gquot_rec_beta_geqcl.
+    apply map_path_over.
     induction g ; cbn.
-    rewrite ge.
-    reflexivity.
+    refine (whisker_square idpath _ _ idpath _).
+    - refine (ap_compose _ _ _ @ ap _ _)^.
+      apply gquot_rec_beta_geqcl.
+    - refine (ap_idmap _ @ _)^.
+      apply ge.
+    - apply vrefl.
   Defined.
 
   Global Instance gquot_to_A_isequiv : IsEquiv gquot_to_A.
