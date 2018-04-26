@@ -1,5 +1,5 @@
 Require Import HoTT.
-Require Import polynomial.
+Require Import setoid polynomial.
 
 (** A groupoid consists of a relation with a certain structure.
    This relation has two parts.
@@ -119,6 +119,19 @@ Proof.
   - exact (path_groupoid T).
   - apply prod_groupoid ; assumption.
   - apply sum_groupoid ; assumption.
+Defined.
+
+Definition setoid_to_groupoid
+           {A : Type}
+           (R : setoid A)
+  : groupoid A.
+Proof.
+  simple refine {| hom := fun a₁ a₂ => BuildhSet (rel R a₁ a₂) ;
+                   e := refl ;
+                   inv := fun _ _ p => sym p ;
+                   comp := fun _ _ _ p q => trans p q
+                |}
+  ; intros ; simpl ; apply path_ishprop.
 Defined.
 
 Definition inv_e

@@ -6,6 +6,8 @@ square.v
 globe_over.v
 path_coequalizer.v
 polynomial.v
+setoid.v
+setoid_prop.v
 groupoid.v
 groupoid_quotient.v
 gquot_prop.v

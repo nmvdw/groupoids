@@ -1,6 +1,7 @@
 Require Import HoTT.
 Require Import groupoid_quotient.
 Require Import groupoid path_over globe_over general square.
+Require Import setoid setoid_prop.
 
 (*
 Definition tarwe
@@ -606,4 +607,68 @@ Section encode_decode.
     compute.
     exact (ec _ G a _ g).
   Defined.
+
+  Global Instance f_isequiv
+    : forall {x y: gquot G}, IsEquiv (f x y).
+  Proof.
+    intros x y.
+    simple refine (isequiv_adjointify _ (finv x y) _ _).
+    - intros z.
+      apply f_finv.
+    - intros z.
+      apply finv_f.
+  Defined.
 End encode_decode.
+
+Section squot_is_gquot.
+  Variable (A : Type)
+           (R : setoid A).
+
+  Definition gquot_to_squot : gquot (setoid_to_groupoid R) -> squot R.
+  Proof.
+    simple refine (gquot_rec (squot R) (class_of (rel R)) _ _ _ _ _).
+    - exact (fun _ _ p => related_classes_eq _ p).
+    - intros ; apply path_ishprop.
+    - intros ; apply path_ishprop.
+    - intros ; apply path_ishprop.
+  Defined.
+
+  Definition wtf
+             (X : Type)
+    : (forall (x y : X), IsHProp (x = y)) -> IsHSet X.
+  Admitted.
+
+  Global Instance gquot_setoid_set `{Univalence}
+    : IsHSet (gquot (setoid_to_groupoid R)).
+  Proof.
+    apply wtf.
+    simple refine (gquot_double_ind_prop _ _ _).
+    cbn ; intros.
+    pose (path_universe (f _ _ (gcl (setoid_to_groupoid R) a) (gcl (setoid_to_groupoid R) b))).
+    rewrite p.
+    simpl.
+    apply _.
+  Defined.
+
+  Definition squot_to_gquot : squot R -> gquot (setoid_to_groupoid R).
+  Proof.
+    simple refine (quotient_rec _ (gcl _) _).
+    simpl ; intros.
+    apply geqcl ; assumption.
+  Defined.
+
+  Definition squot_to_gquot_to_squot
+    : forall (x : squot R), gquot_to_squot(squot_to_gquot x) = x.
+  Proof.
+    simple refine (quotient_ind _ _ _ _).
+    - reflexivity.
+    - intros ; apply path_ishprop.
+  Defined.
+
+  Definition gquot_to_squot_to_gquot
+    : forall (x : gquot (setoid_to_groupoid R)), squot_to_gquot(gquot_to_squot x) = x.
+  Proof.
+    simple refine (gquot_ind_prop _ _ _).
+    reflexivity.
+  Defined.
+End squot_is_gquot.
