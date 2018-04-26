@@ -2,6 +2,69 @@ Require Import HoTT.
 Require Import groupoid_quotient.
 Require Import groupoid path_over globe_over general square.
 
+Definition apd_idpath
+           {B : Type}
+           {b₁ b₂ : B}
+           (p : b₁ = b₂)
+  : apD (@idpath B) p
+    =
+    (transport_paths_FlFr p idpath)
+      @ (ap (fun z => (z^ @ idpath) @ z) (ap_idmap p))
+      @ (ap (fun z => z @ p) (concat_p1 p^))
+      @ (concat_Vp p)
+  := match p with
+     | idpath => idpath
+     end.
+
+Definition transport_paths_FlFr_fun
+      {A B : Type}
+      {f g : A -> B}
+      {a₁ a₂ : A}
+      (p : a₁ = a₂)
+  : transport (fun a : A => f a = g a) p == fun r => (ap f p)^ @ r @ ap g p
+  := transport_paths_FlFr p.
+
+Definition transport_paths_id_id_fun
+      {A : Type}
+      {a₁ a₂ : A}
+      (p : a₁ = a₂)
+  : transport (fun a : A => a = a) p == fun r => p^ @ r @ p
+  := fun r =>
+       transport_paths_FlFr_fun p r @ ap (fun z => (z^ @ r) @ z) (ap_idmap p).
+
+Definition ap_fun_eq
+      {A B : Type}
+      {f g : A -> B}
+      (e : f == g)
+      {a₁ a₂ : A}
+      (p : a₁ = a₂)
+  : ap f p = e a₁ @ ap g p @ (e a₂)^
+  := match p with
+     | idpath => (ap (fun z => z @ (e a₁)^) (concat_p1 (e a₁)) @ concat_pV (e a₁))^
+     end.
+
+Definition ap_transport_apD_idpath
+           {A B : Type}
+           (f : A -> B)
+           {a₁ a₂ : A}
+           (p : f a₁ = f a₂)
+           {q : forall (a : A), f a = f a}
+           (s : forall (a : A), q a = idpath)
+  : (ap (transport (fun b : B => b = b) p) (s a₁))
+      @ apD (@idpath B) p
+    = ((transport_paths_FlFr p (q a₁))
+        @ (ap (fun z => (z^ @ _) @ z) (ap_idmap p))
+        @ (ap (fun z => (p^ @ z) @ p) (s a₁))
+        @ (ap (fun z => z @ p) (concat_p1 p^) @ concat_Vp p)
+        @ ((s a₂)^))
+        @ s a₂.
+Proof.
+  rewrite apd_idpath.
+  rewrite (ap_fun_eq (transport_paths_id_id_fun p) (s a₁)).
+  rewrite inv_pp.
+  hott_simpl.
+Defined.  
+    
 Section one_type_is_groupoid_quotient.
   Variable (A : Type).
   Context `{IsTrunc 1 A}.
@@ -438,10 +501,9 @@ Section encode_decode.
     simple refine (gquot_double_ind_set (fun x y => g_fam x y -> x = y) _ _ x y).
     - intros a b g.
       exact (@geqcl A G a b g).
-    - intros.
+    - intros. simpl.
       simple refine (path_over_arrow _ _ _ _ _ _).
-      intros z.
-      simpl in *.
+      simpl. intros z.
       apply map_path_over.
       refine (whisker_square idpath (ap_const _ _)^ (ap_idmap _)^ _ _).
       + apply ap.
@@ -451,16 +513,15 @@ Section encode_decode.
         * refine (ap (fun p => transport _ p z) _).
           exact ((path_hset_inv (BuildEquiv _ _ (left_action a g) (left_action_equiv a g)))^).
         * apply transport_idmap_path_hset.
-      + apply path_to_square.
+      + simpl. apply path_to_square.
         refine (concat_1p _ @ _ @ gconcat _ _ _).
-        apply ap.
+        apply ap. unfold left_action_inv.
         refine ((ce _ _ _ _ _)^ @ _ @ ca _ _ _ _ _ _ _ _ _).
         refine (ap _ _)^.
         apply ic. 
-    - intros.
+    - intros. simpl.
       simple refine (path_over_arrow _ _ _ _ _ _).
-      intros z.
-      simpl in *.
+      simpl. intros z.
       apply map_path_over.
       refine (whisker_square idpath (ap_idmap _)^ (ap_const _ _)^ _ _).
       + apply ap.
@@ -470,7 +531,8 @@ Section encode_decode.
           exact (ap inverse (gquot_fam_l_gcleq b g)).
         * exact ((path_hset_inv (BuildEquiv _ _ (right_action b g) (right_action_equiv b g)))^).
         * apply transport_idmap_path_hset.
-      + apply path_to_square.
+      + simpl. apply path_to_square.
+        unfold right_action_inv.       
         exact ((gconcat _ _ _)^ @ (concat_p1 _)^).
   Defined.
 
@@ -482,12 +544,13 @@ Section encode_decode.
     induction p.
     revert x.
     simple refine (gquot_ind_set _ _ _ _).
-    - intros a.
-      apply ge.
-    - intros a₁ a₂ g.
-      cbn.
-      apply path_to_path_over.
-      admit.
+    - intros a ; simpl.
+      exact (ge _ _).
+    - intros a₁ a₂ g ; simpl.
+      apply map_path_over_D.
+      apply path_to_square.
+      rewrite (ap_transport_apD_idpath (gcl G) (geqcl G g) (ge G)).
+      apply (ap (fun z => z @ ge G a₂)).
   Admitted.
 
   Local Instance f_finv_set (x y : gquot G)
@@ -509,11 +572,12 @@ Section encode_decode.
       refine (transport_idmap_ap_set (fun x : gquot G => g_fam (gcl G a) x)
                                      (geqcl G g)
                                      (e a) @ _).
-      rewrite (gquot_fam_r_gcleq a).
-      rewrite transport_idmap_path_hset.
+      refine (ap (fun p => transport _ p (e a)) (gquot_fam_r_gcleq a _) @ _).
+      refine (transport_idmap_path_hset _ _ @ _).
       compute.
       exact (ec _ G a _ g).
-    - admit.
+    - intros a b₁ b₂ g.
+      admit.
     - admit.
   Admitted.      
 End encode_decode.

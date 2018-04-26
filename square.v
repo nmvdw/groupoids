@@ -426,3 +426,39 @@ Section operations.
     apply isequiv_compose.
   Defined.
 End operations.
+
+(*
+Inductive square_over {A : Type} (Y : A -> Type)
+  : forall {tl tr dl dr : A}
+           {t : tl = tr}
+           {l : dl = tl} {r : dr = tr}
+           {d : dl = dr}
+           (s : square t l r d)
+           {tlY : Y tl} {trY : Y tr}
+           {dlY : Y dl} {drY : Y dr}
+           (qt : path_over Y t tlY trY)
+           (ql : path_over Y l dlY tlY)
+           (qr : path_over Y r drY trY)
+           (qd : path_over Y d dlY drY),
+    Type
+  :=
+  | square_over_id : forall {a : A} (y : Y a),
+      square_over Y id_square
+                  (path_over_id y) (path_over_id y)
+                  (path_over_id y) (path_over_id y).
+*)
+
+Definition map_path_over_D
+           {A : Type}
+           {Y : A -> Type}
+           (f g : forall (a : A), Y a)
+           {a₁ a₂ : A}
+           (p : a₁ = a₂)
+           (c₁ : f a₁ = g a₁) (c₂ : f a₂ = g a₂)
+           (s : square c₂ (apD f p) (apD g p) (ap (transport Y p) c₁))
+  : path_over (fun a => f a = g a) p c₁ c₂.
+Proof.
+  induction p.
+  apply path_to_path_over ; simpl in *.
+  exact ((concat_1p _)^ @ square_to_path s @ concat_p1 _ @ ap_idmap _)^.
+Defined.
