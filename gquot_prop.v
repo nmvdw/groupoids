@@ -633,15 +633,17 @@ Section squot_is_gquot.
     - intros ; apply path_ishprop.
   Defined.
 
-  Definition wtf
+  Definition hset_allpath_eq
              (X : Type)
     : (forall (x y : X), IsHProp (x = y)) -> IsHSet X.
-  Admitted.
+  Proof.
+    apply _.
+  Defined.
 
   Global Instance gquot_setoid_set `{Univalence}
     : IsHSet (gquot (setoid_to_groupoid R)).
   Proof.
-    apply wtf.
+    apply hset_allpath_eq.
     simple refine (gquot_double_ind_prop _ _ _).
     cbn ; intros.
     pose (path_universe (f _ _ (gcl (setoid_to_groupoid R) a) (gcl (setoid_to_groupoid R) b))).
