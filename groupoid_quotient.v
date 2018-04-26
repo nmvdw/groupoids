@@ -323,6 +323,26 @@ End gquot_double_ind_set.
 
 Arguments gquot_double_ind_set {A B G₁ G₂} Y {_ _}.
 
+Section gquot_double_ind_prop.
+  Variable (A B : Type)
+           (G₁ : groupoid A)
+           (G₂ : groupoid B)
+           (Y : gquot G₁ -> gquot G₂ -> Type).
+  Context `{forall (a : gquot G₁) (b : gquot G₂), IsHProp (Y a b)}
+          `{Funext}.
+  
+  Variable (f : forall (a : A) (b : B), Y (gcl G₁ a) (gcl G₂ b)).
+  
+  Definition gquot_double_ind_prop : forall (a : gquot G₁) (b : gquot G₂), Y a b.
+  Proof.
+    intros x y.
+    simple refine (gquot_ind_prop (fun z => _) _ _ x).
+    exact (fun a => gquot_ind_prop (fun z => _) (f a) _ y).
+  Defined.
+End gquot_double_ind_prop.
+
+Arguments gquot_double_ind_prop {A B G₁ G₂} Y.
+
 Definition gquot_encode_ind
            {A : Type}
            {G : groupoid A}
