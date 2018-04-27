@@ -1,13 +1,14 @@
 -R . "GR" COQC = hoqc COQDEP = hoqdep
-general.v
-heterogeneous_equality.v
-path_over.v
-square.v
-globe_over.v
-path_coequalizer.v
-polynomial.v
-setoid.v
-setoid_prop.v
-groupoid.v
-groupoid_quotient.v
-gquot_prop.v
+basics/general.v
+basics/heterogeneous_equality.v
+basics/path_over.v
+basics/square.v
+basics/globe_over.v
+basics/polynomial.v
+setoid/setoid.v
+setoid/squot_properties.v
+groupoid/groupoid.v
+groupoid/groupoid_quotient.v
+groupoid/gquot_poly.v
+groupoid/gquot_encode_decode.v
+groupoid/gquot_general.v
