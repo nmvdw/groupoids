@@ -1,17 +1,17 @@
 Require Import HoTT.
-Require Import groupoid_quotient.
-Require Import groupoid path_over globe_over general square.
+From GR Require Import groupoid_quotient path_over globe_over general square.
 
-(** We use the encode decode method to characterize the path space of `gquot G`. *)
+
+(** * Encode-decode method for characterizing the path space of [gquot G]. *)
 Section encode_decode.
   Variable (A : Type)
            (G : groupoid A).
   Context `{Univalence}.
 
-  (** First, we shall lift `G` to a set relation of `gquot G`.
-      For that, we need an equivalence `hom G a₁ b` and `hom G a₂ b`
-      and one between `hom G a b₁` and `hom G a b₂`.
-      The first one is the `right_action`.
+  (** First, we shall lift the hom set of [G] to a set relation of [gquot G].
+      For that, we need an equivalence between [hom G a₁ b] and [hom G a₂ b] (given a morphism [hom G a₁ a₂]),
+      and another one between [hom G a b₁] and [hom G a b₂] (given a morphism [hom G b₁ b₂]).
+      Those are the [left_action] and the [right_action], resp.
    *)
   Definition right_action
         {a₁ a₂ : A} (b : A)
@@ -37,7 +37,6 @@ Section encode_decode.
       exact (ap (fun z => z × h) (ci _) @ ec _).
   Defined.
 
-  (** The equivalence between `hom G a b₁` and `hom G a b₂` is the `left_action`. *)
   Definition left_action
         (a : A) {b₁ b₂ : A}
         (g : hom G b₁ b₂)
@@ -79,7 +78,7 @@ Section encode_decode.
     apply ec.
   Qed.
 
-  (** The lift of `G` to `gquot G`. *)
+  (** The lift of [hom G] to [gquot G]. *)
   Definition g_fam : gquot G -> gquot G -> hSet.
   Proof.
     simple refine (gquot_relation A A G G
@@ -104,7 +103,7 @@ Section encode_decode.
       apply ca.
   Defined.
 
-  (** The computation rules of `g_fam` for the paths. *)
+  (** The computation rules of [g_fam] for the paths. *)
   Definition gquot_fam_l_gcleq
              {a₁ a₂ : A} (b : A) (g : hom G a₁ a₂)
     : ap (fun z => g_fam z (gcl G b)) (gcleq G g)
@@ -122,7 +121,7 @@ Section encode_decode.
   Local Instance g_fam_hset x y : IsHSet (g_fam x y)
     := istrunc_trunctype_type _.
 
-  (** The relation `g_fam` is reflexive. *)
+  (** The relation [g_fam] is reflexive. *)
   Definition g_fam_refl : forall (x : gquot G), g_fam x x.
   Proof.
     simple refine (gquot_ind_set (fun x => g_fam x x) _ _ _).
@@ -153,7 +152,7 @@ Section encode_decode.
   Opaque g_fam.
 
   (** We can also define the decode function.
-      For this we use double induction over a set family.
+      For this we use double induction over a family of sets.
    *)
   Definition decode_gquot (x y : gquot G) : g_fam x y -> x = y.
   Proof.
@@ -195,7 +194,7 @@ Section encode_decode.
         exact ((gconcat _ _ _)^ @ (concat_p1 _)^).
   Defined.
 
-  (** These maps are inverses of each other. *)
+  (** The encode and decode maps are inverses of each other. *)
   Definition decode_gquot_encode_gquot
              {x y : gquot G}
              (p : x = y)

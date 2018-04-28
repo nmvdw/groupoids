@@ -2,7 +2,9 @@ Require Import HoTT.
 Require Import groupoid_quotient.
 Require Import groupoid path_over globe_over general square.
 
-(** The groupoid quotient commutes with sums.
+(** * Groupoid quotient commmutes with polynomials *)
+
+(** ** The groupoid quotient commutes with sums.
     We use recursion to define the maps and `gquot_ind_set` to prove they are inverses.
  *)
 Section gquot_sum.
@@ -121,7 +123,7 @@ Section gquot_sum.
     := isequiv_adjointify _ gquot_sum_in gquot_sum_in_out_sect gquot_sum_out_in_sect.
 End gquot_sum.
 
-(** The groupoid quotient commutes with products.
+(** ** The groupoid quotient commutes with products.
     We use recursion and double recursion to define the maps.
     We use `gquot_ind_set` to show they are inverses.
  *)

@@ -1,6 +1,7 @@
 Require Import HoTT.
 Require Import setoid polynomial.
 
+(** * Basic definitions *)
 (** A groupoid consists of a relation with a certain structure.
    This relation has two parts.
    First of all, it has objects.
@@ -34,6 +35,7 @@ Arguments ci {A _ x y} p.
 Arguments ic {A _ x y} p.
 Notation "p × q" := (comp _ _ _ _ _ p q) (at level 80).
 
+(** ** Constructions of groupoids *)
 (** Now let's discuss some examples of groupoids.
     The first example is the paths on a certain type.
 *)
@@ -140,7 +142,9 @@ Proof.
   ; intros ; simpl ; apply path_ishprop.
 Defined.
 
-(** `e⁻¹ = e` *)
+
+(** ** Some equational theory for groupoids *)
+(** [e⁻¹ = e] *)
 Definition inv_e
            {A : Type}
            (G : groupoid A)
@@ -148,7 +152,7 @@ Definition inv_e
   : inv (@e _ G a) = e a
   := (ce _)^ @ ic (e a).
 
-(** `(g⁻¹)⁻¹ = g` *)
+(** [(g⁻¹)⁻¹ = g] *)
 Definition inv_involutive
            {A : Type}
            (G : groupoid A)
@@ -163,7 +167,7 @@ Proof.
   apply ec.
 Defined.
 
-(** `(g h)⁻¹ = h⁻¹ g ⁻¹` *)
+(** [(g h)⁻¹ = h⁻¹ g ⁻¹] *)
 Definition inv_prod
            {A : Type}
            (G : groupoid A)

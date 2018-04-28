@@ -4,12 +4,12 @@ Require Import groupoid path_over globe_over general square.
 Require Import setoid squot_properties.
 Require Import gquot_encode_decode.
 
-(** A `1`-type is a groupoid quotient. *)
+(** * A 1-type is a groupoid quotient. *)
 Section one_type_is_groupoid_quotient.
   Variable (A : Type).
   Context `{IsTrunc 1 A}.
 
-  (** Every `1`-type induces a groupoid.
+  (** Every 1-type induces a groupoid (namely, the path groupoid).
       Taking the groupoid quotient over this gives an equivalent type.
    *)
   Definition one_type_path_groupoid : groupoid A
@@ -64,6 +64,7 @@ Section one_type_is_groupoid_quotient.
   Defined.
 End one_type_is_groupoid_quotient.
 
+(** * Setoid quotients and groupoid quotients *)
 (** Every setoid induces a groupoid.
     The setoid quotients of a setoid coincides with the groupoid quotient over
     its induced groupoid.

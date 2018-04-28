@@ -1,19 +1,23 @@
+(** This file defines a groupoid quotient HIT and derives some recursion/induction principles for it. *)
 Require Import HoTT.
-From GR Require Import groupoid path_over globe_over general square.
+From GR Require Import path_over globe_over general square.
+From GR Require Export groupoid.
 
-(** The groupoid quotient over a type.
-    Given a type `A` and a groupoid `G`, we construct a type `gquot G` such that
-    we have `A -> gquot A G` and the equality of `gquot A G` is described by G.
+(** * The groupoid quotient over a type. *)
+(** Given a type [A] and a groupoid [G], we construct a type [gquot G] such that
+    we have [A -> gquot A G] and the equality of [gquot A G] is described by [G].
     We use the standard method to define the HIT
-    `HIT gquot G :=
+    <<
+    HIT gquot G :=
      | gcl : A -> gquot G
      | gcleq : Π(a₁ a₂ : A), hom G a₁ a₂ -> gcl a₁ = gcl a₂
      | ge : Π(a : A), gcleq (e a) = idpath
      | ginv : Π(a₁ a₂ : A) (g : hom G a₁ a₂), gcleq g⁻¹ = (gcleq g)^
      | gconcat : Π(a₁ a₂ a₃ : A) (g₁ : hom G a₁ a₂) (g₂ : hom G a₂ a₃),
                gcleq (g₁ × g₂) = gcleq g₁ @ gcleq g₂
-     | gtrunc : Is-1-Type (gquot G)`
- *)
+     | gtrunc : Is-1-Type (gquot G)
+    >>
+*)
 Module Export gquot.
   Private Inductive gquot {A : Type} (G : groupoid A) :=
   | gcl : A -> gquot G.
@@ -80,6 +84,7 @@ End gquot.
 
 Arguments gquot_ind {A G} Y gclY gcleqY geY ginvY gconcatY truncY.
 
+(** * Derived recursion/induction principles *)
 (** The recursion principle of the HIT. *)
 Section gquot_rec.
   Variable (A : Type)
@@ -190,7 +195,7 @@ End gquot_ind_prop.
 Arguments gquot_ind_prop {A G} Y gclY.
 
 (** The double recursion principle.
-    We use `gquot_rec`, `gquot_ind_set` and `gquot_ind_prop` to define it.
+    We use [gquot_rec], [gquot_ind_set] and [gquot_ind_prop] to define it.
  *)
 Section gquot_double_rec.
   Variable (A B : Type)
@@ -408,9 +413,9 @@ Proof.
 Defined.
 *)
 
-(** A special instance of double recursion, is defining set valued relations.
-    This requires univalence, because we need to give equalities in `hSet`.
-    These equalities are made with `path_hset` and two functions need to be given.
+(** A special instance of double recursion for defining set-relations.
+    This requires univalence, because we need to give equalities in [hSet].
+    These equalities are made with [path_hset] and two functions need to be given.
     For the higher coherencies, these functions need to satisfy some laws.
  *)
 Section gquot_relation.
