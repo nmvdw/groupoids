@@ -21,7 +21,7 @@ Section gquot_sum.
                _
                (fun a => gcl _ (inl a))
                (fun a₁ a₂ g => @gcleq _ (sum_groupoid G₁ G₂) (inl a₁) (inl a₂) g)
-               (fun a => @ge _ (sum_groupoid G₁ G₂) (inl a))
+               (fun a => ge (sum_groupoid G₁ G₂) (inl a))
                (fun a₁ a₂ g => @ginv _ (sum_groupoid G₁ G₂) (inl a₁) (inl a₂) g)
                (fun a₁ a₂ a₃ g₁ g₂ =>
                   @gconcat _
@@ -37,7 +37,7 @@ Section gquot_sum.
                _
                (fun b => gcl _ (inr b))
                (fun b₁ b₂ g => @gcleq _ (sum_groupoid G₁ G₂) (inr b₁) (inr b₂) g)
-               (fun b => @ge _ (sum_groupoid G₁ G₂) (inr b))
+               (fun b => ge (sum_groupoid G₁ G₂) (inr b))
                (fun b₁ b₂ g => @ginv _ (sum_groupoid G₁ G₂) (inr b₁) (inr b₂) g)
                (fun b₁ b₂ b₃ g₁ g₂ =>
                   @gconcat _
@@ -78,6 +78,22 @@ Section gquot_sum.
     simple refine (gquot_ind_set (fun x => gquot_sum_in (gquot_sum_out x) = x) _ _ _ x).
     - intros [ | ] ; reflexivity.
     - intros [a1 | b1] [a2 | b2] g ; try refine (Empty_rec g) ; simpl in g.
+      (**
+       <<
+                     1
+       [inl(a₂)] —————————→ [inl(a₂)]
+          |                     |
+          |                     |
+ ap       |                     |
+  (gquot_sum_in o               | ap 1 [g]
+    gquot_sum_out) [g]          |
+          |                     |
+          |                     |
+          |                     |
+       [inl(a₁)] —————————→ [inl(a₁)]
+                     1
+       >>
+       *)
       + apply map_path_over.
         refine (whisker_square idpath _ (ap_idmap _)^ idpath (vrefl _)).
         refine (_ @ (ap_compose _ _ _)^).
@@ -119,8 +135,11 @@ Section gquot_sum.
         ** apply gquot_rec_beta_gcleq.
   Qed.
 
-  Global Instance gquot_sum_out_isequiv : IsEquiv gquot_sum_out
-    := isequiv_adjointify _ gquot_sum_in gquot_sum_in_out_sect gquot_sum_out_in_sect.
+  Global Instance gquot_sum_in_isequiv : IsEquiv gquot_sum_in
+    := isequiv_adjointify _ gquot_sum_out gquot_sum_out_in_sect gquot_sum_in_out_sect.
+
+  Definition gquot_sum : (gquot G₁ + gquot G₂) <~> gquot (sum_groupoid G₁ G₂) :=
+    BuildEquiv _ _ gquot_sum_in _.
 End gquot_sum.
 
 (** ** The groupoid quotient commutes with products.
@@ -244,6 +263,9 @@ Section gquot_prod.
       * exact (ap (path_prod' (gcleq G₁ g)) (ge G₂ b)).
   Qed.
 
-  Global Instance gquot_prod_out_isequiv : IsEquiv gquot_prod_out
-    := isequiv_adjointify _ gquot_prod_in gquot_prod_in_out_sect gquot_prod_out_in_sect.
+  Global Instance gquot_prod_in_isequiv : IsEquiv gquot_prod_in
+    := isequiv_adjointify _ gquot_prod_out gquot_prod_out_in_sect gquot_prod_in_out_sect.
+
+  Definition gquot_prod : (gquot G₁ * gquot G₂) <~> gquot (prod_groupoid G₁ G₂) :=
+    BuildEquiv _ _ gquot_prod_in _.
 End gquot_prod.
