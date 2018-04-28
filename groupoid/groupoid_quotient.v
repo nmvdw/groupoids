@@ -1,7 +1,7 @@
 (** This file defines a groupoid quotient HIT and derives some recursion/induction principles for it. *)
 Require Import HoTT.
-From GR Require Import path_over globe_over general square.
-From GR Require Export groupoid.
+From GR Require Import general.
+From GR Require Export globe_over path_over square groupoid.
 
 (** * The groupoid quotient over a type. *)
 (** Given a type [A] and a groupoid [G], we construct a type [gquot G] such that

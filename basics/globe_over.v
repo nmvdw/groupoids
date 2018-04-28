@@ -1,5 +1,5 @@
 Require Import HoTT.
-From GR Require Import path_over.
+From GR Require Export path_over.
 
 (** A globe represents an equality between two paths. *)
 Inductive globe

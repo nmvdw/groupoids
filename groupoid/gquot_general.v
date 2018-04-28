@@ -1,8 +1,6 @@
 Require Import HoTT.
-Require Import groupoid_quotient.
-Require Import groupoid path_over globe_over general square.
-Require Import setoid squot_properties.
-Require Import gquot_encode_decode.
+From GR Require Import setoid squot_properties.
+From GR Require Export groupoid_quotient gquot_encode_decode.
 
 (** * A 1-type is a groupoid quotient. *)
 Section one_type_is_groupoid_quotient.

@@ -1,5 +1,5 @@
 Require Import HoTT.
-Require Import setoid polynomial general.
+From GR Require Import general polynomial setoid.
 
 (** The quotient over an setoid. *)
 Definition squot {A : Type} (R : setoid A)

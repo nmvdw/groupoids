@@ -1,5 +1,5 @@
 Require Import HoTT.
-Require Import heterogeneous_equality.
+From GR Require Import heterogeneous_equality.
 
 (** The type of paths over path defined as an inductive type.
     The goal is to represent paths in dependent families.

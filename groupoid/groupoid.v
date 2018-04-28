@@ -1,5 +1,5 @@
 Require Import HoTT.
-Require Import setoid polynomial.
+From GR Require Import polynomial setoid.
 
 (** * Basic definitions *)
 (** A groupoid consists of a relation with a certain structure.

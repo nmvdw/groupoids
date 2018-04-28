@@ -1,6 +1,6 @@
 Require Import HoTT.
-Require Import groupoid_quotient.
-Require Import groupoid path_over globe_over general square.
+From GR Require Import general.
+From GR Require Export polynomial groupoid_quotient.
 
 (** * Groupoid quotient commmutes with polynomials *)
 
