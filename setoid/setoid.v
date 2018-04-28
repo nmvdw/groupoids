@@ -67,11 +67,11 @@ Defined.
 
 (** We can apply polynomial functors to setoids. *)
 Definition lift_setoid
-           {A : Type} (G : setoid A) (P : polynomial)
+           {A : Type} (R : setoid A) (P : polynomial)
   : setoid (poly_act P A).
 Proof.
   induction P ; simpl.
-  - exact G.
+  - exact R.
   - exact (path_setoid T).
   - apply prod_setoid ; assumption.
   - apply sum_setoid ; assumption.

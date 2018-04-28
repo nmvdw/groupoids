@@ -428,26 +428,6 @@ Section operations.
   Defined.
 End operations.
 
-(*
-Inductive square_over {A : Type} (Y : A -> Type)
-  : forall {tl tr dl dr : A}
-           {t : tl = tr}
-           {l : dl = tl} {r : dr = tr}
-           {d : dl = dr}
-           (s : square t l r d)
-           {tlY : Y tl} {trY : Y tr}
-           {dlY : Y dl} {drY : Y dr}
-           (qt : path_over Y t tlY trY)
-           (ql : path_over Y l dlY tlY)
-           (qr : path_over Y r drY trY)
-           (qd : path_over Y d dlY drY),
-    Type
-  :=
-  | square_over_id : forall {a : A} (y : Y a),
-      square_over Y id_square
-                  (path_over_id y) (path_over_id y)
-                  (path_over_id y) (path_over_id y).
-*)
 (** `path_over` in a family of equations between dependent maps is the same as a square. *)
 Definition map_path_over_D
            {A : Type}
