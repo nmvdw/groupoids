@@ -76,3 +76,14 @@ Proof.
   - apply prod_setoid ; assumption.
   - apply sum_setoid ; assumption.
 Defined.
+
+(** The function space of setoids. *)
+Definition fun_setoid
+           {A B : Type} (R₁ : setoid A) (R₂ : setoid B)
+           `{Univalence}
+  : setoid {f : A -> B & forall (x₁ x₂ : A), rel R₁ x₁ x₂ -> rel R₂ (f x₁) (f x₂)}
+  := {| rel := fun f g => BuildhProp (forall (x : A), rel R₂ (f.1 x) (g.1 x));
+        refl := fun f x => refl (f.1 x) ;
+        sym := fun f g p x => sym (p x) ;
+        trans := fun f g h p₁ p₂ x => trans (p₁ x) (p₂ x)
+     |}.
