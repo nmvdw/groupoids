@@ -11,5 +11,6 @@ groupoid/groupoid.v
 groupoid/groupoid_quotient.v
 groupoid/gquot_poly.v
 groupoid/gquot_encode_decode.v
+groupoid/adjunction.v
 groupoid/gquot_general.v
 basics/potpouri.v

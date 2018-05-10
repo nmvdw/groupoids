@@ -234,7 +234,40 @@ Proof.
   apply ec.
 Defined.
 
-Definition functor_eq
+Definition idfunctor {A : Type} (G : groupoid A) : groupoid_functor G G.
+Proof.
+  simple refine (Build_groupoid_functor _ _ _ _ (fun x => x) _ _ _ _).
+  - simpl. intros x y. refine (fun x => x).
+  - reflexivity.
+  - reflexivity.
+  - reflexivity.
+Defined.
+
+Definition functor_comp {A B C : Type} {G₁ : groupoid A} {G₂ : groupoid B} {G₃ : groupoid C}
+           (F : groupoid_functor G₁ G₂) (G : groupoid_functor G₂ G₃) : groupoid_functor G₁ G₃.
+Proof.
+  simple refine (Build_groupoid_functor _ _ _ _ _ _ _ _ _).
+  - intros x. apply (f_obj G). apply (f_obj F x).
+  - intros x y g ; simpl.
+    apply (f_hom G). apply (f_hom F). exact g.
+  - intros x ; simpl. do 2 rewrite f_e. reflexivity.
+  - intros x y g ; simpl. do 2 rewrite f_inv. reflexivity.
+  - intros x y z g₁ g₂ ; simpl. do 2 rewrite f_comp. reflexivity.
+Defined.
+
+Definition groupoid_functor_sigma {A B : Type} {G₁ : groupoid A} {G₂ : groupoid B} :
+  { f_obj : A -> B &
+  { f_hom : forall x y : A, hom G₁ x y -> hom G₂ (f_obj x) (f_obj y) &
+  { f_e : forall x : A, f_hom x x (e x) = e (f_obj x) &
+  { f_inv : forall (x y : A) (g : hom G₁ x y), f_hom y x (inv g) = inv (f_hom x y g) &
+    forall (x y z : A) (g₁ : hom G₁ x y) (g₂ : hom G₁ y z),
+           f_hom x z (g₁ × g₂) = (f_hom x y g₁ × f_hom y z g₂) }}}}
+    <~> groupoid_functor G₁ G₂.
+Proof.
+  issig (Build_groupoid_functor A B G₁ G₂) (@f_obj A B G₁ G₂) (@f_hom A B G₁ G₂) (@f_e A B G₁ G₂) (@f_inv A B G₁ G₂) (@f_comp A B G₁ G₂).
+Defined.
+
+Definition functor_eq `{Univalence}
            {A B : Type}
            {G₁ : groupoid A} {G₂ : groupoid B}
            (F₁ F₂ : groupoid_functor G₁ G₂)
@@ -246,18 +279,19 @@ Definition functor_eq
                                  (eq_obj^)
                                  (f_hom F₂ x y g)
            )
-           `{Univalence}
   : F₁ = F₂.
 Proof.
-  destruct F₁, F₂ ; simpl in *.
-  induction eq_obj ; simpl in *.
-  induction (eq_hom : f_hom0 = f_hom1) ; simpl in *.
-  assert (f_e0 = f_e1) as ->.
-  { apply path_ishprop. }
-  assert (f_inv0 = f_inv1) as ->.
-  { apply path_ishprop. }
-  assert (f_comp0 = f_comp1) as ->.
-  { apply path_ishprop. }
+  enough (groupoid_functor_sigma (groupoid_functor_sigma^-1 F₁) =
+            groupoid_functor_sigma (groupoid_functor_sigma^-1 F₂)) as HFF.
+  { refine ((eisretr groupoid_functor_sigma F₁)^ @ _ @ eisretr groupoid_functor_sigma F₂).
+    exact HFF. }
+  refine (ap groupoid_functor_sigma _).
+  symmetry.
+  simple refine (path_sigma _ _ _ _ _).
+  { symmetry. apply eq_obj. }
+  simple refine (path_sigma_hprop _ _ _).
+  symmetry; simpl. rewrite eq_hom.
+  destruct F₂ ; simpl in *. induction eq_obj ; simpl in *.
   reflexivity.
 Defined.
 
