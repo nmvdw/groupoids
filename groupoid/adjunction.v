@@ -30,6 +30,23 @@ Section adjunction.
     - intros x y z g₁ g₂ ; simpl. apply ap_pp.
   Defined.
 
+  Lemma path_groupoid_functor_1 {A : 1-Type} :
+    path_groupoid_functor (fun x : A => x) = (idfunctor (path_groupoid A)).
+  Proof.
+    simple refine (functor_eq _ _ _ _).
+    - reflexivity.
+    - simpl. funext x y p. apply ap_idmap.
+  Defined.
+
+  Lemma path_groupoid_functor_compose {A B C : 1-Type}
+        (f : A -> B) (g : B -> C) :
+    path_groupoid_functor (g o f) = functor_comp (path_groupoid_functor f) (path_groupoid_functor g).
+  Proof.
+    simple refine (functor_eq _ _ _ _).
+    - reflexivity.
+    - simpl. funext x y p. apply ap_compose.
+  Defined.
+
   (** ** The groupoid quotient functor (free 1-type) *)
   Definition gquot' {A : TruncType 1} (G : groupoid A) : TruncType 1 :=
     BuildTruncType 1 (gquot G).
@@ -52,6 +69,22 @@ Section adjunction.
       refine (ap (gcleq _) (f_comp _ _ _ _ _)).
   Defined.
 
+  Lemma gquot'_functor_compose {A B C : 1-Type}
+        {G₁ : groupoid A} {G₂ : groupoid B} {G₃ : groupoid C}
+        (f : groupoid_functor G₁ G₂) (g : groupoid_functor G₂ G₃) :
+    gquot'_functor (functor_comp f g) = gquot'_functor g o gquot'_functor f.
+  Proof.
+    apply path_forall.
+    simple refine (gquot_ind_set _ _ _ _).
+    - intros a. simpl. reflexivity.
+    - intros a₁ a₂ h. simpl.
+      apply map_path_over.
+      refine (whisker_square idpath _ _ idpath (vrefl _)).
+      + rewrite gquot_rec_beta_gcleq. reflexivity.
+      + rewrite ap_compose.
+        do 2 rewrite gquot_rec_beta_gcleq. reflexivity.
+  Qed.
+
   (** ** Counit of the adjunction is an isomorphism *)
   Definition counit (A : TruncType 1) : gquot (path_groupoid A) -> A.
   Proof.
@@ -61,6 +94,23 @@ Section adjunction.
     - exact (fun _ _ _ => idpath).
     - exact (fun _ _ _ _ _ => idpath).
   Defined.
+
+  Lemma counit_nat {A B : 1-Type} (f : A -> B) :
+    f o counit A = counit B o (gquot'_functor (path_groupoid_functor f)).
+  Proof.
+    apply path_forall.
+    simple refine (gquot_ind_set _ _ _ _).
+    - intros a. simpl. reflexivity.
+    - intros a₁ a₂ h. simpl.
+      apply map_path_over.
+      refine (whisker_square idpath _ _ idpath (vrefl _)).
+      + rewrite ap_compose.
+        rewrite gquot_rec_beta_gcleq.
+        reflexivity.
+      + rewrite (ap_compose (gquot'_functor (path_groupoid_functor f))).
+        do 2 rewrite gquot_rec_beta_gcleq.
+        reflexivity.
+  Qed.
 
   Definition path_over_help
              {A : TruncType 1}
@@ -114,6 +164,17 @@ Section adjunction.
        f_comp := fun x y z g₁ g₂ => unit_hom_concat g₁ g₂
      |}.
 
+  Lemma unit_nat {A B : 1-Type} {G₁ : groupoid A} {G₂ : groupoid B}
+        (g : groupoid_functor G₁ G₂) :
+    functor_comp g (unit G₂) =
+    functor_comp (unit G₁) (path_groupoid_functor (gquot'_functor g)).
+  Proof.
+    simple refine (functor_eq _ _ _ _).
+    - reflexivity.
+    - simpl. funext x y p. unfold unit_hom, f_hom.
+      symmetry. refine (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _ _).
+  Defined.
+
   (** ** Unit-counit equations for an adjunction *)
   Lemma counit_unit {A : TruncType 1} :
     functor_comp (unit (path_groupoid A)) (path_groupoid_functor (counit A)) = idfunctor (path_groupoid A).
@@ -138,5 +199,41 @@ Section adjunction.
         reflexivity.
       + symmetry. apply ap_idmap.
   Defined.
+
+  (** ** Hom-set bijection formulation *)
+  Definition phi {A : 1-Type} (G : groupoid A) (B : 1-Type) :
+    (gquot' G -> B) -> (groupoid_functor G (path_groupoid B)) :=
+    fun f => functor_comp (unit G) (path_groupoid_functor f).
+
+  Definition phi_i {A : 1-Type} (G : groupoid A) (B : 1-Type) :
+    (groupoid_functor G (path_groupoid B)) -> (gquot' G -> B) :=
+    fun g => counit B o gquot'_functor g.
+
+  Global Instance phi_isequiv {A : 1-Type} (G : groupoid A) (B : 1-Type) :
+    IsEquiv (phi G B).
+  Proof.
+    simple refine (isequiv_adjointify _ (phi_i G B) _ _).
+    - intros g. unfold phi, phi_i.
+      rewrite path_groupoid_functor_compose.
+      rewrite functor_comp_assoc.
+      rewrite <- (unit_nat g).
+      rewrite <- functor_comp_assoc.
+      rewrite counit_unit.
+      apply functor_comp_id_r.
+    - intros f. unfold phi, phi_i.
+      rewrite gquot'_functor_compose.
+      funext x.
+      rewrite (apD10 (counit_nat f)^ (gquot'_functor (unit G) x)).
+      f_ap.
+      apply (apD10 (unit_counit G) x).
+  Qed.
+
+  Definition hom_set_iso {A : 1-Type} (G : groupoid A) (B : 1-Type) :
+    (gquot' G -> B) <~> (groupoid_functor G (path_groupoid B)) :=
+    BuildEquiv _ _ (phi G B) _.
+
+  Definition hom_set_eq {A : 1-Type} (G : groupoid A) (B : 1-Type) :
+    (gquot' G -> B) = (groupoid_functor G (path_groupoid B)) :=
+    path_universe (phi G B).
 
 End adjunction.
