@@ -453,34 +453,34 @@ Section gquot_relation.
     - exact R.
     - exact (fun a b₁ b₂ g => path_hset (BuildEquiv _ _ (fr a b₁ b₂ g) _)).
     - intros a b ; simpl.
-      refine (_ @ path_hset_id).
-      apply path_hset_eq ; cbn.
+      refine (_ @ path_trunctype_1).
+      apply path_trunctype_eq ; cbn.
       apply fr_id.
     - intros a b₁ b₂ g ; simpl.
-      refine (_ @ path_hset_inv _).
-      apply path_hset_eq ; cbn.
+      refine (_ @ path_trunctype_V _).
+      apply path_trunctype_eq ; cbn.
       apply fr_inv.
     - intros a b₁ b₂ b₃ g₁ g₂ ; simpl.
-      refine (_ @ path_hset_comp _ _).
-      apply path_hset_eq ; cbn.
+      refine (_ @ path_trunctype_pp _ _).
+      apply path_trunctype_eq ; cbn.
       apply fr_comp.
     - exact (fun a₁ a₂ b g => path_hset (BuildEquiv _ _ (fl a₁ a₂ b g) _)).
     - intros a b ; simpl.
-      refine (_ @ path_hset_id).
-      apply path_hset_eq ; cbn.
+      refine (_ @ path_trunctype_1).
+      apply path_trunctype_eq ; cbn.
       apply fl_id.
     - intros a₁ a₂ b g ; simpl.
-      refine (_ @ path_hset_inv _).
-      apply path_hset_eq ; cbn.
+      refine (_ @ path_trunctype_V _).
+      apply path_trunctype_eq ; cbn.
       apply fl_inv.
     - intros a₁ a₂ a₃ b g₁ g₂ ; simpl.
-      refine (_ @ path_hset_comp _ _).
-      apply path_hset_eq ; cbn.
+      refine (_ @ path_trunctype_pp _ _).
+      apply path_trunctype_eq ; cbn.
       apply fl_comp.
     - intros a₁ a₂ b₁ b₂ g₁ g₂.
       apply path_to_square.
-      refine ((path_hset_comp _ _)^ @ _ @ path_hset_comp _ _).
-      apply path_hset_eq ; cbn.
+      refine ((path_trunctype_pp _ _)^ @ _ @ path_trunctype_pp _ _).
+      apply path_trunctype_eq ; cbn.
       apply fc.
   Defined.
 

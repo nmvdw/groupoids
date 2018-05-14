@@ -79,109 +79,16 @@ Definition ap_pair_r
 Section path_hset_prop.
   Context `{Univalence}.
 
-  (** On the identity map, `path_hset` just gives reflexivity. *)
-  Definition path_hset_id {A : hSet} : path_hset (equiv_idmap A) = idpath.
-  Proof.
-    cbn.
-    rewrite concat_1p.
-    rewrite (eta_path_universe_uncurried 1).
-    rewrite path_sigma_hprop_1.
-    reflexivity.
-  Qed.
-
-  (** On the inverses of equivalence, `path_hset` gives the inverse path. *)
-  Definition path_sigma_hprop_inv
-        {A : Type}
-        (B : A -> hProp)
-        {u v : A}
-        (p : u = v)
-        (x : B u) (y : B v)
-    : @path_sigma_hprop A B _ (v;y) (u;x) p^ = (path_sigma_hprop (u;x) (v;y) p)^.
-  Proof.
-    induction p ; simpl.
-    assert (x = y) as ->.
-    { apply path_ishprop. }
-    rewrite path_sigma_hprop_1.
-    reflexivity.
-  Defined.
-  
-  Definition path_hset_inv
-             {A B : hSet}
-             (f : Equiv A B)
-    : path_hset f^-1 = (path_hset f)^.
-  Proof.
-    cbn.
-    rewrite !concat_1p, !concat_p1.
-    rewrite path_universe_V_uncurried.
-    rewrite (path_sigma_hprop_inv
-               (fun Z => BuildhProp (IsHSet Z))
-               (path_universe_uncurried f)).
-    rewrite ap_V.
-    reflexivity.
-  Qed.
-
-  (** On a composition, `path_hset` gives the concatanation. *)
-  Definition path_universe_uncurried_transitive
-             {A B C : Type}
-             (f : Equiv A B) (g : Equiv B C)
-    : path_universe_uncurried (transitive_equiv A B C f g)
-      =
-      path_universe_uncurried f @ path_universe_uncurried g.
-  Proof.
-    apply path_universe_compose.
-  Defined.
-
-  Definition path_sigma_hprop_concat
-             {A : Type}
-             (B : A -> hProp)
-             {u v w : A}
-             (p : u = v) (q : v = w)
-             (x : B u) (y : B v) (z : B w)
-    : @path_sigma_hprop A B _ (u;x) (w;z) (p @ q)
-      =
-      path_sigma_hprop (u;x) (v;y) p @ path_sigma_hprop (v;y) (w;z) q.
-  Proof.
-    induction p, q.
-    assert(y = x) as ->.
-    { apply path_ishprop. }
-    assert(z = x) as ->.
-    { apply path_ishprop. }
-    rewrite !path_sigma_hprop_1.
-    reflexivity.
-  Qed.
-  
-  Definition path_hset_comp
-             {A B C : hSet}
-             (f : Equiv A B) (g : Equiv B C)
-    : path_hset (transitive_equiv _ _ _ f g) = path_hset f @ path_hset g.
-  Proof.
-    cbn.
-    rewrite !concat_1p, !concat_p1.
-    rewrite path_universe_uncurried_transitive.
-    rewrite (path_sigma_hprop_concat
-               (fun Z => BuildhProp (IsHSet Z))
-               (path_universe_uncurried f)
-               (path_universe_uncurried g)
-               (istrunc_trunctype_type A)
-               (istrunc_trunctype_type B)
-               (istrunc_trunctype_type C)).
-    rewrite ap_pp.
-    reflexivity.
-  Qed.
-
   (** This function says when two paths given by `path_hset` are equal. *)
-  Definition path_hset_eq
-             {A B : hSet}
-             (f : Equiv A B) (g : Equiv A B)
+  Definition path_trunctype_eq
+             {n : trunc_index}
+             {A B : TruncType n}
+             (f : A <~> B) (g : A <~> B)
              (fg_eq : equiv_fun f == equiv_fun g)
-    : path_hset f = path_hset g.
+    : path_trunctype f = path_trunctype g.
   Proof.
-    refine (ap path_hset _).
-    rewrite <- (eisretr (issig_equiv A B) f).
-    rewrite <- (eisretr (issig_equiv A B) g).
-    apply (ap (issig_equiv A B)).
-    cbn.
-    apply path_sigma_hprop.
+    refine (ap path_trunctype _).
+    apply path_equiv.
     exact (path_forall _ _ fg_eq).
   Qed.
 End path_hset_prop.

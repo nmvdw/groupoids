@@ -134,7 +134,7 @@ Section encode_decode.
       + exact (ap_diag2 g_fam (gcleq G g)).
       + refine (ap (fun z => z @ _) (gquot_fam_r_gcleq a₁ g) @ _).
         exact (ap (fun z => _ @ z) (gquot_fam_l_gcleq a₂ g)).
-      + exact (path_hset_comp _ _)^.
+      + exact (path_trunctype_pp _ _)^.
       + refine (transport_path_hset _ _ @ _) ; compute.
         refine (ap (fun z => _ × z) (ec _) @ _).
         apply ic.
@@ -169,8 +169,8 @@ Section encode_decode.
         refine (ap (fun p => transport _ p z) (ap_V _ _ @ _) @ _ @ _).
         * exact (ap inverse (gquot_fam_r_gcleq a g)).
         * refine (ap (fun p => transport _ p z) _).
-          exact ((path_hset_inv (BuildEquiv _ _ (left_action a g) (left_action_equiv a g)))^).
-        * apply transport_path_hset.
+          exact ((path_trunctype_V (BuildEquiv _ _ (left_action a g) (left_action_equiv a g)))^).
+        * exact (transport_path_hset _ _).
       + simpl. apply path_to_square.
         refine (concat_1p _ @ _ @ gconcat _ _ _).
         apply ap. unfold left_action_inv.
@@ -187,8 +187,8 @@ Section encode_decode.
         refine (ap (fun p => transport _ p z) (_ @ _) @ _).
         * refine (ap_V (fun z : gquot G => g_fam z (gcl G b)) (gcleq G g) @ _).
           exact (ap inverse (gquot_fam_l_gcleq b g)).
-        * exact ((path_hset_inv (BuildEquiv _ _ (right_action b g) (right_action_equiv b g)))^).
-        * apply transport_path_hset.
+        * exact ((path_trunctype_V (BuildEquiv _ _ (right_action b g) (right_action_equiv b g)))^).
+        * exact (transport_path_hset _ _).
       + simpl. apply path_to_square.
         unfold right_action_inv.       
         exact ((gconcat _ _ _)^ @ (concat_p1 _)^).
