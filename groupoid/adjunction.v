@@ -8,7 +8,7 @@ Section adjunction.
   Context `{Univalence}.
 
   (** ** The path groupoid functor *)
-  Definition path_groupoid (A : TruncType 1) : groupoid A
+  Definition path_groupoid (A : 1-Type) : groupoid A
     := {|hom := fun x y => BuildhSet(x = y) ;
          e := fun _ => idpath ;
          inv := fun _ _ => inverse ;
@@ -20,7 +20,7 @@ Section adjunction.
          ic := fun _ _ => concat_Vp
        |}.
 
-  Definition path_groupoid_functor {A B : TruncType 1} (f : A -> B) :
+  Definition path_groupoid_functor {A B : 1-Type} (f : A -> B) :
     groupoid_functor (path_groupoid A) (path_groupoid B).
   Proof.
     simple refine (Build_groupoid_functor _ _ _ _ f _ _ _ _).
@@ -48,10 +48,10 @@ Section adjunction.
   Defined.
 
   (** ** The groupoid quotient functor (free 1-type) *)
-  Definition gquot' {A : TruncType 1} (G : groupoid A) : TruncType 1 :=
+  Definition gquot' {A : 1-Type} (G : groupoid A) : 1-Type :=
     BuildTruncType 1 (gquot G).
 
-  Definition gquot'_functor {A B : TruncType 1} {G₁ : groupoid A} {G₂ : groupoid B}
+  Definition gquot'_functor {A B : 1-Type} {G₁ : groupoid A} {G₂ : groupoid B}
              (f : groupoid_functor G₁ G₂) : gquot G₁ -> gquot G₂.
   Proof.
     simple refine (gquot_rec _ _ _ _ _ _ _).
@@ -86,7 +86,7 @@ Section adjunction.
   Qed.
 
   (** ** Counit of the adjunction is an isomorphism *)
-  Definition counit (A : TruncType 1) : gquot (path_groupoid A) -> A.
+  Definition counit (A : 1-Type) : gquot (path_groupoid A) -> A.
   Proof.
     simple refine (gquot_rec A idmap _ _ _ _ _) ; cbn.
     - exact (fun _ _ => idmap).
@@ -113,7 +113,7 @@ Section adjunction.
   Qed.
 
   Definition path_over_help
-             {A : TruncType 1}
+             {A : 1-Type}
              {a₁ a₂ : A}
              (g : hom (path_groupoid A) a₁ a₂)
     : path_over (fun z : gquot _ => gcl _ (counit _ z) = z)
@@ -144,19 +144,19 @@ Section adjunction.
    Defined.
 
   (** ** Unit reflects groupoids into types *)
-  Definition unit_obj {A : TruncType 1} (G : groupoid A) : A -> (gquot' G) :=  gcl _.
-  Definition unit_hom {A : TruncType 1} {G : groupoid A} {x y : A}
+  Definition unit_obj {A : 1-Type} (G : groupoid A) : A -> (gquot' G) :=  gcl _.
+  Definition unit_hom {A : 1-Type} {G : groupoid A} {x y : A}
              (g : hom G x y) : hom (path_groupoid (gquot' G)) (unit_obj G x) (unit_obj G y) := gcleq _ g.
-  Definition unit_hom_e {A : TruncType 1} {G : groupoid A} (x : A) : unit_hom (e x) = e (unit_obj G x).
+  Definition unit_hom_e {A : 1-Type} {G : groupoid A} (x : A) : unit_hom (e x) = e (unit_obj G x).
   Proof. simpl. apply ge. Defined.
-  Definition unit_hom_inv {A : TruncType 1} {G : groupoid A} {x y : A}
+  Definition unit_hom_inv {A : 1-Type} {G : groupoid A} {x y : A}
              (g : hom G x y) : unit_hom (inv g) = inv (unit_hom g).
   Proof. simpl. apply ginv. Defined.
-  Definition unit_hom_concat {A : TruncType 1} {G : groupoid A} {x y z : A}
+  Definition unit_hom_concat {A : 1-Type} {G : groupoid A} {x y z : A}
              (g₁ : hom G x y) (g₂ : hom G y z) : unit_hom (g₁ × g₂) = ((unit_hom g₁) × (unit_hom g₂)).
   Proof. simpl. apply gconcat. Defined.
 
-  Definition unit {A : TruncType 1} (G : groupoid A) : groupoid_functor G (path_groupoid (gquot' G)) :=
+  Definition unit {A : 1-Type} (G : groupoid A) : groupoid_functor G (path_groupoid (gquot' G)) :=
     {| f_obj := unit_obj G;
        f_hom := fun x y g => unit_hom g;
        f_e := unit_hom_e;
@@ -176,7 +176,7 @@ Section adjunction.
   Defined.
 
   (** ** Unit-counit equations for an adjunction *)
-  Lemma counit_unit {A : TruncType 1} :
+  Lemma counit_unit {A : 1-Type} :
     functor_comp (unit (path_groupoid A)) (path_groupoid_functor (counit A)) = idfunctor (path_groupoid A).
   Proof.
     simple refine (functor_eq _ _ _ _); simpl.
@@ -185,7 +185,7 @@ Section adjunction.
       exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _ _).
   Defined.
 
-  Lemma unit_counit {A : TruncType 1} (G : groupoid A) :
+  Lemma unit_counit {A : 1-Type} (G : groupoid A) :
     (counit (gquot' G)) o (gquot'_functor (unit G)) = idmap.
   Proof.
     apply path_forall. intros x.
