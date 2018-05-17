@@ -295,6 +295,41 @@ Proof.
   reflexivity.
 Defined.
 
+Lemma functor_comp_assoc `{Univalence}
+           {A B C D : Type}
+           {G₁ : groupoid A} {G₂ : groupoid B} {G₃ : groupoid C} {G₄ : groupoid D}
+           (F₁ : groupoid_functor G₁ G₂)
+           (F₂ : groupoid_functor G₂ G₃)
+           (F₃ : groupoid_functor G₃ G₄) :
+  functor_comp F₁ (functor_comp F₂ F₃) = functor_comp (functor_comp F₁ F₂) F₃.
+Proof.
+  simple refine (functor_eq _ _ _ _).
+  - reflexivity.
+  - reflexivity.
+Defined.
+
+Lemma functor_comp_id_r `{Univalence}
+           {A B : Type}
+           {G₁ : groupoid A} {G₂ : groupoid B}
+           (F : groupoid_functor G₁ G₂) :
+  functor_comp F (idfunctor G₂) = F.
+Proof.
+  simple refine (functor_eq _ _ _ _).
+  - reflexivity.
+  - reflexivity.
+Defined.
+
+Lemma functor_comp_id_l `{Univalence}
+           {A B : Type}
+           {G₁ : groupoid A} {G₂ : groupoid B}
+           (F : groupoid_functor G₁ G₂) :
+  functor_comp (idfunctor G₁) F = F.
+Proof.
+  simple refine (functor_eq _ _ _ _).
+  - reflexivity.
+  - reflexivity.
+Defined.
+
 Section groupoid_iso.
   Context `{UA : Univalence}.
 
@@ -312,7 +347,7 @@ Section groupoid_iso.
           ec := fun x y p => ec p ;
           ci := fun x y p => ci p ;
           ic := fun x y p => ic p |}.
-    
+
   (*Definition groupoid_eq
              {A B : Type}
              (G : groupoid A) (H : groupoid B)
