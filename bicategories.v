@@ -76,65 +76,80 @@ Section BiCategory.
 
   Record BiCategory :=
     Build_BiCategory {
-      Obj : Type ;
-      Hom : Obj -> Obj -> PreCategory ;
-      id_m : forall (x : Obj), Hom x x ;
-      c_m : forall {x y z : Obj}, Functor (Category.prod (Hom y z) (Hom x y)) (Hom x z) ;
-      un_l : forall (X Y : Obj),
-          NaturalTransformation (@c_m X Y Y o (const_functor (id_m Y) * 1))
-                                1 ;
-      un_l_iso : forall (X Y : Obj), @IsIsomorphism (Hom X Y -> Hom X Y) _ _ (un_l X Y) ;
-      un_r : forall (X Y : Obj),
-          NaturalTransformation (@c_m X X Y o (1 * const_functor (id_m X)))
-                                1 ;
-      un_r_iso : forall (X Y : Obj), @IsIsomorphism (Hom X Y -> Hom X Y) _ _ (un_r X Y) ;
-      assoc : forall (w x y z : Obj),
+        Obj : Type ;
+        Hom : Obj -> Obj -> PreCategory ;
+        id_m : forall (x : Obj), Hom x x ;
+        c_m : forall {x y z : Obj}, Functor (Category.prod (Hom y z) (Hom x y)) (Hom x z) ;
+        un_l : forall (X Y : Obj),
+            NaturalTransformation (@c_m X Y Y o (const_functor (id_m Y) * 1))
+                                  1 ;
+        un_l_iso : forall (X Y : Obj), @IsIsomorphism (Hom X Y -> Hom X Y) _ _ (un_l X Y) ;
+        un_r : forall (X Y : Obj),
+            NaturalTransformation (@c_m X X Y o (1 * const_functor (id_m X)))
+                                  1 ;
+        un_r_iso : forall (X Y : Obj), @IsIsomorphism (Hom X Y -> Hom X Y) _ _ (un_r X Y) ;
+        assoc : forall (w x y z : Obj),
           NaturalTransformation
             ((c_m o (c_m, 1)))
             (c_m o (1, c_m) o (assoc_prod (Hom y z) (Hom x y) (Hom w x))) ;
-      assoc_iso : forall (w x y z : Obj), @IsIsomorphism
-                                            ((Hom y z * Hom x y) * Hom w x -> Hom w z)
-                                            _
-                                            _
-                                            (assoc w x y z) ;
-      triangle : (forall (x y z : Obj) (g : Hom y z) (f : Hom x y),
-                      @morphism_of _
-                                   _
-                                   c_m
-                                   (c_m (g,id_m y),f)
-                                   (g,f)
-                                   ((un_r y z) g, 1)
-                      =
-                      (@morphism_of _
+        assoc_iso : forall (w x y z : Obj), @IsIsomorphism
+                                              ((Hom y z * Hom x y) * Hom w x -> Hom w z)
+                                              _
+                                              _
+                                              (assoc w x y z) ;
+        triangle : (forall (x y z : Obj) (g : Hom y z) (f : Hom x y),
+                       @morphism_of _
                                     _
                                     c_m
-                                    (g,c_m (id_m y,f))
+                                    (c_m (g,id_m y),f)
                                     (g,f)
-                                    (1,un_l x y f))
-                        o
-                        (assoc x y y z) (g, id_m y, f))%morphism ;
-      pentagon : (forall (v w x y z : Obj)
-                        (k : Hom y z) (h : Hom x y) (g : Hom w x) (f : Hom v w),
-          (assoc v x y z (k,h,c_m (g,f)))
-            o assoc v w x z (c_m (k, h), g, f)
-          = (@morphism_of _
-                          _
-                          (@c_m v y z)
-                          (k,c_m (c_m (h,g),f))
-                          (k,c_m (h,c_m (g,f)))
-                       (1,assoc v w x y (h,g,f)))
-              o (assoc v w y z (k,c_m (h,g),f))
-              o
-              (@morphism_of _
-                          _
-                          (@c_m v w z)
-                          (c_m (c_m (k,h),g),f)
-                          (c_m (k,c_m (h,g)),f)
-                          (assoc w x y z (k,h,g),1)))%morphism
+                                    ((un_r y z) g, 1)
+                       =
+                       (@morphism_of _
+                                     _
+                                     c_m
+                                     (g,c_m (id_m y,f))
+                                     (g,f)
+                                     (1,un_l x y f))
+                         o
+                         (assoc x y y z) (g, id_m y, f))%morphism ;
+        pentagon : (forall (v w x y z : Obj)
+                           (k : Hom y z) (h : Hom x y) (g : Hom w x) (f : Hom v w),
+                       (assoc v x y z (k,h,c_m (g,f)))
+                         o assoc v w x z (c_m (k, h), g, f)
+                       = (@morphism_of _
+                                       _
+                                       (@c_m v y z)
+                                       (k,c_m (c_m (h,g),f))
+                                       (k,c_m (h,c_m (g,f)))
+                                       (1,assoc v w x y (h,g,f)))
+                           o (assoc v w y z (k,c_m (h,g),f))
+                           o
+                           (@morphism_of _
+                                         _
+                                         (@c_m v w z)
+                                         (c_m (c_m (k,h),g),f)
+                                         (c_m (k,c_m (h,g)),f)
+                                         (assoc w x y z (k,h,g),1)))%morphism
       }.
            
   Definition oneto (X : Type) `{IsTrunc 1 X} : PreCategory
     := Core.groupoid_category X.
+
+  Definition oneto_cat (X : Type) `{IsTrunc 1 X} (x y : X) : IsCategory (oneto (x = y)).
+  Proof.
+    intros p q ; cbn in *.
+    simple refine (isequiv_adjointify _ _ _ _).
+    - intros α.
+      apply α.
+    - intros α.
+      apply path_isomorphic.
+      destruct α as [α αiso].
+      induction α ; cbn in *.
+      reflexivity.
+    - intros r ; induction r.
+      reflexivity.
+  Defined.
 
   Definition concat_functor
              {X : Type} `{IsTrunc 2 X}
@@ -319,6 +334,21 @@ Section BiCategory.
       apply concat_p1.
     - cbn ; intros.
       apply concat_1p.
+  Defined.
+
+  Definition maps_cat (A B : 1 -Type) : IsCategory (maps A B).
+  Proof.
+    intros f g ; cbn in *.
+    simple refine (isequiv_adjointify _ _ _ _).
+    - intros α.
+      apply α.
+    - intros α.
+      apply path_isomorphic.
+      destruct α as [α αiso].
+      induction α ; cbn in *.
+      reflexivity.
+    - intros p ; induction p.
+      reflexivity.
   Defined.
 
   Definition comp_functor
@@ -526,3 +556,125 @@ Section BiCategory.
     reflexivity.
   Defined.
 End BiCategory.
+
+Section Morphism.
+  Context `{Univalence}.
+  
+  Record LaxFunctor (C D : BiCategory) :=
+    {
+      Fobj : Obj C -> Obj D ;
+      Fmor : forall (X Y : Obj C), Functor (Hom C X Y) (Hom D (Fobj X) (Fobj Y)) ;
+      Fcomp : forall (X Y Z : Obj C),
+          NaturalTransformation
+            (Functor.compose
+               (@c_m _ D (Fobj X) (Fobj Y) (Fobj Z))
+               (Functor.pair (Fmor Y Z) (Fmor X Y)))
+            (Functor.compose (Fmor X Z) (@c_m _ C X Y Z));
+      Fid : forall (X : Obj C), Core.morphism _ (id_m D (Fobj X)) (Fmor X X (id_m C X)) ;
+      Fun_r : forall (X Y : Obj C) (f : Hom C X Y),
+          un_r D (Fobj X) (Fobj Y) (Fmor X Y f)
+          =
+          ((morphism_of (Fmor X Y) (un_r C X Y f))
+             o (Fcomp X X Y (f,id_m C X))
+             o (@morphism_of _
+                             _
+                             (c_m D)
+                             (object_of (Fmor X Y) f,id_m D (Fobj X))
+                             (object_of (Fmor X Y) f,object_of (Fmor X X) (id_m C X))
+                             (1,Fid X))
+          )%morphism ;
+      Fun_l : forall (X Y : Obj C) (f : Hom C X Y),
+          un_l D (Fobj X) (Fobj Y) (Fmor X Y f)
+          =
+          ((morphism_of (Fmor X Y) (un_l C X Y f))
+             o (Fcomp X Y Y (id_m C Y,f))
+             o (@morphism_of _
+                             _
+                             (c_m D)
+                             (id_m D (Fobj Y),object_of (Fmor X Y) f)
+                             (object_of (Fmor Y Y) (id_m C Y),object_of (Fmor X Y) f)
+                             (Fid Y,1))
+          )%morphism ;
+      Fassoc : forall (W X Y Z : Obj C) (h : Hom C Y Z) (g : Hom C X Y) (f : Hom C W X),
+          ((Fcomp W Y Z (h,c_m C (g,f)))
+             o
+             (@morphism_of _
+                           _
+                           (c_m D)
+                           (object_of (Fmor Y Z) h,
+                            c_m D (object_of (Fmor X Y) g,object_of (Fmor W X) f))
+                           (object_of (Fmor Y Z) h,
+                            object_of (Fmor W Y) (c_m C (g,f)))
+                           (1,Fcomp W X Y (g,f)))
+             o
+             (assoc D _ _ _ _
+                    (object_of (Fmor Y Z) h,
+                     object_of (Fmor X Y) g,
+                     object_of (Fmor W X) f)))%morphism
+          =
+          ((morphism_of (Fmor W Z) (assoc C W X Y Z (h,g,f)))
+            o
+            Fcomp W X Z (c_m C (h,g),f)
+            o
+            (@morphism_of _
+                         _
+                         (c_m D)
+                         (c_m D (object_of (Fmor Y Z) h,
+                                 object_of (Fmor X Y) g),object_of (Fmor W X) f)
+                               (object_of (Fmor X Z) (c_m C (h,g)),object_of (Fmor W X) f)
+                               (Fcomp X Y Z (h,g),1))
+        )%morphism
+    }.
+
+  Definition ap_func
+             {X Y : Type}
+             `{IsTrunc 2 X} `{IsTrunc 2 Y}
+             (f : X -> Y)
+             {x₁ x₂ : X}
+    : Functor (oneto (x₁ = x₂)) (oneto (f x₁ = f x₂)).
+  Proof.
+    simple refine (Build_Functor _ _ _ _ _ _).
+    - cbn.
+      exact (ap f).
+    - cbn ; intros p q r.
+      induction r.
+      reflexivity.
+    - cbn ; intros p q r s₁ s₂.
+      induction s₁, s₂.
+      reflexivity.
+    - cbn ; intros p.
+      reflexivity.
+  Defined.
+
+  Definition test
+             {X Y : Type}
+             `{IsTrunc 2 X} `{IsTrunc 2 Y}
+             (f : X -> Y)
+    : LaxFunctor (twoto X) (twoto Y).
+  Proof.
+    simple refine {| Fobj := _ |}.
+    - cbn.
+      exact f.
+    - intros a b ; cbn.
+      apply ap_func.
+    - cbn.
+      intros a b c.
+      simple refine (Build_NaturalTransformation _ _ _ _).
+      + cbn ; intros [p q].
+        apply (ap_pp f q p)^.
+      + intros [p₁ p₂] [q₁ q₂] [r₁ r₂] ; cbn in *.
+        induction r₁, r₂ ; cbn.
+        induction p₁, p₂ ; reflexivity.
+    - intros a ; cbn.
+      reflexivity.
+    - intros a b p ; cbn in *.
+      induction p ; cbn.
+      reflexivity.
+    - intros a b p ; cbn.
+      induction p ; cbn.
+      reflexivity.
+    - intros a b c d p q r ; cbn.
+      induction p, q, r ; cbn.
+      reflexivity.
+  Defined.
+End Morphism.
