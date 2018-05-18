@@ -5,56 +5,6 @@ Require Import Categories.NaturalTransformation.
 Require Import Categories.FunctorCategory.
 Require Import Categories.Cat.
 
-Definition prod_assoc (C D E : PreCategory)
-  : Functor (C * (D * E)) ((C * D) * E).
-Proof.
-  simple refine (Build_Functor (C * (D * E))
-                               ((C * D) * E)
-                               (fun X => ((fst X, fst(snd X)), snd(snd X)))
-                               _ _ _).
-  - refine (fun X Y f => ((_,_), _)) ; apply f.
-  - reflexivity.
-  - reflexivity.
-Defined.
-
-Definition assoc_prod (C D E : PreCategory)
-  : Functor ((C * D) * E) (C * (D * E)).
-Proof.
-  simple refine (Build_Functor ((C * D) * E)
-                               (C * (D * E))
-                               _
-                               _ _ _).
-  - intros [[a b] c].
-    exact (a,(b,c)).
-  - refine (fun X Y f => (_,(_, _))) ; apply f.
-  - reflexivity.
-  - reflexivity.
-Defined.
-
-Definition const_functor
-           {C D : PreCategory}
-           (X : D)
-  : Functor C D
-  := Build_Functor C
-                   D
-                   (fun _ => X)
-                   (fun _ _ _ => Category.identity X)
-                   (fun _ _ _ _ _ => (left_identity _ _ _ _)^)
-                   (fun _ => idpath).
-
-Definition pair
-           {C₁ D₁ C₂ D₂ : PreCategory}
-           {F₁ F₂ : Functor C₁ C₂}
-           {G₁ G₂ : Functor D₁ D₂}
-           (af : NaturalTransformation F₁ F₂)
-           (ag : NaturalTransformation G₁ G₂)
-  : NaturalTransformation (F₁,G₁) (F₂,G₂).
-Proof.
-  simple refine (Build_NaturalTransformation _ _ _ _).
-  - exact (fun X => (af (fst X),ag (snd X))).
-  - exact (fun X Y f => path_prod' (commutes af _ _ _) (commutes ag _ _ _)).
-Defined.
-
 Definition pair_l
            {C₁ D₁ C₂ D₂ : PreCategory}
            {F₁ F₂ : Functor C₁ C₂}
