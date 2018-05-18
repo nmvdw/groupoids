@@ -68,10 +68,7 @@ Definition pair_r
   : NaturalTransformation (F,G₁) (F,G₂)
   := pair 1 ag.
 
-Section BiCategory.
-  Context `{Univalence}.
-
-  Record BiCategory :=
+  Record BiCategory `{Univalence} :=
     Build_BiCategory {
         Obj :> Type ;
         Hom : Obj -> Obj -> PreCategory ;
@@ -132,7 +129,10 @@ Section BiCategory.
 
   Delimit Scope bicategory_scope with bicategory.
   Bind Scope bicategory_scope with BiCategory.
-  Local Notation "f '⋅' g" := (c_m _ (f,g)) (at level 80): bicategory_scope.
+  Notation "f '⋅' g" := (c_m _ (f,g)) (at level 80): bicategory_scope.
+
+Section BiCategory.
+  Context `{Univalence}.
 
   Definition one_cell {BC : BiCategory} := Hom BC.
   Definition two_cell {BC : BiCategory} {A B : BC}
@@ -145,6 +145,7 @@ Section BiCategory.
     := ((c_m BC) _1 ((β, α) : morphism (Hom _ B C * Hom _ A B) (g,f) (g',f')))%morphism.
 
   Local Notation "f '∗' g" := (hcomp g f) (at level 80) : bicategory_scope.
+
   Local Open Scope bicategory_scope.
 
   Definition interchange
@@ -160,7 +161,11 @@ Section BiCategory.
     cbn.
     reflexivity.
   Defined.
+
 End BiCategory.
+
+Notation "f '∗' g" := (hcomp g f) (at level 80) : bicategory_scope.
+
 
 Section TwoTypeBiGroupoid.
   Context `{Univalence}.
@@ -812,72 +817,48 @@ End FullSubBicategory.
 
 Section Morphism.
   Context `{Univalence}.
+  Local Open Scope bicategory_scope.
 
   Record LaxFunctor (C D : BiCategory) :=
     {
-      Fobj : Obj C -> Obj D ;
-      Fmor : forall (X Y : Obj C), Functor (Hom C X Y) (Hom D (Fobj X) (Fobj Y)) ;
-      Fcomp : forall (X Y Z : Obj C),
+      Fobj :> Obj C -> Obj D ;
+      Fmor : forall {X Y : C}, Functor (Hom C X Y) (Hom D (Fobj X) (Fobj Y)) ;
+      Fcomp : forall {X Y Z : C},
           NaturalTransformation
-            (Functor.compose
-               (@c_m _ D (Fobj X) (Fobj Y) (Fobj Z))
-               (Functor.pair (Fmor Y Z) (Fmor X Y)))
-            (Functor.compose (Fmor X Z) (@c_m _ C X Y Z));
-      Fid : forall (X : Obj C), Core.morphism _ (id_m D (Fobj X)) (Fmor X X (id_m C X)) ;
-      Fun_r : forall (X Y : Obj C) (f : Hom C X Y),
-          un_r D (Fobj X) (Fobj Y) (Fmor X Y f)
+            (c_m D
+             o (Functor.pair (@Fmor Y Z) (@Fmor X Y)))
+            ((@Fmor X Z) o c_m C);
+      Fid : forall (X : C), morphism _ (id_m _ (Fobj X)) (Fmor (id_m _ X));
+      Fun_r : forall {X Y : C} (f : Hom C X Y),
+          un_r D (Fobj X) (Fobj Y) (Fmor f)
           =
-          ((morphism_of (Fmor X Y) (un_r C X Y f))
-             o (Fcomp X X Y (f,id_m C X))
-             o (@morphism_of _
-                             _
-                             (c_m D)
-                             (object_of (Fmor X Y) f,id_m D (Fobj X))
-                             (object_of (Fmor X Y) f,object_of (Fmor X X) (id_m C X))
-                             (1,Fid X))
-          )%morphism ;
-      Fun_l : forall (X Y : Obj C) (f : Hom C X Y),
-          un_l D (Fobj X) (Fobj Y) (Fmor X Y f)
+          ((morphism_of Fmor (un_r _ _ _ f))
+             o (Fcomp (f,id_m _ X))
+             o (1 ∗ Fid X))%morphism
+          ;
+      Fun_l : forall (X Y : C) (f : Hom C X Y),
+          un_l D (Fobj X) (Fobj Y) (Fmor f)
           =
-          ((morphism_of (Fmor X Y) (un_l C X Y f))
-             o (Fcomp X Y Y (id_m C Y,f))
-             o (@morphism_of _
-                             _
-                             (c_m D)
-                             (id_m D (Fobj Y),object_of (Fmor X Y) f)
-                             (object_of (Fmor Y Y) (id_m C Y),object_of (Fmor X Y) f)
-                             (Fid Y,1))
-          )%morphism ;
-      Fassoc : forall (W X Y Z : Obj C) (h : Hom C Y Z) (g : Hom C X Y) (f : Hom C W X),
-          ((Fcomp W Y Z (h,c_m C (g,f)))
-             o
-             (@morphism_of _
-                           _
-                           (c_m D)
-                           (object_of (Fmor Y Z) h,
-                            c_m D (object_of (Fmor X Y) g,object_of (Fmor W X) f))
-                           (object_of (Fmor Y Z) h,
-                            object_of (Fmor W Y) (c_m C (g,f)))
-                           (1,Fcomp W X Y (g,f)))
-             o
-             (assoc D _ _ _ _
-                    (object_of (Fmor Y Z) h,
-                     object_of (Fmor X Y) g,
-                     object_of (Fmor W X) f)))%morphism
+          ((morphism_of Fmor (un_l C X Y f))
+             o (Fcomp (id_m _ Y,f))
+             o (Fid Y ∗ 1))%morphism ;
+      Fassoc : forall (W X Y Z : C) (h : Hom C Y Z) (g : Hom C X Y) (f : Hom C W X),
+          ((Fcomp (h, (g ⋅ f)))
+             o (1 ∗ (Fcomp (g,f)))
+             o (assoc D _ _ _ _
+                    (Fmor h,
+                     Fmor g,
+                     Fmor f))
           =
-          ((morphism_of (Fmor W Z) (assoc C W X Y Z (h,g,f)))
-            o
-            Fcomp W X Z (c_m C (h,g),f)
-            o
-            (@morphism_of _
-                         _
-                         (c_m D)
-                         (c_m D (object_of (Fmor Y Z) h,
-                                 object_of (Fmor X Y) g),object_of (Fmor W X) f)
-                               (object_of (Fmor X Z) (c_m C (h,g)),object_of (Fmor W X) f)
-                               (Fcomp X Y Z (h,g),1))
-        )%morphism
+          (morphism_of Fmor (assoc C W X Y Z (h,g,f)))
+            o Fcomp (h ⋅ g,f)
+            o (Fcomp (h,g) ∗ 1))%morphism
     }.
+
+  Definition laxmorphism_of
+             {C D : BiCategory} (F : LaxFunctor C D)
+             {X Y : C} : Functor (Hom C X Y) (Hom D (F X) (F Y))
+    := Fmor C D F.
 
   Definition ap_func
              {X Y : Type}
