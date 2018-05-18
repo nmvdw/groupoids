@@ -912,3 +912,51 @@ Section Morphism.
       reflexivity.
   Defined.
 End Morphism.
+
+Section LaxTransformation.
+  Context `{Univalence}.
+
+  Local Open Scope bicategory_scope.
+
+  Local Instance un_r_iso_componenetwise {B : BiCategory} {X Y : B} f :
+    Morphisms.IsIsomorphism (un_r B X Y f).
+  Proof.
+    unshelve eapply isisomorphism_components_of.
+    - apply _.
+    - apply un_r_iso.
+  Qed.
+
+  Local Instance assoc_iso_componenetwise {B : BiCategory} {W X Y Z : B} f :
+    Morphisms.IsIsomorphism (assoc B W X Y Z f).
+  Proof.
+    unshelve eapply isisomorphism_components_of.
+    - apply _.
+    - apply assoc_iso.
+  Qed.
+  
+  (* TODO:! This definition is incorrect; laxnaturality_of should be a natural transformation instead of just being a collection of two-cells *)
+  Record LaxTransformation {C D : BiCategory} (F G : LaxFunctor C D) :=
+    {
+      laxcomponent_of : forall X, Hom _ (F X) (G X);
+      laxnaturality_of : forall {X Y : C} (f : Hom _ X Y),
+          two_cell (laxmorphism_of G f ⋅ laxcomponent_of X)
+            (laxcomponent_of Y ⋅ laxmorphism_of F f);
+      naturality_id : forall {X : C},
+        (laxnaturality_of (id_m _ X)
+         o ((Fid _ _ G X) ∗ 1))%morphism
+        = ((1 ∗ (Fid _ _ F X))
+          o (inverse (un_r D (F X) (G X)) (laxcomponent_of X))
+          o (un_l D _ _ (laxcomponent_of X)))%morphism;
+      naturality_comp : forall {X Y Z : C} {f : Hom _ X Y} {g : Hom _ Y Z},
+          (laxnaturality_of (g ⋅ f)
+          o (Fcomp _ _ G (g,f) ∗ 1))%morphism
+          = ((1 ∗ Fcomp _ _ F (g,f))
+            o (assoc _ _ _ _ _ (laxcomponent_of Z, Fmor _ _ F g, Fmor _ _ F f))
+            o (laxnaturality_of g ∗ 1)
+            o ((inverse (assoc _ _ _ _ _))
+                 (Fmor _ _ G g, laxcomponent_of Y, Fmor _ _ F f))
+            o (1 ∗ laxnaturality_of f)
+            o (assoc _ _ _ _ _ (Fmor _ _ G g, Fmor _ _ G f, laxcomponent_of X)))%morphism
+}.
+
+End LaxTransformation.
