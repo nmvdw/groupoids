@@ -1,9 +1,6 @@
 Require Import HoTT.
-Require Import Categories.Category.
-Require Import Categories.Functor.
-Require Import Categories.NaturalTransformation.
-Require Import Categories.FunctorCategory.
-Require Import Categories.Cat.
+From HoTT.Categories Require Import
+  Category Functor NaturalTransformation FunctorCategory.
 
 Definition pair_l
            {C₁ D₁ C₂ D₂ : PreCategory}
@@ -21,68 +18,116 @@ Definition pair_r
   : NaturalTransformation (F,G₁) (F,G₂)
   := pair 1 ag.
 
+Record BiCategory `{Univalence} :=
+  Build_BiCategory {
+      Obj :> Type ;
+      Hom : Obj -> Obj -> PreCategory ;
+      id_m : forall (x : Obj), Hom x x ;
+      c_m : forall {x y z : Obj}, Functor (Category.prod (Hom y z) (Hom x y)) (Hom x z) ;
+      un_l : forall (X Y : Obj),
+          NaturalTransformation (@c_m X Y Y o (const_functor (id_m Y) * 1))
+                                1 ;
+      un_l_iso :> forall (X Y : Obj),
+         @IsIsomorphism (Hom X Y -> Hom X Y) _ _ (un_l X Y) ;
+      un_r : forall (X Y : Obj),
+          NaturalTransformation (@c_m X X Y o (1 * const_functor (id_m X)))
+                                1 ;
+      un_r_iso :> forall (X Y : Obj),
+          @IsIsomorphism (Hom X Y -> Hom X Y) _ _ (un_r X Y) ;
+      assoc : forall (w x y z : Obj),
+        NaturalTransformation
+          ((c_m o (c_m, 1)))
+          (c_m o (1, c_m) o (assoc_prod (Hom y z) (Hom x y) (Hom w x))) ;
+      assoc_iso :> forall (w x y z : Obj), @IsIsomorphism
+                                            ((Hom y z * Hom x y) * Hom w x -> Hom w z)
+                                            _
+                                            _
+                                            (assoc w x y z) ;
+      triangle : (forall (x y z : Obj) (g : Hom y z) (f : Hom x y),
+                     @morphism_of _
+                                  _
+                                  c_m
+                                  (c_m (g,id_m y),f)
+                                  (g,f)
+                                  ((un_r y z) g, 1)
+                     =
+                     (@morphism_of _
+                                   _
+                                   c_m
+                                   (g,c_m (id_m y,f))
+                                   (g,f)
+                                   (1,un_l x y f))
+                       o
+                       (assoc x y y z) (g, id_m y, f))%morphism ;
+      pentagon : (forall (v w x y z : Obj)
+                         (k : Hom y z) (h : Hom x y) (g : Hom w x) (f : Hom v w),
+                     (assoc v x y z (k,h,c_m (g,f)))
+                       o assoc v w x z (c_m (k, h), g, f)
+                     = (@morphism_of _
+                                     _
+                                     (@c_m v y z)
+                                     (k,c_m (c_m (h,g),f))
+                                     (k,c_m (h,c_m (g,f)))
+                                     (1,assoc v w x y (h,g,f)))
+                         o (assoc v w y z (k,c_m (h,g),f))
+                         o
+                         (@morphism_of _
+                                       _
+                                       (@c_m v w z)
+                                       (c_m (c_m (k,h),g),f)
+                                       (c_m (k,c_m (h,g)),f)
+                                       (assoc w x y z (k,h,g),1)))%morphism
+    }.
+
+Arguments id_m {_} {B} x : rename.
+Arguments c_m {_} {B} {x y z} : rename.
+Arguments un_l {_ B} X Y : rename.
+Arguments un_r {_ B} X Y : rename.
+Arguments assoc {_ B} w x y z : rename.
+
+Delimit Scope bicategory_scope with bicategory.
+Bind Scope bicategory_scope with BiCategory.
+Notation "f '⋅' g" := (c_m (f,g)) (at level 80): bicategory_scope.
+
 Section BiCategory.
   Context `{Univalence}.
 
-  Record BiCategory :=
-    Build_BiCategory {
-        Obj : Type ;
-        Hom : Obj -> Obj -> PreCategory ;
-        id_m : forall (x : Obj), Hom x x ;
-        c_m : forall {x y z : Obj}, Functor (Category.prod (Hom y z) (Hom x y)) (Hom x z) ;
-        un_l : forall (X Y : Obj),
-            NaturalTransformation (@c_m X Y Y o (const_functor (id_m Y) * 1))
-                                  1 ;
-        un_l_iso : forall (X Y : Obj), @IsIsomorphism (Hom X Y -> Hom X Y) _ _ (un_l X Y) ;
-        un_r : forall (X Y : Obj),
-            NaturalTransformation (@c_m X X Y o (1 * const_functor (id_m X)))
-                                  1 ;
-        un_r_iso : forall (X Y : Obj), @IsIsomorphism (Hom X Y -> Hom X Y) _ _ (un_r X Y) ;
-        assoc : forall (w x y z : Obj),
-          NaturalTransformation
-            ((c_m o (c_m, 1)))
-            (c_m o (1, c_m) o (assoc_prod (Hom y z) (Hom x y) (Hom w x))) ;
-        assoc_iso : forall (w x y z : Obj), @IsIsomorphism
-                                              ((Hom y z * Hom x y) * Hom w x -> Hom w z)
-                                              _
-                                              _
-                                              (assoc w x y z) ;
-        triangle : (forall (x y z : Obj) (g : Hom y z) (f : Hom x y),
-                       @morphism_of _
-                                    _
-                                    c_m
-                                    (c_m (g,id_m y),f)
-                                    (g,f)
-                                    ((un_r y z) g, 1)
-                       =
-                       (@morphism_of _
-                                     _
-                                     c_m
-                                     (g,c_m (id_m y,f))
-                                     (g,f)
-                                     (1,un_l x y f))
-                         o
-                         (assoc x y y z) (g, id_m y, f))%morphism ;
-        pentagon : (forall (v w x y z : Obj)
-                           (k : Hom y z) (h : Hom x y) (g : Hom w x) (f : Hom v w),
-                       (assoc v x y z (k,h,c_m (g,f)))
-                         o assoc v w x z (c_m (k, h), g, f)
-                       = (@morphism_of _
-                                       _
-                                       (@c_m v y z)
-                                       (k,c_m (c_m (h,g),f))
-                                       (k,c_m (h,c_m (g,f)))
-                                       (1,assoc v w x y (h,g,f)))
-                           o (assoc v w y z (k,c_m (h,g),f))
-                           o
-                           (@morphism_of _
-                                         _
-                                         (@c_m v w z)
-                                         (c_m (c_m (k,h),g),f)
-                                         (c_m (k,c_m (h,g)),f)
-                                         (assoc w x y z (k,h,g),1)))%morphism
-      }.
-           
+  Definition one_cell {BC : BiCategory} := Hom BC.
+  Definition two_cell {BC : BiCategory} {A B : BC}
+             (f g : one_cell A B) := morphism _ f g.
+  Definition hcomp
+             {BC : BiCategory} {A B C : BC}
+             {f f' : one_cell A B} {g g' : one_cell B C}
+             (α : two_cell f f') (β : two_cell g g')
+    : (two_cell (g ⋅ f) (g' ⋅ f'))%bicategory
+    := (c_m _1 ((β, α) : morphism (Hom _ B C * Hom _ A B) (g,f) (g',f')))%morphism.
+
+  Local Notation "f '∗' g" := (hcomp g f) (at level 80) : bicategory_scope.
+
+  Local Open Scope bicategory_scope.
+
+  Definition interchange
+             (C : BiCategory)
+             {X Y Z : C}
+             {p q r : one_cell X Y}
+             {p' q' r' : one_cell Y Z}
+             (h : two_cell p q) (h' : two_cell p' q')
+             (k : two_cell q r) (k' : two_cell q' r')
+    : (((k' o h') ∗ (k o h)) = ((k' ∗ k) o (h' ∗ h)))%morphism.
+  Proof.
+    rewrite <- composition_of.
+    cbn.
+    reflexivity.
+  Defined.
+
+End BiCategory.
+
+Notation "f '∗' g" := (hcomp g f) (at level 80) : bicategory_scope.
+
+
+Section TwoTypeBiGroupoid.
+  Context `{Univalence}.
+
   Definition oneto (X : Type) `{IsTrunc 1 X} : PreCategory
     := Core.groupoid_category X.
 
@@ -118,11 +163,9 @@ Section BiCategory.
   Definition pUnitor_l
              {X : Type} `{IsTrunc 2 X}
              (x y : X)
-    : @NaturalTransformation
-        (oneto (x = y))
-        (oneto (x = y))
-        (concat_functor x y y o (@const_functor (oneto (x = y)) (oneto (y = y)) idpath * 1))
-        (Functor.identity (oneto (x = y))).
+    : NaturalTransformation
+        (concat_functor x y y o (@const_functor _ (oneto (y = y)) idpath * 1))
+        1.
   Proof.
     simple refine (Build_NaturalTransformation _ _ _ _).
     + exact concat_p1.
@@ -133,11 +176,9 @@ Section BiCategory.
   Definition pUnitor_l_inv
              {X : Type} `{IsTrunc 2 X}
              (x y : X)
-    : @NaturalTransformation
-        (oneto (x = y))
-        (oneto (x = y))
-        (Functor.identity (oneto (x = y)))
-        (concat_functor x y y o (@const_functor (oneto (x = y)) (oneto (y = y)) idpath * 1)).
+    : NaturalTransformation
+        1
+        (concat_functor x y y o (@const_functor _ (oneto (y = y)) idpath * 1)).
   Proof.
     simple refine (Build_NaturalTransformation _ _ _ _).
     + exact (fun p => (concat_p1 p)^).
@@ -159,15 +200,13 @@ Section BiCategory.
       intros p ; cbn in *.
       induction p ; reflexivity.
   Defined.
-  
+
   Definition pUnitor_r
              {X : Type} `{IsTrunc 2 X}
              (x y : X)
-    : @NaturalTransformation
-        (oneto (x = y))
-        (oneto (x = y))
-        (concat_functor x x y o (1 * @const_functor (oneto (x = y)) (oneto (x = x)) idpath))
-        (Functor.identity (oneto (x = y))).
+    : NaturalTransformation
+        (concat_functor x x y o (1 * @const_functor _ (oneto (x = x)) idpath))
+        1.
   Proof.
     simple refine (Build_NaturalTransformation _ _ _ _).
     + exact (fun p => concat_1p p).
@@ -178,11 +217,9 @@ Section BiCategory.
   Definition pUnitor_r_inv
              {X : Type} `{IsTrunc 2 X}
              (x y : X)
-    : @NaturalTransformation
-        (oneto (x = y))
-        (oneto (x = y))
-        (Functor.identity (oneto (x = y)))
-        (concat_functor x x y o (1 * @const_functor (oneto (x = y)) (oneto (x = x)) idpath)).
+    : NaturalTransformation
+        1
+        (concat_functor x x y o (1 * @const_functor _ (oneto (x = x)) idpath)).
   Proof.
     simple refine (Build_NaturalTransformation _ _ _ _).
     + exact (fun p => (concat_1p p)^).
@@ -255,7 +292,7 @@ Section BiCategory.
       intros [[p₁ p₂] p₃] ; cbn in *.
       induction p₁, p₂, p₃ ; reflexivity.
   Defined.
-      
+
   Definition twoto (X : Type) `{IsTrunc 2 X} : BiCategory.
   Proof.
     simple refine {|Obj := X ;
@@ -272,6 +309,10 @@ Section BiCategory.
       induction p, q, r, s ; cbn.
       reflexivity.
   Defined.
+End TwoTypeBiGroupoid.
+
+Section OneTypesBiCategory.
+  Context `{Univalence}.
 
   Definition maps (A B : 1 -Type) : PreCategory.
   Proof.
@@ -319,11 +360,9 @@ Section BiCategory.
 
   Definition cUnitor_l
              (A B : 1 -Type)
-    : @NaturalTransformation
-        (maps A B)
-        (maps A B)
-        (comp_functor A B B o (@const_functor (maps A B) (maps B B) idmap * 1))
-        (Functor.identity (maps A B)).
+    : NaturalTransformation
+        (comp_functor A B B o (@const_functor _ (maps B B) idmap * 1))
+        1.
   Proof.
     simple refine (Build_NaturalTransformation _ _ _ _).
     + reflexivity.
@@ -334,10 +373,8 @@ Section BiCategory.
 
   Definition cUnitor_l_inv
              (A B : 1 -Type)
-    : @NaturalTransformation
-        (maps A B)
-        (maps A B)
-        (Functor.identity (maps A B))
+    : NaturalTransformation
+        1
         (comp_functor A B B o (@const_functor (maps A B) (maps B B) idmap * 1)).
   Proof.
     simple refine (Build_NaturalTransformation _ _ _ _).
@@ -361,14 +398,12 @@ Section BiCategory.
       intros p ; cbn in *.
       reflexivity.
   Defined.
-  
+
   Definition cUnitor_r
              (A B : 1 -Type)
-    : @NaturalTransformation
-        (maps A B)
-        (maps A B)
+    : NaturalTransformation
         (comp_functor A A B o (1 * @const_functor (maps A B) (maps A A) idmap))
-        (Functor.identity (maps A B)).
+        1.
   Proof.
     simple refine (Build_NaturalTransformation _ _ _ _).
     + reflexivity.
@@ -378,10 +413,8 @@ Section BiCategory.
 
   Definition cUnitor_r_inv
              (A B : 1 -Type)
-    : @NaturalTransformation
-        (maps A B)
-        (maps A B)
-        (Functor.identity (maps A B))
+    : NaturalTransformation
+        1
         (comp_functor A A B o (1 * @const_functor (maps A B) (maps A A) idmap)).
   Proof.
     simple refine (Build_NaturalTransformation _ _ _ _).
@@ -404,7 +437,7 @@ Section BiCategory.
       intros p ; cbn in *.
       reflexivity.
   Defined.
-  
+
   Definition cAssociator
              (A B C D : 1 -Type)
     : NaturalTransformation
@@ -451,7 +484,7 @@ Section BiCategory.
       intros [[f₁ f₂] f₃] ; cbn in *.
       reflexivity.
   Defined.
-  
+
   Definition onetypebi : BiCategory.
   Proof.
     simple refine {|Obj := 1 -Type ;
@@ -466,46 +499,10 @@ Section BiCategory.
     - intros A B C D E k h g f ; cbn.
       reflexivity.
   Defined.
+End OneTypesBiCategory.
 
-  Definition interchange
-             (C : BiCategory)
-             {X Y Z : Obj C}
-             {p q r : Hom C X Y}
-             {p' q' r' : Hom C Y Z}
-             (h : morphism _ p q) (h' : morphism _ p' q')
-             (k : morphism _ q r) (k' : morphism _ q' r')
-    : Type.
-  Proof.
-    simple refine (_ = _).
-    - exact (morphism _ (c_m C (p',p)) (c_m C (r',r))).
-    - simple refine (Category.compose _ _).
-      + exact (c_m C (q',q)).
-      + apply c_m ; split ; cbn.
-        * exact k'.
-        * exact k.
-      + apply c_m ; split ; cbn.
-        * exact h'.
-        * exact h.
-    - apply c_m ; split ; cbn.
-      + exact (Category.compose k' h').
-      + exact (Category.compose k h).
-  Defined.
-
-  Definition indeed
-             (C : BiCategory)
-             {X Y Z : Obj C}
-             {p q r : Hom C X Y}
-             {p' q' r' : Hom C Y Z}
-             (h : morphism _ p q) (h' : morphism _ p' q')
-             (k : morphism _ q r) (k' : morphism _ q' r')
-    : interchange C h h' k k'.
-  Proof.
-    unfold interchange ; cbn.
-    rewrite <- composition_of.
-    cbn.
-    reflexivity.
-  Defined.
-
+Section CatBiCategory.
+  Context `{Univalence}.
   Definition cat_H (C₁ C₂ : PreCategory) : PreCategory
     := functor_category C₁ C₂.
 
@@ -557,7 +554,7 @@ Section BiCategory.
       rewrite !left_identity, right_identity.
       reflexivity.
   Defined.
-  
+
   Definition nUnitor_l_inv
              (C₁ C₂ : PreCategory)
     : @NaturalTransformation
@@ -600,7 +597,7 @@ Section BiCategory.
       intros X ; cbn in *.
       apply left_identity.
   Defined.
-  
+
   Definition nUnitor_r
              (C₁ C₂ : PreCategory)
     : @NaturalTransformation
@@ -734,7 +731,7 @@ Section BiCategory.
       intros C ; cbn.
       apply left_identity.
   Defined.
-      
+
   Definition Cat : BiCategory.
   Proof.
     simple refine
@@ -756,90 +753,77 @@ Section BiCategory.
       rewrite !identity_of, !left_identity.
       reflexivity.
   Defined.
+End CatBiCategory.
+
+Section FullSubBicategory.
+  Context `{Univalence}.
 
   Definition full_sub (C : BiCategory) (P : Obj C -> hProp) : BiCategory
     := {|Obj := {X : Obj C & P X} ;
          Hom := fun X Y => Hom C X.1 Y.1 ;
-         id_m := fun X => id_m C X.1 ;
-         c_m := fun X Y Z => @c_m C X.1 Y.1 Z.1 ;
-         un_l := fun X Y => un_l C X.1 Y.1 ;
+         id_m := fun X => id_m X.1 ;
+         c_m := fun X Y Z => @c_m _ C X.1 Y.1 Z.1 ;
+         un_l := fun X Y => un_l X.1 Y.1 ;
          un_l_iso := fun X Y => un_l_iso C X.1 Y.1 ;
-         un_r := fun X Y => un_r C X.1 Y.1 ;
+         un_r := fun X Y => un_r X.1 Y.1 ;
          un_r_iso := fun X Y => un_r_iso C X.1 Y.1 ;
-         assoc := fun W X Y Z => assoc C W.1 X.1 Y.1 Z.1 ;
+         assoc := fun W X Y Z => assoc W.1 X.1 Y.1 Z.1 ;
          assoc_iso := fun W X Y Z => assoc_iso C W.1 X.1 Y.1 Z.1 ;
-         triangle := fun X Y Z => @triangle C X.1 Y.1 Z.1 ;
-         pentagon := fun V W X Y Z => @pentagon C V.1 W.1 X.1 Y.1 Z.1|}.
-End BiCategory.
+         triangle := fun X Y Z => @triangle _ C X.1 Y.1 Z.1 ;
+         pentagon := fun V W X Y Z => @pentagon _ C V.1 W.1 X.1 Y.1 Z.1|}.
+End FullSubBicategory.
 
 Section Morphism.
   Context `{Univalence}.
-  
+  Local Open Scope bicategory_scope.
+
   Record LaxFunctor (C D : BiCategory) :=
     {
-      Fobj : Obj C -> Obj D ;
-      Fmor : forall (X Y : Obj C), Functor (Hom C X Y) (Hom D (Fobj X) (Fobj Y)) ;
-      Fcomp : forall (X Y Z : Obj C),
+      Fobj :> Obj C -> Obj D ;
+      Fmor : forall {X Y : C}, Functor (Hom C X Y) (Hom D (Fobj X) (Fobj Y)) ;
+      Fcomp : forall {X Y Z : C},
           NaturalTransformation
-            (Functor.compose
-               (@c_m _ D (Fobj X) (Fobj Y) (Fobj Z))
-               (Functor.pair (Fmor Y Z) (Fmor X Y)))
-            (Functor.compose (Fmor X Z) (@c_m _ C X Y Z));
-      Fid : forall (X : Obj C), Core.morphism _ (id_m D (Fobj X)) (Fmor X X (id_m C X)) ;
-      Fun_r : forall (X Y : Obj C) (f : Hom C X Y),
-          un_r D (Fobj X) (Fobj Y) (Fmor X Y f)
+            (c_m o (Functor.pair (@Fmor Y Z) (@Fmor X Y)))
+            ((@Fmor X Z) o c_m);
+      Fid : forall (X : C), morphism _ (id_m (Fobj X)) (Fmor (id_m X));
+      Fun_r : forall {X Y : C} (f : Hom C X Y),
+          un_r (Fobj X) (Fobj Y) (Fmor f)
           =
-          ((morphism_of (Fmor X Y) (un_r C X Y f))
-             o (Fcomp X X Y (f,id_m C X))
-             o (@morphism_of _
-                             _
-                             (c_m D)
-                             (object_of (Fmor X Y) f,id_m D (Fobj X))
-                             (object_of (Fmor X Y) f,object_of (Fmor X X) (id_m C X))
-                             (1,Fid X))
-          )%morphism ;
-      Fun_l : forall (X Y : Obj C) (f : Hom C X Y),
-          un_l D (Fobj X) (Fobj Y) (Fmor X Y f)
+          ((morphism_of Fmor (un_r _ _ f))
+             o (Fcomp (f,id_m X))
+             o (1 ∗ Fid X))%morphism
+          ;
+      Fun_l : forall (X Y : C) (f : Hom C X Y),
+          un_l (Fobj X) (Fobj Y) (Fmor f)
           =
-          ((morphism_of (Fmor X Y) (un_l C X Y f))
-             o (Fcomp X Y Y (id_m C Y,f))
-             o (@morphism_of _
-                             _
-                             (c_m D)
-                             (id_m D (Fobj Y),object_of (Fmor X Y) f)
-                             (object_of (Fmor Y Y) (id_m C Y),object_of (Fmor X Y) f)
-                             (Fid Y,1))
-          )%morphism ;
-      Fassoc : forall (W X Y Z : Obj C) (h : Hom C Y Z) (g : Hom C X Y) (f : Hom C W X),
-          ((Fcomp W Y Z (h,c_m C (g,f)))
-             o
-             (@morphism_of _
-                           _
-                           (c_m D)
-                           (object_of (Fmor Y Z) h,
-                            c_m D (object_of (Fmor X Y) g,object_of (Fmor W X) f))
-                           (object_of (Fmor Y Z) h,
-                            object_of (Fmor W Y) (c_m C (g,f)))
-                           (1,Fcomp W X Y (g,f)))
-             o
-             (assoc D _ _ _ _
-                    (object_of (Fmor Y Z) h,
-                     object_of (Fmor X Y) g,
-                     object_of (Fmor W X) f)))%morphism
+          ((morphism_of Fmor (un_l X Y f))
+             o (Fcomp (id_m Y,f))
+             o (Fid Y ∗ 1))%morphism ;
+      Fassoc : forall (W X Y Z : C) (h : Hom C Y Z) (g : Hom C X Y) (f : Hom C W X),
+          ((Fcomp (h, (g ⋅ f)))
+             o (1 ∗ (Fcomp (g,f)))
+             o (assoc _ _ _ _
+                    (Fmor h,
+                     Fmor g,
+                     Fmor f))
           =
-          ((morphism_of (Fmor W Z) (assoc C W X Y Z (h,g,f)))
-            o
-            Fcomp W X Z (c_m C (h,g),f)
-            o
-            (@morphism_of _
-                         _
-                         (c_m D)
-                         (c_m D (object_of (Fmor Y Z) h,
-                                 object_of (Fmor X Y) g),object_of (Fmor W X) f)
-                               (object_of (Fmor X Z) (c_m C (h,g)),object_of (Fmor W X) f)
-                               (Fcomp X Y Z (h,g),1))
-        )%morphism
+          (morphism_of Fmor (assoc W X Y Z (h,g,f)))
+            o Fcomp (h ⋅ g,f)
+            o (Fcomp (h,g) ∗ 1))%morphism
     }.
+
+  Definition laxmorphism_of
+             {C D : BiCategory} (F : LaxFunctor C D)
+             {X Y : C} : Functor (Hom C X Y) (Hom D (F X) (F Y))
+    := Fmor _ _ F.
+End Morphism.
+
+Arguments Fmor {_ C D} F {X Y} : rename.
+Arguments Fcomp {_ C D} F {X Y Z} : rename.
+Arguments Fid {_ C D} F X : rename.
+
+Section test.
+  Context `{Univalence}.
 
   Definition ap_func
              {X Y : Type}
@@ -892,4 +876,52 @@ Section Morphism.
       induction p, q, r ; cbn.
       reflexivity.
   Defined.
-End Morphism.
+End test.
+
+Section LaxTransformation.
+  Context `{Univalence}.
+
+  Local Open Scope bicategory_scope.
+
+  Local Instance un_r_iso_componenetwise {B : BiCategory} {X Y : B} f :
+    Morphisms.IsIsomorphism (un_r X Y f).
+  Proof.
+    unshelve eapply isisomorphism_components_of.
+    - apply _.
+    - apply un_r_iso.
+  Qed.
+
+  Local Instance assoc_iso_componenetwise {B : BiCategory} {W X Y Z : B} f :
+    Morphisms.IsIsomorphism (assoc W X Y Z f).
+  Proof.
+    unshelve eapply isisomorphism_components_of.
+    - apply _.
+    - apply assoc_iso.
+  Qed.
+  
+  (* TODO:! This definition is incorrect; laxnaturality_of should be a natural transformation instead of just being a collection of two-cells *)
+  Record LaxTransformation {C D : BiCategory} (F G : LaxFunctor C D) :=
+    {
+      laxcomponent_of : forall X, Hom _ (F X) (G X);
+      laxnaturality_of : forall {X Y : C} (f : Hom _ X Y),
+          two_cell (laxmorphism_of G f ⋅ laxcomponent_of X)
+            (laxcomponent_of Y ⋅ laxmorphism_of F f);
+      naturality_id : forall {X : C},
+        (laxnaturality_of (id_m X)
+         o ((Fid G X) ∗ 1))%morphism
+        = ((1 ∗ (Fid F X))
+          o (inverse (un_r (F X) (G X)) (laxcomponent_of X))
+          o (un_l _ _ (laxcomponent_of X)))%morphism;
+      naturality_comp : forall {X Y Z : C} {f : Hom _ X Y} {g : Hom _ Y Z},
+          (laxnaturality_of (g ⋅ f)
+          o (Fcomp G (g,f) ∗ 1))%morphism
+          = ((1 ∗ Fcomp F (g,f))
+            o (assoc _ _ _ _ (laxcomponent_of Z, Fmor F g, Fmor F f))
+            o (laxnaturality_of g ∗ 1)
+            o ((inverse (assoc _ _ _ _))
+                 (Fmor G g, laxcomponent_of Y, Fmor F f))
+            o (1 ∗ laxnaturality_of f)
+            o (assoc _ _ _ _ (Fmor G g, Fmor G f, laxcomponent_of X)))%morphism
+}.
+
+End LaxTransformation.
