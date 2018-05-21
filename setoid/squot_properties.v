@@ -29,36 +29,6 @@ Section set_is_setoid_quotient.
   Defined.
 End set_is_setoid_quotient.
 
-(** For arbitrary types, we use a similar construction.
-    However, then it gives the set truncation of that type.
- *)
-Section path_setoid_quotient.
-  Variable (A : Type).
-    
-  Definition squot_to_TA : squot (path_setoid_type A) -> Trunc 0 A.
-  Proof.
-    simple refine (quotient_rec _ tr _).
-    cbn ; intros x y H.
-    simple refine (Trunc_rec _ H).
-    exact (ap tr).
-  Defined.
-
-  Global Instance squot_to_TA_isequiv : IsEquiv squot_to_TA.
-  Proof.
-    simple refine (isequiv_adjointify _ _ _ _).
-    - intros x.
-      simple refine (Trunc_rec _ x).
-      apply class_of.
-    - unfold Sect.
-      simple refine (Trunc_ind _ _) ; reflexivity.
-    - unfold Sect.
-      simple refine (quotient_ind _ _ _ _).
-      + reflexivity.
-      + intros.
-        apply path_ishprop.
-  Defined.
-End path_setoid_quotient.
-
 (** Taking the setoid quotient commutes with sums. *)
 Section squot_sum.
   Variable (R₁ : setoid) (R₂ : setoid).
@@ -172,41 +142,6 @@ Section squot_prod.
     := isequiv_adjointify _ squot_prod_in squot_prod_in_out_sect squot_prod_out_in_sect.
 End squot_prod.
 
-(** Suppose that we have a polynomial `P` and a setoid `R`.
-    Then we have a natural map from the quotient of `P R` to the set truncation of `P` applied to the quotient of `R`.
- *)
-Definition poly_squot_to_squot
-           (P : polynomial)
-           (R : setoid)
-  : squot (lift_setoid R P) -> Trunc 0 (poly_act P (squot R)).
-Proof.
-  induction P as [ | | P IHP Q IHQ | P IHP Q IHQ] ; cbn.
-  - exact tr.
-  - exact (squot_to_TA T).
-  - exact ((Trunc_prod 0)
-             o (functor_prod IHP IHQ)
-             o squot_prod_out _ _).
-  - exact ((Trunc_sum 0)
-              o (functor_sum IHP IHQ)
-              o squot_sum_out _ _).
-Defined.
-
-(** This map is an equivalence. *)
-Global Instance squot_polynomial
-       (Q : polynomial)
-       (R : setoid) `{IsHSet (under R)}
-       `{Funext}
-  : IsEquiv (poly_squot_to_squot Q R).    
-Proof.
-  induction Q.
-  - apply _.
-  - apply _.
-  - apply _.
-  - simpl.
-    refine isequiv_compose.
-    apply Trunc_sum_isequiv.
-    exact tt.
-Defined.
 (*
 Section axiom_of_choice.
   Context `{Univalence}.
