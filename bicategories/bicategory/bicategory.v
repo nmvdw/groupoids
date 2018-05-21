@@ -1,5 +1,5 @@
 Require Import HoTT.
-From HoTT.Categories Require Import
+From HoTT.Categories Require Export
   Category Functor NaturalTransformation FunctorCategory.
 
 Record BiCategory `{Univalence} :=
@@ -72,6 +72,30 @@ Arguments assoc {_ B} w x y z : rename.
 Delimit Scope bicategory_scope with bicategory.
 Bind Scope bicategory_scope with BiCategory.
 Notation "f '⋅' g" := (c_m (f,g)) (at level 80): bicategory_scope.
+
+Instance un_r_iso_componenetwise `{Univalence} {B : BiCategory} {X Y : B} f :
+  Morphisms.IsIsomorphism (un_r X Y f).
+Proof.
+  unshelve eapply isisomorphism_components_of.
+  - apply _.
+  - apply B.
+Defined.
+
+Instance un_l_iso_componenetwise `{Univalence} {B : BiCategory} {X Y : B} f :
+  Morphisms.IsIsomorphism (un_l X Y f).
+Proof.
+  unshelve eapply isisomorphism_components_of.
+  - apply _.
+  - apply B.
+Defined.
+
+Instance assoc_iso_componenetwise `{Univalence} {B : BiCategory} {W X Y Z : B} f :
+  Morphisms.IsIsomorphism (assoc W X Y Z f).
+Proof.
+  unshelve eapply isisomorphism_components_of.
+  - apply _.
+  - apply B.
+Qed.
 
 Section BiCategory.
   Context `{Univalence}.
