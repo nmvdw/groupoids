@@ -71,7 +71,7 @@ Arguments assoc {_ B} w x y z : rename.
 
 Delimit Scope bicategory_scope with bicategory.
 Bind Scope bicategory_scope with BiCategory.
-Notation "f '⋅' g" := (c_m (f,g)) (at level 80): bicategory_scope.
+Notation "f '⋅' g" := (c_m (f,g)) (at level 40): bicategory_scope.
 
 Instance un_r_iso_componenetwise `{Univalence} {B : BiCategory} {X Y : B} f :
   Morphisms.IsIsomorphism (un_r X Y f).
@@ -116,7 +116,7 @@ Section BiCategory.
     : (two_cell (g ⋅ f) (g' ⋅ f'))%bicategory
     := (c_m _1 ((β, α) : morphism (Hom _ B C * Hom _ A B) (g,f) (g',f')))%morphism.
 
-  Local Notation "f '∗' g" := (hcomp g f) (at level 80) : bicategory_scope.
+  Local Notation "f '∗' g" := (hcomp g f) (at level 40) : bicategory_scope.
 
   Local Open Scope bicategory_scope.
 
@@ -127,7 +127,7 @@ Section BiCategory.
              {p' q' r' : one_cell Y Z}
              (h : two_cell p q) (h' : two_cell p' q')
              (k : two_cell q r) (k' : two_cell q' r')
-    : (((k' o h') ∗ (k o h)) = ((k' ∗ k) o (h' ∗ h)))%morphism.
+    : ((k' o h') ∗ (k o h) = (k' ∗ k) o (h' ∗ h))%morphism.
   Proof.
     rewrite <- composition_of.
     cbn.
@@ -135,4 +135,4 @@ Section BiCategory.
   Defined.
 End BiCategory.
 
-Notation "f '∗' g" := (hcomp g f) (at level 80) : bicategory_scope.
+Notation "f '∗' g" := (hcomp g f) (at level 40) : bicategory_scope.
