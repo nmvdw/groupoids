@@ -14,6 +14,7 @@ bicategories/lax_functor/lax_functor.v
 bicategories/lax_functor/examples/ap_functor.v
 setoid/setoid.v
 setoid/squot_properties.v
+setoid/setoid_adjunction.v
 groupoid/groupoid.v
 groupoid/groupoid_quotient.v
 groupoid/gquot_poly.v
