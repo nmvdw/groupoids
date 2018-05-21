@@ -1,6 +1,6 @@
 Require Import HoTT.
-From GR Require Import setoid squot_properties.
-From GR Require Export groupoid_quotient gquot_encode_decode adjunction.
+From GR.setoid Require Import setoid squot_properties.
+From GR.groupoid Require Export groupoid_quotient gquot_encode_decode adjunction.
 
 (** * Setoid quotients and groupoid quotients *)
 (** Every setoid induces a groupoid.
@@ -8,8 +8,7 @@ From GR Require Export groupoid_quotient gquot_encode_decode adjunction.
     its induced groupoid.
  *)
 Section squot_is_gquot.
-  Variable (A : Type)
-           (R : setoid A).
+  Variable (R : setoid).
   Context `{Univalence}.
 
   Definition gquot_to_squot : gquot (setoid_to_groupoid R) -> squot R.
@@ -30,6 +29,7 @@ Section squot_is_gquot.
     rewrite (path_universe (encode_gquot _ _
                                       (gcl (setoid_to_groupoid R) a)
                                       (gcl (setoid_to_groupoid R) b))).
+    (* TODO : this is very slow *)
     simpl.
     apply _.
   Defined.

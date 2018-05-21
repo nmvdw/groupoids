@@ -1,6 +1,6 @@
 Require Import HoTT.
-From GR Require Import general.
-From GR Require Export polynomial groupoid_quotient.
+From GR Require Import basics.general.
+From GR Require Export basics.polynomial groupoid.groupoid_quotient.
 
 (** * Groupoid quotient commmutes with polynomials *)
 
