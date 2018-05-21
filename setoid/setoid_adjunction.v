@@ -120,3 +120,34 @@ Proof.
     + reflexivity.
     + apply path_ishprop.
 Defined.
+
+Definition squot_path_setoid `{Univalence}
+  : NaturalTransformation (squot_functor o path_setoid_functor) 1.
+Proof.
+  simple refine (Build_NaturalTransformation _ _ _ _).
+  - intros X ; cbn in *.
+    simple refine (quotient_rec _ _ _).
+    + exact idmap.
+    + intros x y p ; cbn in *.
+      exact p.
+  - intros X Y f ; cbn in *.
+    funext z ; revert z.
+    simple refine (quotient_ind _ _ _ _).
+    + reflexivity.
+    + intros ; apply path_ishprop.
+Defined.
+
+Global Instance squot_path_setoid_isiso `{Univalence}
+  : @IsIsomorphism (set_precat -> set_precat) _ _ squot_path_setoid.
+Proof.
+  apply isisomorphism_natural_transformation.
+  intros X ; cbn in *.
+  unshelve esplit ; cbn.
+  - exact (class_of _).
+  - funext z ; revert z.
+    simple refine (quotient_ind _ _ _ _).
+    + reflexivity.
+    + intros ; apply path_ishprop.
+  - funext z ; revert z.
+    reflexivity.
+Defined.
