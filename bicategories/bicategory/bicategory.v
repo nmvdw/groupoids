@@ -1,6 +1,7 @@
 Require Import HoTT.
 From HoTT.Categories Require Export
-  Category Functor NaturalTransformation FunctorCategory.
+     Category Functor NaturalTransformation FunctorCategory.
+From GR Require Import bicategories.general_category.
 
 Record BiCategory `{Univalence} :=
   Build_BiCategory {

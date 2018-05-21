@@ -5,6 +5,7 @@ basics/path_over.v
 basics/square.v
 basics/globe_over.v
 basics/polynomial.v
+bicategories/general_category.v
 bicategories/bicategory/bicategory.v
 bicategories/bicategory/morphisms.v
 bicategories/bicategory/strict.v
@@ -22,6 +23,4 @@ groupoid/groupoid.v
 groupoid/groupoid_quotient.v
 groupoid/gquot_poly.v
 groupoid/gquot_encode_decode.v
-groupoid/adjunction.v
 groupoid/gquot_general.v
-basics/potpouri.v

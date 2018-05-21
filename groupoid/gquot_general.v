@@ -1,6 +1,6 @@
 Require Import HoTT.
 From GR.setoid Require Import setoid squot_properties.
-From GR.groupoid Require Export groupoid_quotient gquot_encode_decode adjunction.
+From GR.groupoid Require Export groupoid_quotient gquot_encode_decode.
 
 (** * Setoid quotients and groupoid quotients *)
 (** Every setoid induces a groupoid.
