@@ -6,6 +6,7 @@ basics/square.v
 basics/globe_over.v
 basics/polynomial.v
 bicategories/bicategory/bicategory.v
+bicategories/bicategory/morphisms.v
 bicategories/bicategory/examples/two_type.v
 bicategories/bicategory/examples/one_types.v
 bicategories/bicategory/examples/cat.v
