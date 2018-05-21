@@ -5,6 +5,13 @@ basics/path_over.v
 basics/square.v
 basics/globe_over.v
 basics/polynomial.v
+bicategories/bicategory/bicategory.v
+bicategories/bicategory/examples/two_type.v
+bicategories/bicategory/examples/one_types.v
+bicategories/bicategory/examples/cat.v
+bicategories/bicategory/examples/full_sub.v
+bicategories/lax_functor/lax_functor.v
+bicategories/lax_functor/examples/ap_functor.v
 setoid/setoid.v
 setoid/squot_properties.v
 groupoid/groupoid.v
