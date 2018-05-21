@@ -130,9 +130,8 @@ Defined.
     
 (** Every setoid induces a groupoid. *)
 Definition setoid_to_groupoid
-           {A : Type}
-           (R : setoid A)
-  : groupoid A.
+           (R : setoid)
+  : groupoid (under R).
 Proof.
   simple refine {| hom := fun a₁ a₂ => BuildhSet (rel R a₁ a₂) ;
                    e := refl ;

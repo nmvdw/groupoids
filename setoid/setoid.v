@@ -2,45 +2,53 @@ Require Import HoTT.
 From GR Require Import polynomial.
 
 (** A `setoid` is an equivalence relation on `A`. *)
-Record setoid (A : Type) :=
-  Build_setoid { rel : A -> A -> hProp ;
-                 refl : forall (x : A), rel x x ;
-                 sym : forall (x y : A), rel x y -> rel y x ;
-                 trans : forall (x y z : A), rel x y -> rel y z -> rel x z
+Record setoid :=
+  Build_setoid { under : Type ;
+                 rel : under -> under -> hProp ;
+                 refl : forall (x : under), rel x x ;
+                 sym : forall (x y : under), rel x y -> rel y x ;
+                 trans : forall (x y z : under), rel x y -> rel y z -> rel x z
                }.
 
-Arguments rel {A} _ _ _.
-Arguments refl {A _} _.
-Arguments sym {A _ _ _} _.
-Arguments trans {A _ _ _ _} _ _.
+Arguments refl { _} _.
+Arguments sym {_ _ _} _.
+Arguments trans {_ _ _ _} _ _.
 
-Global Instance setoid_reflexive {A : Type} (R : setoid A)
+Global Instance setoid_reflexive (R : setoid)
   : Reflexive (rel R)
-  := @refl _ R.
+  := @refl R.
 
-Global Instance setoid_symmetry {A : Type} (R : setoid A)
+Global Instance setoid_symmetry (R : setoid)
   : Symmetric (rel R)
-  := @sym _ R.
+  := @sym R.
 
-Global Instance setoid_transitive {A : Type} (R : setoid A)
+Global Instance setoid_transitive (R : setoid)
   : Transitive (rel R)
-  := @trans _ R.
+  := @trans R.
 
 (** Every type induces a setoid by truncating its path space. *)
-Definition path_setoid (X : Type) : setoid X.
-Proof.
-  unshelve esplit ; simpl.
-  - exact (fun x y => merely(x = y)).
-  - exact (fun _ => tr idpath).
-  - exact (fun _ _ => Trunc_rec (fun p => tr p^)).
-  - exact (fun _ _ _ p' q' => Trunc_rec (fun p => Trunc_rec (fun q => tr (p @ q)) q') p').
-Defined.
+Definition path_setoid_type (X : Type) : setoid
+  := {| under := X ;
+        rel := fun x y => merely (x = y) ;
+        refl := fun x => tr idpath ;
+        sym := fun _ _ => Trunc_rec (fun p => tr p^) ;
+        trans := fun _ _ _ p' q' =>
+                   Trunc_rec (fun p => Trunc_rec (fun q => tr (p @ q)) q') p'
+     |}.
+
+(** Every set induces a setoid via its path space. *)
+Definition path_setoid (X : hSet) : setoid
+  := {| under := X ;
+        rel := fun x y => BuildhProp (x = y) ;
+        refl := fun x => idpath ;
+        sym := fun _ _ p => p^ ;
+        trans := fun _ _ _ p q => p @ q
+     |}.
 
 (** Setoids are closed under products. *)
-Definition prod_setoid
-           {A B : Type} (R₁ : setoid A) (R₂ : setoid B)
-  : setoid (A * B)
-  := {| rel := fun x y =>
+Definition prod_setoid (R₁ : setoid) (R₂ : setoid) : setoid
+  := {| under := under R₁ * under R₂ ;
+        rel := fun x y =>
                  BuildhProp (rel R₁ (fst x) (fst y) * rel R₂ (snd x) (snd y)) ;
         refl := fun x => (refl (fst x), refl (snd x)) ;
         sym := fun _ _ p => (sym (fst p), sym (snd p)) ;
@@ -48,11 +56,10 @@ Definition prod_setoid
      |}.
 
 (** Setoids are closed under sums. *)
-Definition sum_setoid
-           {A B : Type} (R₁ : setoid A) (R₂ : setoid B)
-  : setoid (A + B).
+Definition sum_setoid (R₁ : setoid) (R₂ : setoid) : setoid.
 Proof.
   unshelve esplit.
+  - exact (under R₁ + under R₂).
   - exact (fun x y =>
              match x, y with
              | inl x, inl y => rel R₁ x y
@@ -66,23 +73,22 @@ Proof.
 Defined.    
 
 (** We can apply polynomial functors to setoids. *)
-Definition lift_setoid
-           {A : Type} (R : setoid A) (P : polynomial)
-  : setoid (poly_act P A).
-Proof.
-  induction P ; simpl.
-  - exact R.
-  - exact (path_setoid T).
-  - apply prod_setoid ; assumption.
-  - apply sum_setoid ; assumption.
-Defined.
+Fixpoint lift_setoid (R : setoid) (P : polynomial) : setoid
+  := match P with
+     | poly_var => R
+     | poly_const T => path_setoid_type T
+     | poly_times P Q => prod_setoid (lift_setoid R P) (lift_setoid R Q)
+     | poly_plus P Q => sum_setoid (lift_setoid R P) (lift_setoid R Q)
+     end.
 
 (** The function space of setoids. *)
 Definition fun_setoid
-           {A B : Type} (R₁ : setoid A) (R₂ : setoid B)
+           (R₁ : setoid) (R₂ : setoid)
            `{Univalence}
-  : setoid {f : A -> B & forall (x₁ x₂ : A), rel R₁ x₁ x₂ -> rel R₂ (f x₁) (f x₂)}
-  := {| rel := fun f g => BuildhProp (forall (x : A), rel R₂ (f.1 x) (g.1 x));
+  : setoid
+  := {| under := {f : under R₁ -> under R₂ & forall (x₁ x₂ : under R₁),
+                          rel R₁ x₁ x₂ -> rel R₂ (f x₁) (f x₂)} ;
+        rel := fun f g => BuildhProp (forall (x : under R₁), rel R₂ (f.1 x) (g.1 x));
         refl := fun f x => refl (f.1 x) ;
         sym := fun f g p x => sym (p x) ;
         trans := fun f g h p₁ p₂ x => trans (p₁ x) (p₂ x)

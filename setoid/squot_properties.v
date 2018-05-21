@@ -2,39 +2,24 @@ Require Import HoTT.
 From GR Require Import general polynomial setoid.
 
 (** The quotient over an setoid. *)
-Definition squot {A : Type} (R : setoid A)
-  : Type
+Definition squot (R : setoid) : Type
   := quotient (rel R).
 
 (** The equality of `squot` is given by the setoid. *)
-Definition setoid_quotient_path
-           {A : Type}
-           (R : setoid A)
-           `{Univalence}
-  : forall {a₁ a₂ : A}, class_of (rel R) a₁ = class_of (rel R) a₂ <~> rel R a₁ a₂
+Definition setoid_quotient_path (R : setoid) `{Univalence}
+  : forall {a₁ a₂ : under R}, class_of (rel R) a₁ = class_of (rel R) a₂ <~> rel R a₁ a₂
   := sets_exact (rel R).
 
 (** Every `0`-type (set) can be written as a `squot`. *)
 Section set_is_setoid_quotient.
-  Variable (A : Type).
-  Context `{IsHSet A}.
+  Variable (A : hSet).
 
-  (** Every set induces a setoid via its path space.
-      Taking the setoid quotient over this setoid, gives the original type.
-   *)
-  Definition set_path_setoid : setoid A
-    := {|rel := fun x y => BuildhProp(x = y) ;
-         refl := fun _ => idpath ;
-         sym := fun _ _ => inverse ;
-         trans := fun _ _ _ => concat
-       |}.
-    
-  Definition squot_to_A : squot set_path_setoid -> A
-    := quotient_rec (rel set_path_setoid) idmap (fun _ _ => idmap).
+  Definition squot_to_A : squot (path_setoid A) -> A
+    := quotient_rec (rel (path_setoid A)) idmap (fun _ _ => idmap).
 
   Global Instance squot_to_A_isequiv : IsEquiv squot_to_A.
   Proof.
-    simple refine (isequiv_adjointify _ (class_of (rel set_path_setoid)) _ _).
+    simple refine (isequiv_adjointify _ (class_of (rel (path_setoid A))) _ _).
     - intros x ; reflexivity.
     - unfold Sect.
       simple refine (quotient_ind _ _ _ _).
@@ -50,7 +35,7 @@ End set_is_setoid_quotient.
 Section path_setoid_quotient.
   Variable (A : Type).
     
-  Definition squot_to_TA : squot (path_setoid A) -> Trunc 0 A.
+  Definition squot_to_TA : squot (path_setoid_type A) -> Trunc 0 A.
   Proof.
     simple refine (quotient_rec _ tr _).
     cbn ; intros x y H.
@@ -76,8 +61,7 @@ End path_setoid_quotient.
 
 (** Taking the setoid quotient commutes with sums. *)
 Section squot_sum.
-  Variable (A B : Type)
-           (R₁ : setoid A) (R₂ : setoid B).
+  Variable (R₁ : setoid) (R₂ : setoid).
 
   Definition squot_sum_in
              (z : squot R₁ + squot R₂)
@@ -130,8 +114,7 @@ End squot_sum.
 
 (** Taking the setoid quotient commutes with products (assuming function extensionality. *)
 Section squot_prod.
-  Variable (A B : Type)
-           (R₁ : setoid A) (R₂ : setoid B).
+  Variable (R₁ : setoid) (R₂ : setoid).
   Context `{Funext}.
 
   Definition squot_prod_in
@@ -194,8 +177,7 @@ End squot_prod.
  *)
 Definition poly_squot_to_squot
            (P : polynomial)
-           {A : Type}
-           (R : setoid A)
+           (R : setoid)
   : squot (lift_setoid R P) -> Trunc 0 (poly_act P (squot R)).
 Proof.
   induction P as [ | | P IHP Q IHQ | P IHP Q IHQ] ; cbn.
@@ -203,17 +185,16 @@ Proof.
   - exact (squot_to_TA T).
   - exact ((Trunc_prod 0)
              o (functor_prod IHP IHQ)
-             o squot_prod_out _ _ _ _).
+             o squot_prod_out _ _).
   - exact ((Trunc_sum 0)
               o (functor_sum IHP IHQ)
-              o squot_sum_out _ _ _ _).
+              o squot_sum_out _ _).
 Defined.
 
 (** This map is an equivalence. *)
 Global Instance squot_polynomial
        (Q : polynomial)
-       {A : Type} `{IsHSet A}
-       (R : setoid A)
+       (R : setoid) `{IsHSet (under R)}
        `{Funext}
   : IsEquiv (poly_squot_to_squot Q R).    
 Proof.
