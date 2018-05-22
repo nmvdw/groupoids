@@ -1,39 +1,192 @@
 Require Import HoTT.
+From HoTT.Categories Require Import Category GroupoidCategory Functor FunctorCategory.
+From GR.bicategories.bicategory Require Import
+     bicategory examples.cat examples.full_sub.
 From GR Require Import polynomial setoid.
 
 (** * Basic definitions *)
-(** A groupoid consists of a relation with a certain structure.
-   This relation has two parts.
-   First of all, it has objects.
-   Second of all, for each pair of objects there is a set of arrows between them.
-*)
-Definition set_relation (A : Type) := A -> A -> hSet.
+Definition groupoid := {C : PreCategory & IsGroupoid C}.
 
-(** Now we can define what a groupoid is.
-    In addition to a relation, we also have algebraic structure.
-*)
-Record groupoid (A : Type) :=
-  Build_grpd { hom : set_relation A ;
-               e : forall (x : A), hom x x ;
-               inv : forall (x y : A), hom x y -> hom y x ;
-               comp : forall (x y z : A), hom x y -> hom y z -> hom x z ;
-               ca : forall (x y z v : A) (p : hom x y) (q : hom y z) (r : hom z v),
-                   comp _ _ _ p (comp _ _ _ q r) = comp _ _ _ (comp _ _ _ p q) r ;
-               ce : forall (x y : A) (p : hom x y), comp x y y p (e y) = p ;
-               ec : forall (x y : A) (p : hom x y), comp x x y (e x) p = p ;
-               ci : forall (x y : A) (p : hom x y), comp x y x p (inv x y p) = e x ;
-               ic : forall (x y : A) (p : hom x y), comp y x y (inv x y p) p = e y ;
-             }.
+Definition under (G : groupoid) : Type
+  := object G.1.
 
-Arguments e {_} {_} _.
-Arguments hom {_} _.
-Arguments inv {_} {_} {_} {_}.
-Arguments ca {A _ x y z v} p q r.
-Arguments ce {A _ x y} p.
-Arguments ec {A _ x y} p.
-Arguments ci {A _ x y} p.
-Arguments ic {A _ x y} p.
-Notation "p × q" := (comp _ _ _ _ _ p q) (at level 80).
+Definition hom (G : groupoid) : under G -> under G -> hSet
+  := fun x y => BuildhSet (morphism G.1 x y).
+
+Definition e {G : groupoid} (x : under G) : hom G x x
+  := Category.identity x.
+
+Definition comp {G : groupoid} {x y z : under G}
+  : hom G x y -> hom G y z -> hom G x z
+  := fun g h => @Category.compose G.1 x y z h g.
+
+Notation "p · q" := (comp p q) (at level 40).
+
+Definition inv {G : groupoid} {x y : under G}
+  : hom G x y -> hom G y x
+  := fun g => @morphism_inverse _ _ _ g (G.2 x y g).
+
+Definition cal
+           {G : groupoid}
+           {v x y z : under G}
+           (p : hom G v x) (q : hom G x y) (r : hom G y z)
+  : (p · q) · r = p · (q · r)
+  := (associativity G.1 v x y z p q r)^.
+
+Definition car
+           {G : groupoid}
+           {v x y z : under G}
+           (p : hom G v x) (q : hom G x y) (r : hom G y z)
+  : p · (q · r) = (p · q) · r
+  := associativity G.1 v x y z p q r.
+
+Definition ce
+           {G : groupoid}
+           {x y : under G}
+           (p : hom G x y)
+  : p · e y = p
+  := left_identity G.1 x y p.
+
+Definition ec
+           {G : groupoid}
+           {x y : under G}
+           (p : hom G x y)
+  : e x · p = p
+  := right_identity G.1 x y p.
+
+Definition ci
+           {G : groupoid}
+           {x y : under G}
+           (p : hom G x y)
+  : p · inv p = e x
+  := @left_inverse G.1 x y p (G.2 x y p).
+
+Definition ic
+           {G : groupoid}
+           {x y : under G}
+           (p : hom G x y)
+  : inv p · p = e y
+  := @right_inverse G.1 x y p (G.2 x y p).
+
+Definition Build_grpd
+           (obj : Type)
+           (hom : obj -> obj -> hSet)
+           (e : forall (x : obj), hom x x)
+           (inv : forall {x y : obj}, hom x y -> hom y x)
+           (comp : forall {x y z : obj}, hom x y -> hom y z -> hom x z)
+           (assoc : forall (x y z v : obj) (p : hom v x) (q : hom x y) (r : hom y z),
+               comp p (comp q r) = comp (comp p q) r)
+           (ec : forall (x y : obj) (p : hom x y),
+               comp (e x) p = p)
+           (ce : forall (x y : obj) (p : hom x y),
+               comp p (e y) = p)
+           (ic : forall (x y : obj) (p : hom x y),
+               comp (inv p) p = e y)
+           (ci : forall (x y : obj) (p : hom x y),
+               comp p (inv p) = e x)
+  : groupoid.
+Proof.
+  simple refine (_;_).
+  - simple refine (@Build_PreCategory
+                     obj
+                     hom
+                     e
+                     (fun _ _ _ p q => comp _ _ _ q p) _ _ _ _).
+    + cbn ; intros.
+      apply assoc.
+    + cbn ; intros.
+      apply ce.
+    + cbn ; intros.
+      apply ec.
+  - intros x y p ; cbn in *.
+    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _) ; cbn.
+    + exact (inv _ _ p).
+    + apply ci.
+    + apply ic.
+Defined.
+
+(** ** Some equational theory for groupoids *)
+(** [e⁻¹ = e] *)
+Definition inv_e
+           {G : groupoid}
+           (a : under G)
+  : inv (@e G a) = e a
+  := (ce _)^ @ ic (e a).
+
+(** [(g⁻¹)⁻¹ = g] *)
+Definition inv_involutive
+           {G : groupoid}
+           {a₁ a₂ : under G}
+           (g : hom G a₁ a₂)
+  : inv (inv g) = g.
+Proof.
+  refine ((ce (inv (inv g)))^ @ _).
+  refine (ap (fun p => _ · p) (ic g)^ @ _).
+  refine (car _ _ _ @ _).
+  refine (ap (fun p => p · _) (ic _) @ _).
+  apply ec.
+Defined.
+
+(** [(g h)⁻¹ = h⁻¹ g ⁻¹] *)
+Definition inv_prod
+           {G : groupoid}
+           {a₁ a₂ a₃ : under G}
+           (g₁ : hom G a₁ a₂)
+           (g₂ : hom G a₂ a₃)
+  : inv (g₁ · g₂) = inv g₂ · inv g₁.
+Proof.
+  refine (_ @ (ce (inv g₂ · inv g₁))).
+  refine (_ @ ap (fun p => _ · p) (ci (g₁ · g₂))).
+  refine (_ @ cal _ _ _).
+  refine (_ @ ap (fun p => p · _) (car (inv g₂ · inv g₁) g₁ g₂)^).
+  refine (_ @ ap (fun p => (p · _) · _) (car (inv g₂) (inv g₁) g₁)).
+  refine (_ @ (ap (fun p => ((_ · p) · _) · _) (ic _))^).
+  refine (_ @ (ap (fun p => (p · _) · _) (ce _))^).
+  refine (_ @ (ap (fun p => p · _) (ic _))^).
+  exact (ec _)^.
+Defined.
+
+(** Groupoid functors *)
+Definition grpd_functor `{Univalence} (G₁ G₂ : groupoid) : PreCategory
+  := functor_category G₁.1 G₂.1.
+
+Definition grpd_object_of `{Univalence} {G₁ G₂ : groupoid} (F : grpd_functor G₁ G₂)
+  : under G₁ -> under G₂
+  := object_of F.
+
+Definition grpd_morphism_of `{Univalence} {G₁ G₂ : groupoid} (F : grpd_functor G₁ G₂)
+  : forall {x y : under G₁},
+    hom G₁ x y -> hom G₂ (grpd_object_of F x) (grpd_object_of F y)
+  := morphism_of F.
+
+Definition grpd_identity_of `{Univalence} {G₁ G₂ : groupoid} (F : grpd_functor G₁ G₂)
+  : forall (x : under G₁), grpd_morphism_of F (e x) = e (grpd_object_of F x)
+  := identity_of F.
+
+Definition grpd_composition_of `{Univalence} {G₁ G₂ : groupoid} (F : grpd_functor G₁ G₂)
+  : forall {x y z : under G₁} (p : hom G₁ x y) (q : hom G₁ y z),
+    grpd_morphism_of F (p · q) = grpd_morphism_of F p · grpd_morphism_of F q
+  := composition_of F.
+
+Definition grpd_inverse_of `{Univalence} {G₁ G₂ : groupoid} (F : grpd_functor G₁ G₂)
+  : forall {x y : under G₁} (p : hom G₁ x y),
+    grpd_morphism_of F (inv p) = inv (grpd_morphism_of F p).
+Proof.
+  intros x y p.
+  apply iso_moveL_1V.
+  refine (((grpd_composition_of F p (inv p))^ @ _ @ grpd_identity_of F x)).
+  apply (ap (grpd_morphism_of F)).
+  apply ci.
+Defined.
+
+Definition grpd `{Univalence} : BiCategory
+  := full_sub Cat (fun C => BuildhProp (IsGroupoid C)).
+
+Definition grpd_obj `{Univalence} : Obj grpd = groupoid
+  := idpath.
+
+Definition grpd_hom `{Univalence} : Hom grpd = grpd_functor
+  := idpath.
 
 (** ** Constructions of groupoids *)
 (** Now let's discuss some examples of groupoids.
@@ -42,9 +195,10 @@ Notation "p × q" := (comp _ _ _ _ _ p q) (at level 80).
 Definition path_space (X : Type) : X -> X -> hSet
   := fun (x y : X) => BuildhSet (Trunc 0 (x = y)).
 
-Definition path_groupoid (X : Type) : groupoid X.
+Definition path_groupoid (X : Type) : groupoid.
 Proof.
-  unshelve esplit ; simpl.
+  simple refine (Build_grpd _ _ _ _ _ _ _ _ _ _) ; simpl.
+  - exact X.
   - exact (path_space X).
   - exact (fun _ => tr idpath).
   - exact (fun _ _ => Trunc_rec (fun p => tr p^)).
@@ -54,72 +208,64 @@ Proof.
     exact (ap tr (concat_p_pp p q r)).
   - intros ? ? p.
     strip_truncations ; simpl.
-    exact (ap tr (concat_p1 p)).
-  - intros ? ? p.
-    strip_truncations ; simpl.
     exact (ap tr (concat_1p p)).
   - intros ? ? p.
     strip_truncations ; simpl.
-    exact (ap tr (concat_pV p)).
+    exact (ap tr (concat_p1 p)).
   - intros ? ? p.
     strip_truncations ; simpl.
     exact (ap tr (concat_Vp p)).
+  - intros ? ? p.
+    strip_truncations ; simpl.
+    exact (ap tr (concat_pV p)).
 Defined.
 
-Notation "p · q" := (comp _ (path_groupoid _) _ _ _ p q) (at level 80).
-
 (** Groupoids are closed under products. *)
-Definition prod_groupoid
-           {A B : Type} (G₁ : groupoid A) (G₂ : groupoid B)
-  : groupoid (A * B).
+Definition prod_groupoid (G₁ G₂ : groupoid) : groupoid.
 Proof.
-  unshelve esplit.
+  simple refine (Build_grpd _ _ _ _ _ _ _ _ _ _) ; simpl.
+  - exact (under G₁ * under G₂).
   - exact (fun x y => BuildhSet (hom G₁ (fst x) (fst y) * hom G₂ (snd x) (snd y))).
   - intros ; simpl.
     split ; apply e.
   - intros ? ? [p1 p2] ; simpl.
     exact (inv p1, inv p2).
   - intros ? ? ? [p1 p2] [q1 q2].
-    exact (p1 × q1, p2 × q2).
+    exact (p1 · q1, p2 · q2).
   - intros ? ? ? ? [p1 p2] [q1 q2] [r1 r2].
-    apply path_prod ; apply ca.
-  - intros ? ? [p1 p2].
-    apply path_prod ; apply ce.
+    apply path_prod ; apply car.
   - intros ? ? [p1 p2].
     apply path_prod ; apply ec.
   - intros ? ? [p1 p2].
-    apply path_prod ; apply ci.
+    apply path_prod ; apply ce.
   - intros ? ? [p1 p2].
     apply path_prod ; apply ic.
+  - intros ? ? [p1 p2].
+    apply path_prod ; apply ci.
 Defined.
 
 (** Groupoids are closed under sums. *)
-Definition sum_groupoid
-           {A B : Type} (G₁ : groupoid A) (G₂ : groupoid B)
-  : groupoid (A + B).
+Definition sum_groupoid (G₁ G₂ : groupoid) : groupoid.
 Proof.
-  unshelve esplit.
-  - exact (fun x y =>
-             match x, y with
-             | inl x, inl y => hom G₁ x y
-             | inl _, inr _ => BuildhSet Empty
-             | inr _, inl _ => BuildhSet Empty
-             | inr x, inr y => hom G₂ x y
-             end).
+  simple refine (Build_grpd _ _ _ _ _ _ _ _ _ _) ; simpl.
+  - exact (under G₁ + under G₂).
+  - intros [x | x] [y | y].
+    + exact (hom G₁ x y).
+    + exact (BuildhSet Empty).
+    + exact (BuildhSet Empty).
+    + exact (hom G₂ x y).
   - intros [x | x] ; apply e.
   - intros [? | ?] [? | ?] ; contradiction || apply inv.
   - intros [? | ?] [? | ?] [? | ?] ; contradiction || apply comp.
-  - intros [? | ?] [? | ?] [? | ?] [? | ?] ; try contradiction ; apply ca.
-  - intros [? | ?] [? | ?] ; try contradiction ; apply ce.
+  - intros [? | ?] [? | ?] [? | ?] [? | ?] ; try contradiction ; apply car.
   - intros [? | ?] [? | ?] ; try contradiction ; apply ec.
-  - intros [? | ?] [? | ?] ; try contradiction ; apply ci.
+  - intros [? | ?] [? | ?] ; try contradiction ; apply ce.
   - intros [? | ?] [? | ?] ; try contradiction ; apply ic.
+  - intros [? | ?] [? | ?] ; try contradiction ; apply ci.
 Defined.    
 
 (** We can apply polynomial functors to groupoids. *)
-Definition lift_groupoid
-           {A : Type} (G : groupoid A) (P : polynomial)
-  : groupoid (poly_act P A).
+Definition lift_groupoid (G : groupoid) (P : polynomial) : groupoid.
 Proof.
   induction P ; simpl.
   - exact G.
@@ -129,254 +275,39 @@ Proof.
 Defined.
     
 (** Every setoid induces a groupoid. *)
-Definition setoid_to_groupoid
-           (R : setoid)
-  : groupoid (under R).
+Definition setoid_to_groupoid (R : setoid) : groupoid.
 Proof.
-  simple refine {| hom := fun a₁ a₂ => BuildhSet (rel R a₁ a₂) ;
-                   e := refl ;
-                   inv := fun _ _ p => sym p ;
-                   comp := fun _ _ _ p q => trans p q
-                |}
-  ; intros ; simpl ; apply path_ishprop.
+  simple refine (Build_grpd _ _ _ _ _ _ _ _ _ _) ; simpl.
+  - exact (setoid.under R).
+  - exact (fun a₁ a₂ => BuildhSet (rel R a₁ a₂)).
+  - exact refl.
+  - exact (@sym R).
+  - exact (@trans R).
+  - cbn ; intros.
+    apply path_ishprop.
+  - cbn ; intros.
+    apply path_ishprop.
+  - cbn ; intros.
+    apply path_ishprop.
+  - cbn ; intros.
+    apply path_ishprop.
+  - cbn ; intros.
+    apply path_ishprop.
 Defined.
-
-(** ** Some equational theory for groupoids *)
-(** [e⁻¹ = e] *)
-Definition inv_e
-           {A : Type}
-           (G : groupoid A)
-           (a : A)
-  : inv (@e _ G a) = e a
-  := (ce _)^ @ ic (e a).
-
-(** [(g⁻¹)⁻¹ = g] *)
-Definition inv_involutive
-           {A : Type}
-           (G : groupoid A)
-           {a₁ a₂ : A}
-           (g : hom G a₁ a₂)
-  : inv (inv g) = g.
-Proof.
-  refine ((ce (inv (inv g)))^ @ _).
-  refine (ap (fun p => _ × p) (ic g)^ @ _).
-  refine (ca _ _ _ @ _).
-  refine (ap (fun p => p × _) (ic _) @ _).
-  apply ec.
-Defined.
-
-(** [(g h)⁻¹ = h⁻¹ g ⁻¹] *)
-Definition inv_prod
-           {A : Type}
-           (G : groupoid A)
-           {a₁ a₂ a₃ : A}
-           (g₁ : hom G a₁ a₂)
-           (g₂ : hom G a₂ a₃)
-  : inv (g₁ × g₂) = (inv g₂ × inv g₁).
-Proof.
-  refine (_ @ (ce (inv g₂ × inv g₁))).
-  refine (_ @ ap (fun p => _ × p) (ci (g₁ × g₂))).
-  refine (_ @ (ca _ _ _)^).
-  refine (_ @ ap (fun p => p × _) (ca (inv g₂ × inv g₁) g₁ g₂)^).
-  refine (_ @ ap (fun p => (p × _) × _) (ca (inv g₂) (inv g₁) g₁)).
-  refine (_ @ (ap (fun p => ((_ × p) × _) × _) (ic _))^).
-  refine (_ @ (ap (fun p => (p × _) × _) (ce _))^).
-  refine (_ @ (ap (fun p => p × _) (ic _))^).
-  exact (ec _)^.
-Defined.
-
-
-Record groupoid_functor
-       {A B : Type}
-       (G₁ : groupoid A) (G₂ : groupoid B)
-  := { f_obj : A -> B ;
-       f_hom : forall (x y : A), hom G₁ x y -> hom G₂ (f_obj x) (f_obj y) ;
-       f_e : forall (x : A), f_hom x x (e x) = e (f_obj x) ;
-       f_inv : forall (x y : A) (g : hom G₁ x y),
-           f_hom y x (inv g) = inv (f_hom x y g) ;
-       f_comp : forall (x y z : A) (g₁ : hom G₁ x y) (g₂ : hom G₁ y z),
-           f_hom x z (g₁ × g₂) = (f_hom x y g₁ × f_hom y z g₂)
-     }.
-
-Arguments f_obj {A B G₁ G₂} _ a.
-Arguments f_hom {A B G₁ G₂} _ x y _.
-Arguments f_e {A B G₁ G₂ _} x.
-Arguments f_inv {A B G₁ G₂ _} _ _ _.
-Arguments f_comp {A B G₁ G₂ _} _ _ _ _ _.
-
-Definition transport_e
-           {A B : Type}
-           {G₁ : groupoid A} {G₂ : groupoid B}
-           (F₁ F₂ : groupoid_functor G₁ G₂)
-           (eq_obj : f_obj F₁ = f_obj F₂)
-           (x : A)
-  : hom G₂ (f_obj F₂ x) (f_obj F₁ x)
-  := transport (fun h => hom G₂ (f_obj F₂ x) (h x)) eq_obj^ (e _).
-
-Definition compute_transport
-           {A B : Type}
-           {G₁ : groupoid A} {G₂ : groupoid B}
-           (F₁ F₂ : groupoid_functor G₁ G₂)
-           (eq_obj : f_obj F₁ = f_obj F₂)
-           {x y : A} (g : hom G₁ x y)
-  : transport (fun f => hom G₂ (f x) (f y))
-              (eq_obj^)
-              (f_hom F₂ x y g)
-    = ((inv (transport_e F₁ F₂ eq_obj x))
-         × f_hom F₂ x y g × transport_e F₁ F₂ eq_obj y).
-Proof.
-  unfold transport_e.
-  destruct F₁, F₂ ; simpl in *.
-  induction eq_obj ; simpl in *.
-  refine (_ @ (ce _)^).
-  refine (_^ @ ap (fun z => z × _) (inv_e _ _)^).
-  apply ec.
-Defined.
-
-Definition idfunctor {A : Type} (G : groupoid A) : groupoid_functor G G.
-Proof.
-  simple refine (Build_groupoid_functor _ _ _ _ (fun x => x) _ _ _ _).
-  - simpl. intros x y. refine (fun x => x).
-  - reflexivity.
-  - reflexivity.
-  - reflexivity.
-Defined.
-
-Definition functor_comp {A B C : Type} {G₁ : groupoid A} {G₂ : groupoid B} {G₃ : groupoid C}
-           (F : groupoid_functor G₁ G₂) (G : groupoid_functor G₂ G₃) : groupoid_functor G₁ G₃.
-Proof.
-  simple refine (Build_groupoid_functor _ _ _ _ _ _ _ _ _).
-  - intros x. apply (f_obj G). apply (f_obj F x).
-  - intros x y g ; simpl.
-    apply (f_hom G). apply (f_hom F). exact g.
-  - intros x ; simpl. do 2 rewrite f_e. reflexivity.
-  - intros x y g ; simpl. do 2 rewrite f_inv. reflexivity.
-  - intros x y z g₁ g₂ ; simpl. do 2 rewrite f_comp. reflexivity.
-Defined.
-
-Definition groupoid_functor_sigma {A B : Type} {G₁ : groupoid A} {G₂ : groupoid B} :
-  { f_obj : A -> B &
-  { f_hom : forall x y : A, hom G₁ x y -> hom G₂ (f_obj x) (f_obj y) &
-  { f_e : forall x : A, f_hom x x (e x) = e (f_obj x) &
-  { f_inv : forall (x y : A) (g : hom G₁ x y), f_hom y x (inv g) = inv (f_hom x y g) &
-    forall (x y z : A) (g₁ : hom G₁ x y) (g₂ : hom G₁ y z),
-           f_hom x z (g₁ × g₂) = (f_hom x y g₁ × f_hom y z g₂) }}}}
-    <~> groupoid_functor G₁ G₂.
-Proof.
-  issig (Build_groupoid_functor A B G₁ G₂) (@f_obj A B G₁ G₂) (@f_hom A B G₁ G₂) (@f_e A B G₁ G₂) (@f_inv A B G₁ G₂) (@f_comp A B G₁ G₂).
-Defined.
-
-Definition functor_eq `{Univalence}
-           {A B : Type}
-           {G₁ : groupoid A} {G₂ : groupoid B}
-           (F₁ F₂ : groupoid_functor G₁ G₂)
-           (eq_obj : f_obj F₁ = f_obj F₂)
-           (eq_hom : f_hom F₁
-                     =
-                     fun x y g =>
-                       transport (fun f => hom G₂ (f x) (f y))
-                                 (eq_obj^)
-                                 (f_hom F₂ x y g)
-           )
-  : F₁ = F₂.
-Proof.
-  enough (groupoid_functor_sigma (groupoid_functor_sigma^-1 F₁) =
-            groupoid_functor_sigma (groupoid_functor_sigma^-1 F₂)) as HFF.
-  { refine ((eisretr groupoid_functor_sigma F₁)^ @ _ @ eisretr groupoid_functor_sigma F₂).
-    exact HFF. }
-  refine (ap groupoid_functor_sigma _).
-  symmetry.
-  simple refine (path_sigma _ _ _ _ _).
-  { symmetry. apply eq_obj. }
-  simple refine (path_sigma_hprop _ _ _).
-  symmetry; simpl. rewrite eq_hom.
-  destruct F₂ ; simpl in *. induction eq_obj ; simpl in *.
-  reflexivity.
-Defined.
-
-Lemma functor_comp_assoc `{Univalence}
-           {A B C D : Type}
-           {G₁ : groupoid A} {G₂ : groupoid B} {G₃ : groupoid C} {G₄ : groupoid D}
-           (F₁ : groupoid_functor G₁ G₂)
-           (F₂ : groupoid_functor G₂ G₃)
-           (F₃ : groupoid_functor G₃ G₄) :
-  functor_comp F₁ (functor_comp F₂ F₃) = functor_comp (functor_comp F₁ F₂) F₃.
-Proof.
-  simple refine (functor_eq _ _ _ _).
-  - reflexivity.
-  - reflexivity.
-Defined.
-
-Lemma functor_comp_id_r `{Univalence}
-           {A B : Type}
-           {G₁ : groupoid A} {G₂ : groupoid B}
-           (F : groupoid_functor G₁ G₂) :
-  functor_comp F (idfunctor G₂) = F.
-Proof.
-  simple refine (functor_eq _ _ _ _).
-  - reflexivity.
-  - reflexivity.
-Defined.
-
-Lemma functor_comp_id_l `{Univalence}
-           {A B : Type}
-           {G₁ : groupoid A} {G₂ : groupoid B}
-           (F : groupoid_functor G₁ G₂) :
-  functor_comp (idfunctor G₁) F = F.
-Proof.
-  simple refine (functor_eq _ _ _ _).
-  - reflexivity.
-  - reflexivity.
-Defined.
-
-Section groupoid_iso.
-  Context `{UA : Univalence}.
-
-  Definition pullback
-             {A B : Type}
-             (f : A -> B)
-             (H : groupoid B)
-    : groupoid A
-    := {| hom := fun a b => hom H (f a) (f b) ;
-          e := fun a => e (f a) ;
-          inv := fun a b g => inv g ;
-          comp := fun a b c g h => g × h ;
-          ca := fun x y z v p q r => ca p q r ;
-          ce := fun x y p => ce p ;
-          ec := fun x y p => ec p ;
-          ci := fun x y p => ci p ;
-          ic := fun x y p => ic p |}.
-
-  (*Definition groupoid_eq
-             {A B : Type}
-             (G : groupoid A) (H : groupoid B)
-             (f : A -> B)
-             (p_hom : forall (a b : A), hom G a b -> hom H (f a) (f b))
-             (p_e : forall (a : A), p_hom a a (e a) = e (f a))
-             (p_i : forall (a b : A) (g : hom G a b),
-                 p_hom b a (inv g) = inv (p_hom a b g))
-             (p_c : forall (a b c : A) (g : hom G a b) (h : hom G b c),
-                 p_hom a c (g × h) = ((p_hom a b g) × (p_hom b c h)))
-             `{forall (a b : A), IsEquiv (p_hom a b)}
-    : G = pullback f H.
-  Proof.
-    unfold pullback ; destruct G, H ; simpl in *.
-  Admitted.*)
-End groupoid_iso.
 
 Section fun_groupoid.
-  Variable (A B : Type)
-           (G₁ : groupoid A) (G₂ : groupoid B).
-  Context `{Funext}.
+  Variable (G₁ G₂ : groupoid).
+  Context `{Univalence}.
 
   Definition f_object : Type
-    := groupoid_functor G₁ G₂.
+    := grpd_functor G₁ G₂.
 
   Definition f_morph : f_object -> f_object -> hSet
-    := fun f g => BuildhSet {p : forall (a : A),
-                                 hom G₂ (f_obj f a) (f_obj g a) &
-                                 forall (x y : A) (h : hom G₁ x y),
-                                   f_hom f x y h = (p x × f_hom g x y h × inv (p y))
+    := fun f g => BuildhSet {p : forall (a : under G₁),
+                                 hom G₂ (grpd_object_of f a) (grpd_object_of g a) &
+                                 forall (x y : under G₁) (h : hom G₁ x y),
+                                   grpd_morphism_of f h
+                                   = p x · grpd_morphism_of g h · inv (p y)
                             }.
 
   Definition f_morph_eq
@@ -388,9 +319,9 @@ Section fun_groupoid.
   Definition f_eo (x : f_object)
     : f_morph x x.
   Proof.
-    simple refine (fun a => e (f_obj x a);_) ; simpl.
+    simple refine (fun a => e (grpd_object_of x a);_) ; simpl.
     intros a b g.
-    refine (ap (fun z => _ × z) (inv_e _ _) @ _)^.
+    refine (ap (fun z => _ · z) (inv_e _) @ _)^.
     refine (ce _ @ ec _).
   Defined.
 
@@ -399,43 +330,44 @@ Section fun_groupoid.
   Proof.
     simple refine (fun a => inv (g.1 a);_) ; simpl.
     intros a b h.
-    refine (ap (fun z => (_ × z) × _) (g.2 a b h) @ _)^.
-    refine (ap (fun z => z × _) (ca _ _ _) @ _).
-    refine (ap (fun z => (z × _) × _) (ca _ _ _) @ _).
-    refine (ap (fun z => ((z × _) × _) × _) (ic _) @ _).
-    refine (ap (fun z => (z × _) × _) (ec _) @ _).
-    refine ((ca _ _ _)^ @ _).
-    refine (ap (fun z => _ × z) (ci _) @ ce _).
+    refine (ap (fun z => (_ · z) · _) (g.2 a b h) @ _)^.
+    refine (ap (fun z => z · _) (car _ _ _) @ _).
+    refine (ap (fun z => (z · _) · _) (car _ _ _) @ _).
+    refine (ap (fun z => ((z · _) · _) · _) (ic _) @ _).
+    refine (ap (fun z => (z · _) · _) (ec _) @ _).
+    refine ((car _ _ _)^ @ _).
+    refine (ap (fun z => _ · z) (ci _) @ ce _).
   Defined.
 
   Definition f_concat (x y z : f_object) (g : f_morph x y) (h : f_morph y z)
     : f_morph x z.
   Proof.
-    simple refine (fun a => g.1 a × h.1 a;_) ; simpl.
+    simple refine (fun a => g.1 a · h.1 a;_) ; simpl.
     intros a b p.
-    refine (_ @ ap (fun z => _ × z) (inv_prod _ _ _)^).
-    refine (_ @ (ca _ _ _)^).
+    refine (_ @ ap (fun z => _ · z) (inv_prod _ _)^).
+    refine (_ @ cal _ _ _).
     refine (g.2 a b p @ _).
-    refine (ap (fun z => z × inv (g.1 b)) _).
-    refine (_ @ ca _ _ _ @ ca _ _ _).
-    refine (ap (fun z => g.1 a × z) _).
-    refine (_ @ (ca _ _ _)^).
+    refine (ap (fun z => z · inv (g.1 b)) _).
+    refine (_ @ car _ _ _ @ car _ _ _).
+    refine (ap (fun z => g.1 a · z) _).
+    refine (_ @ cal _ _ _).
     exact (h.2 a b p).
   Defined.
 
-  Definition fun_groupoid
-    : groupoid f_object.
+  Definition fun_groupoid : groupoid.
   Proof.
-    simple refine {| hom := f_morph ;
-                     e := f_eo ;
-                     inv := f_invo ;
-                     comp := f_concat
-                  |}
+    simple refine (Build_grpd
+                     f_object
+                     f_morph
+                     f_eo
+                     f_invo
+                     f_concat
+                     _ _ _ _ _)
     ; intros ; apply f_morph_eq ; funext ? ; cbn.
-    - apply ca.
-    - apply ce.
+    - apply car.
     - apply ec.
-    - apply ci.
+    - apply ce.
     - apply ic.
+    - apply ci.
   Defined.
 End fun_groupoid.

@@ -13,7 +13,9 @@ Section squot_is_gquot.
 
   Definition gquot_to_squot : gquot (setoid_to_groupoid R) -> squot R.
   Proof.
-    simple refine (gquot_rec (squot R) (class_of (rel R)) _ _ _ _ _).
+    simple refine (gquot_rec (squot R) _ _ _ _ _ _).
+    - cbn.
+      exact (class_of (rel R)).
     - exact (fun _ _ p => related_classes_eq _ p).
     - intros ; apply path_ishprop.
     - intros ; apply path_ishprop.
@@ -26,9 +28,9 @@ Section squot_is_gquot.
   Proof.
     simple refine (gquot_double_ind_prop (fun a b => IsHProp (a = b)) _ _).
     simpl; intros a b.
-    rewrite (path_universe (encode_gquot _ _
-                                      (gcl (setoid_to_groupoid R) a)
-                                      (gcl (setoid_to_groupoid R) b))).
+    rewrite (path_universe (encode_gquot _
+                                         (gcl (setoid_to_groupoid R) a)
+                                         (gcl (setoid_to_groupoid R) b))).
     (* TODO : this is very slow *)
     simpl.
     apply _.
@@ -37,7 +39,7 @@ Section squot_is_gquot.
   (** Now we can show the two quotients coincide. *)
   Definition squot_to_gquot : squot R -> gquot (setoid_to_groupoid R).
   Proof.
-    simple refine (quotient_rec _ (gcl _) _).
+    simple refine (quotient_rec _ (gcl (setoid_to_groupoid R)) _).
     simpl ; intros.
     apply gcleq ; assumption.
   Defined.

@@ -8,9 +8,7 @@ From GR Require Export basics.polynomial groupoid.groupoid_quotient.
     We use recursion to define the maps and `gquot_ind_set` to prove they are inverses.
  *)
 Section gquot_sum.
-  Variable (A B : Type).
-  Variable (G₁ : groupoid A)
-           (G₂ : groupoid B).
+  Variable (G₁ G₂ : groupoid).
 
   Definition gquot_sum_in
              (z : gquot G₁ + gquot G₂)
@@ -19,13 +17,12 @@ Section gquot_sum.
     destruct z as [x | y].
     - exact (gquot_rec
                _
-               (fun a => gcl _ (inl a))
-               (fun a₁ a₂ g => @gcleq _ (sum_groupoid G₁ G₂) (inl a₁) (inl a₂) g)
+               (fun a => gcl (sum_groupoid G₁ G₂) (inl a))
+               (fun a₁ a₂ g => @gcleq (sum_groupoid G₁ G₂) (inl a₁) (inl a₂) g)
                (fun a => ge (sum_groupoid G₁ G₂) (inl a))
-               (fun a₁ a₂ g => @ginv _ (sum_groupoid G₁ G₂) (inl a₁) (inl a₂) g)
+               (fun a₁ a₂ g => @ginv (sum_groupoid G₁ G₂) (inl a₁) (inl a₂) g)
                (fun a₁ a₂ a₃ g₁ g₂ =>
-                  @gconcat _
-                           (sum_groupoid G₁ G₂)
+                  @gconcat (sum_groupoid G₁ G₂)
                            (inl a₁)
                            (inl a₂)
                            (inl a₃)
@@ -35,13 +32,12 @@ Section gquot_sum.
                x).
     - exact (gquot_rec
                _
-               (fun b => gcl _ (inr b))
-               (fun b₁ b₂ g => @gcleq _ (sum_groupoid G₁ G₂) (inr b₁) (inr b₂) g)
+               (fun b => gcl (sum_groupoid G₁ G₂) (inr b))
+               (fun b₁ b₂ g => @gcleq (sum_groupoid G₁ G₂) (inr b₁) (inr b₂) g)
                (fun b => ge (sum_groupoid G₁ G₂) (inr b))
-               (fun b₁ b₂ g => @ginv _ (sum_groupoid G₁ G₂) (inr b₁) (inr b₂) g)
+               (fun b₁ b₂ g => @ginv (sum_groupoid G₁ G₂) (inr b₁) (inr b₂) g)
                (fun b₁ b₂ b₃ g₁ g₂ =>
-                  @gconcat _
-                           (sum_groupoid G₁ G₂)
+                  @gconcat (sum_groupoid G₁ G₂)
                            (inr b₁)
                            (inr b₂)
                            (inr b₃)
@@ -147,9 +143,7 @@ End gquot_sum.
     We use `gquot_ind_set` to show they are inverses.
  *)
 Section gquot_prod.
-  Variable (A B : Type).
-  Variable (G₁ : groupoid A)
-           (G₂ : groupoid B).
+  Variable (G₁ G₂ : groupoid).
 
   Context `{Funext}.
 
@@ -157,18 +151,18 @@ Section gquot_prod.
     : gquot G₁ * gquot G₂ -> gquot (prod_groupoid G₁ G₂).
   Proof.
     simple refine (gquot_double_rec _ _ _ _ _ _ _ _ _ _ _).
-    - exact (fun a b => gcl _ (a, b)).
+    - exact (fun a b => gcl (prod_groupoid G₁ G₂) (a, b)).
     - intros a b₁ b₂ g ; simpl.
       apply gcleq.
       exact (e a, g).
     - intros a b ; simpl.
       apply ge.
     - intros a b₁ b₂ g ; simpl.
-      rewrite <- ginv ; simpl.
+      rewrite <- ginv ; cbn.
       rewrite inv_e.
       reflexivity.
     - intros a b₁ b₂ b₃ g₁ g₂ ; simpl.
-      rewrite <- gconcat ; simpl.
+      rewrite <- gconcat ; cbn.
       rewrite ce.
       reflexivity.
     - intros a₁ a₂ b g ; simpl.
@@ -177,17 +171,17 @@ Section gquot_prod.
     - intros a b ; simpl.
       apply ge.
     - intros a₁ a₂ b g ; simpl.
-      rewrite <- ginv ; simpl.
+      rewrite <- ginv ; cbn.
       rewrite inv_e.
       reflexivity.
     - intros a₁ a₂ a₃ b g₁ g₂ ; simpl.
-      rewrite <- gconcat ; simpl.
+      rewrite <- gconcat ; cbn.
       rewrite ce.
       reflexivity.
     - intros a₁ a₂ b₁ b₂ g₁ g₂ ; simpl.
       apply path_to_square.
       rewrite <- !gconcat.
-      apply ap ; simpl.
+      apply ap ; cbn.
       rewrite !ce, !ec.
       reflexivity.
   Defined.
@@ -222,9 +216,13 @@ Section gquot_prod.
       * apply gquot_rec_beta_gcleq.
       * apply gquot_double_rec_beta_gcleq.
       * simpl.
-        refine ((@gconcat _ (prod_groupoid G₁ G₂)
-                          _ (fst x₂, snd x₁) _
-                          (fst g, e (snd x₁)) (e (fst x₂), snd g))^ @ _).
+        refine ((@gconcat (prod_groupoid G₁ G₂)
+                          _
+                          (fst x₂, snd x₁)
+                          _
+                          (fst g, e (snd x₁))
+                          (e (fst x₂), snd g))^
+                @ _).
         apply ap.
         exact (path_prod' (ce _) (ec _)).
   Qed.
@@ -243,8 +241,7 @@ Section gquot_prod.
       * apply ap.
         refine (ap_compose _ _ _ @ _).
         apply gquot_double_rec_beta_r_gcleq.
-      * exact (gquot_rec_beta_gcleq (A * B)
-                                    (prod_groupoid G₁ G₂)
+      * exact (gquot_rec_beta_gcleq (prod_groupoid G₁ G₂)
                                     _ _ _ _ _ _ _
                                     (a, b₁) (a, b₂) (e a, g)).
       * exact (ap (fun z => path_prod' z (gcleq G₂ g)) (ge G₁ a)).
@@ -256,8 +253,7 @@ Section gquot_prod.
       * apply ap.
         refine (ap_compose _ _ _ @ _).
         apply gquot_double_rec_beta_l_gcleq.
-      * exact (gquot_rec_beta_gcleq _
-                                    (prod_groupoid G₁ G₂)
+      * exact (gquot_rec_beta_gcleq (prod_groupoid G₁ G₂)
                                     _ _ _ _ _ _ _
                                     (a₁, b) (a₂, b) (g, e b)).
       * exact (ap (path_prod' (gcleq G₁ g)) (ge G₂ b)).

@@ -4,9 +4,10 @@ From GR Require Export groupoid.groupoid_quotient.
 
 (** * Encode-decode method for characterizing the path space of [gquot G]. *)
 Section encode_decode.
-  Variable (A : Type)
-           (G : groupoid A).
+  Variable (G : groupoid).
   Context `{Univalence}.
+
+  Local Notation A := (under G).
 
   (** First, we shall lift the hom set of [G] to a set relation of [gquot G].
       For that, we need an equivalence between [hom G a₁ b] and [hom G a₂ b] (given a morphism [hom G a₁ a₂]),
@@ -17,48 +18,48 @@ Section encode_decode.
         {a₁ a₂ : A} (b : A)
         (g : hom G a₁ a₂)
     : hom G a₁ b -> hom G a₂ b
-    := fun h => (inv g) × h.
+    := fun h => (inv g) · h.
 
   Definition right_action_inv
              {a₁ a₂ : A} (b : A)
              (g : hom G a₁ a₂)
     : hom G a₂ b -> hom G a₁ b
-    := fun h => g × h.
+    := fun h => g · h.
 
   Global Instance right_action_equiv (a : A) {b₁ b₂ : A} (g : hom G b₁ b₂)
     : IsEquiv (right_action a g).
   Proof.
     simple refine (isequiv_adjointify _ (right_action_inv a g) _ _).
     - intros h ; compute.
-      refine (ca _ _ _ @ _).
-      exact (ap (fun z => z × h) (ic _) @ ec _).
+      refine (car _ _ _ @ _).
+      exact (ap (fun z => z · h) (ic _) @ ec _).
     - intros h ; compute.
-      refine (ca _ _ _ @ _).
-      exact (ap (fun z => z × h) (ci _) @ ec _).
+      refine (car _ _ _ @ _).
+      exact (ap (fun z => z · h) (ci _) @ ec _).
   Defined.
 
   Definition left_action
         (a : A) {b₁ b₂ : A}
         (g : hom G b₁ b₂)
     : hom G a b₁ -> hom G a b₂
-    := fun h => h × g.
+    := fun h => h · g.
 
   Definition left_action_inv
              (a : A) {b₁ b₂ : A}
              (g : hom G b₁ b₂)
     : hom G a b₂ -> hom G a b₁
-    := fun h => h × (inv g).
+    := fun h => h · (inv g).
 
   Global Instance left_action_equiv (a : A) {b₁ b₂ : A} (g : hom G b₁ b₂)
     : IsEquiv (left_action a g).
   Proof.
     simple refine (isequiv_adjointify _ (left_action_inv a g) _ _).
     - intros h ; compute.
-      refine ((ca _ _ _)^ @ _).
-      exact (ap (fun z => h × z) (ic _) @ ce _).
+      refine (cal _ _ _ @ _).
+      exact (ap (fun z => h · z) (ic _) @ ce _).
     - intros h ; compute.
-      refine ((ca _ _ _)^ @ _).
-      exact (ap (fun z => h × z) (ci _) @ ce _).
+      refine (cal _ _ _ @ _).
+      exact (ap (fun z => h · z) (ci _) @ ce _).
   Defined.
 
   (** The action of the unit element is the identity. *)
@@ -81,7 +82,7 @@ Section encode_decode.
   (** The lift of [hom G] to [gquot G]. *)
   Definition g_fam : gquot G -> gquot G -> hSet.
   Proof.
-    simple refine (gquot_relation A A G G
+    simple refine (gquot_relation G G
                           (hom G)
                           (fun _ _ b g => right_action b g)
                           (fun a _ _ g => left_action a g)
@@ -91,16 +92,18 @@ Section encode_decode.
       apply right_action_e.
     - intros a b₁ b₂ g x ; unfold right_action ; simpl.
         by rewrite inv_involutive.
-    - compute ; intros.
-        by rewrite inv_prod, ca.
+    - intros ; intro ; cbn.
+      unfold right_action.
+      rewrite inv_prod, car.
+      reflexivity.
     - intros ; compute.
       apply ce.
     - intros ; compute.
       reflexivity.
     - compute ; intros.
-      apply ca.
+      apply car.
     - compute ; intros.
-      apply ca.
+      apply car.
   Defined.
 
   (** The computation rules of [g_fam] for the paths. *)
@@ -109,14 +112,14 @@ Section encode_decode.
     : ap (fun z => g_fam z (gcl G b)) (gcleq G g)
       =
       path_hset (BuildEquiv _ _ (right_action b g) _)
-    := gquot_relation_beta_l_gcleq A A G G (hom G) _ _ _ _ _ _ _ _ _ _ g.
+    := gquot_relation_beta_l_gcleq G G (hom G) _ _ _ _ _ _ _ _ _ _ g.
 
   Definition gquot_fam_r_gcleq
              (a : A) {b₁ b₂ : A} (g : hom G b₁ b₂)
     : ap (g_fam (gcl G a)) (gcleq G g)
       =
       path_hset (BuildEquiv _ _ (left_action a g) _)
-    := gquot_relation_beta_r_gcleq A A G G (hom G) _ _ _ _ _ _ _ _ _ _ g.
+    := gquot_relation_beta_r_gcleq G G (hom G) _ _ _ _ _ _ _ _ _ _ g.
 
   Local Instance g_fam_hset x y : IsHSet (g_fam x y)
     := istrunc_trunctype_type _.
@@ -126,7 +129,7 @@ Section encode_decode.
   Proof.
     simple refine (gquot_ind_set (fun x => g_fam x x) _ _ _).
     - intros a.
-      exact (@e A G a).
+      exact (@e G a).
     - intros a₁ a₂ g.
       apply path_to_path_over.
       refine (transport_idmap_ap_set (fun x => g_fam x x) (gcleq G g) (e a₁)  @ _).
@@ -136,7 +139,7 @@ Section encode_decode.
         exact (ap (fun z => _ @ z) (gquot_fam_l_gcleq a₂ g)).
       + exact (path_trunctype_pp _ _)^.
       + refine (transport_path_hset _ _ @ _) ; compute.
-        refine (ap (fun z => _ × z) (ec _) @ _).
+        refine (ap (fun z => _ · z) (ec _) @ _).
         apply ic.
   Defined.
 
@@ -158,7 +161,7 @@ Section encode_decode.
   Proof.
     simple refine (gquot_double_ind_set (fun x y => g_fam x y -> x = y) _ _ x y).
     - intros a b g.
-      exact (@gcleq A G a b g).
+      exact (@gcleq G a b g).
     - intros. simpl.
       simple refine (path_over_arrow _ _ _ _ _ _).
       simpl. intros z.
@@ -174,7 +177,7 @@ Section encode_decode.
       + simpl. apply path_to_square.
         refine (concat_1p _ @ _ @ gconcat _ _ _).
         apply ap. unfold left_action_inv.
-        refine ((ce _)^ @ _ @ ca _ _ _).
+        refine ((ce _)^ @ _ @ car _ _ _).
         refine (ap _ _)^.
         apply ic. 
     - intros. simpl.

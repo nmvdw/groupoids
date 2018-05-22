@@ -19,53 +19,50 @@ From GR Require Export globe_over path_over square groupoid.
     >>
 *)
 Module Export gquot.
-  Private Inductive gquot {A : Type} (G : groupoid A) :=
-  | gcl : A -> gquot G.
-
-  Arguments gcl {_} _ _.
+  Private Inductive gquot (G : groupoid) :=
+  | gcl : under G -> gquot G.
 
   Axiom gcleq
-    : forall {A : Type} (G : groupoid A) {a₁ a₂ : A} (g : hom G a₁ a₂),
+    : forall (G : groupoid) {a₁ a₂ : under G} (g : hom G a₁ a₂),
       gcl G a₁ = gcl G a₂.
 
   Axiom ge
-    : forall {A : Type} (G : groupoid A) (a : A),
+    : forall (G : groupoid) (a : under G),
       gcleq G (e a) = idpath.
 
   Axiom ginv
-    : forall {A : Type} (G : groupoid A) {a₁ a₂ : A} (g : hom G a₁ a₂),
+    : forall (G : groupoid) {a₁ a₂ : under G} (g : hom G a₁ a₂),
       gcleq G (inv g) = (gcleq G g)^.
 
   Axiom gconcat
-    : forall {A : Type} (G : groupoid A)
-             {a₁ a₂ a₃ : A}
+    : forall (G : groupoid)
+             {a₁ a₂ a₃ : under G}
              (g₁ : hom G a₁ a₂) (g₂ : hom G a₂ a₃),
-      gcleq G (g₁ × g₂) = gcleq G g₁ @ gcleq G g₂.
+      gcleq G (g₁ · g₂) = gcleq G g₁ @ gcleq G g₂.
   
   Axiom gtrunc
-    : forall {A : Type} (G : groupoid A), IsTrunc 1 (gquot G).
+    : forall (G : groupoid), IsTrunc 1 (gquot G).
 
   Section gquot_ind.
-    Variable (A : Type)
-             (G : groupoid A)
+    Variable (G : groupoid)
              (Y : gquot G -> Type)
-             (gclY : forall (a : A), Y(gcl G a))
-             (gcleqY : forall (a₁ a₂ : A) (g : hom G a₁ a₂),
+             (gclY : forall (a : under G), Y(gcl G a))
+             (gcleqY : forall (a₁ a₂ : under G) (g : hom G a₁ a₂),
                  path_over Y (gcleq G g) (gclY a₁) (gclY a₂))
-             (geY : forall (a : A), globe_over Y
+             (geY : forall (a : under G), globe_over Y
                                                 (path_to_globe (ge G a))
                                                 (gcleqY a a (e a))
                                                 (path_over_id (gclY a)))
-             (ginvY : forall (a₁ a₂ : A) (g : hom G a₁ a₂),
+             (ginvY : forall (a₁ a₂ : under G) (g : hom G a₁ a₂),
                  globe_over Y
                             (path_to_globe (ginv G g))
                             (gcleqY a₂ a₁ (inv g))
                             (path_over_inv (gcleqY a₁ a₂ g)))
-             (gconcatY : forall (a₁ a₂ a₃ : A)
+             (gconcatY : forall (a₁ a₂ a₃ : under G)
                                 (g₁ : hom G a₁ a₂) (g₂ : hom G a₂ a₃),
                  globe_over Y
                             (path_to_globe (gconcat G g₁ g₂))
-                            (gcleqY a₁ a₃ (g₁ × g₂))
+                            (gcleqY a₁ a₃ (g₁ · g₂))
                             (path_over_concat (gcleqY a₁ a₂ g₁)
                                               (gcleqY a₂ a₃ g₂)))
              (truncY : forall (x : gquot G), IsTrunc 1 (Y x)).
@@ -75,29 +72,28 @@ Module Export gquot.
          | gcl a => fun _ _ _ _ _ => gclY a
           end) gcleqY geY ginvY gconcatY truncY.
 
-    Axiom gquot_ind_beta_gcleq : forall (a₁ a₂ : A) (g : hom G a₁ a₂),
+    Axiom gquot_ind_beta_gcleq : forall (a₁ a₂ : under G) (g : hom G a₁ a₂),
         apd_po gquot_ind (gcleq G g)
         =
         gcleqY a₁ a₂ g.
   End gquot_ind.
 End gquot.
 
-Arguments gquot_ind {A G} Y gclY gcleqY geY ginvY gconcatY truncY.
+Arguments gquot_ind {G} Y gclY gcleqY geY ginvY gconcatY truncY.
 
 (** * Derived recursion/induction principles *)
 (** The recursion principle of the HIT. *)
 Section gquot_rec.
-  Variable (A : Type)
-           (G : groupoid A)
+  Variable (G : groupoid)
            (Y : Type)
-           (gclY : A -> Y)
-           (gcleqY : forall (a₁ a₂ : A),
+           (gclY : under G -> Y)
+           (gcleqY : forall (a₁ a₂ : under G),
                hom G a₁ a₂ -> gclY a₁ = gclY a₂)
-           (geY : forall (a : A), gcleqY _ _ (e a) = idpath)
-           (ginvY : forall (a₁ a₂ : A) (g : hom G a₁ a₂),
+           (geY : forall (a : under G), gcleqY _ _ (e a) = idpath)
+           (ginvY : forall (a₁ a₂ : under G) (g : hom G a₁ a₂),
                gcleqY a₂ a₁ (inv g) = (gcleqY a₁ a₂ g)^)
-           (gconcatY : forall (a₁ a₂ a₃: A) (g₁: hom G a₁ a₂) (g₂: hom G a₂ a₃),
-               gcleqY _ _ (g₁ × g₂) = gcleqY _ _ g₁ @ gcleqY _ _ g₂)
+           (gconcatY : forall (a₁ a₂ a₃: under G) (g₁: hom G a₁ a₂) (g₂: hom G a₂ a₃),
+               gcleqY _ _ (g₁ · g₂) = gcleqY _ _ g₁ @ gcleqY _ _ g₂)
            (truncY : IsTrunc 1 Y).
 
   Definition gquot_rec : gquot G -> Y.
@@ -132,14 +128,14 @@ Section gquot_rec.
                        (const_path_over_concat _ _)
                        (const_globe_over
                           (path_to_globe (gconcat G g₁ g₂))
-                          (gcleqY a₁ a₃ (g₁ × g₂))
+                          (gcleqY a₁ a₃ (g₁ · g₂))
                           (gcleqY a₁ a₂ g₁ @ gcleqY a₂ a₃ g₂)
                           (path_to_globe (gconcatY a₁ a₂ a₃ g₁ g₂))
                        )
                     ).
   Defined.
 
-  Definition gquot_rec_beta_gcleq (a₁ a₂ : A) (g : hom G a₁ a₂)
+  Definition gquot_rec_beta_gcleq (a₁ a₂ : under G) (g : hom G a₁ a₂)
     : ap gquot_rec (gcleq G g) = gcleqY a₁ a₂ g.
   Proof.
     apply (const_path_over_inj (gcleq G g)).
@@ -148,15 +144,14 @@ Section gquot_rec.
   Defined.
 End gquot_rec.
 
-Arguments gquot_rec {A G}.
+Arguments gquot_rec {G}.
 
 (** If the we have a family of sets, then we can simplify the induction principle. *)
 Section gquot_ind_set.
-  Variable (A : Type)
-           (G : groupoid A)
+  Variable (G : groupoid)
            (Y : gquot G -> Type)
-           (gclY : forall (a : A), Y(gcl G a))
-           (gcleqY : forall (a₁ a₂ : A) (g : hom G a₁ a₂),
+           (gclY : forall (a : under G), Y(gcl G a))
+           (gcleqY : forall (a₁ a₂ : under G) (g : hom G a₁ a₂),
                path_over Y (gcleq G g) (gclY a₁) (gclY a₂))
            (truncY : forall (x : gquot G), IsHSet (Y x)).
 
@@ -166,7 +161,7 @@ Section gquot_ind_set.
     ; intros ; apply path_globe_over_hset ; apply _.
   Defined.
 
-  Definition gquot_ind_set_beta_gcleq : forall (a₁ a₂ : A) (g : hom G a₁ a₂),
+  Definition gquot_ind_set_beta_gcleq : forall (a₁ a₂ : under G) (g : hom G a₁ a₂),
       apd_po gquot_ind_set (gcleq G g)
       =
       gcleqY a₁ a₂ g.
@@ -175,14 +170,13 @@ Section gquot_ind_set.
   Defined.
 End gquot_ind_set.
 
-Arguments gquot_ind_set {A G} Y gclY gcleqY truncY.
+Arguments gquot_ind_set {G} Y gclY gcleqY truncY.
 
 (** If the we have a family of propositions, then we can simplify the induction principle. *)
 Section gquot_ind_prop.
-  Variable (A : Type)
-           (G : groupoid A)
+  Variable (G : groupoid)
            (Y : gquot G -> Type)
-           (gclY : forall (a : A), Y(gcl G a)).
+           (gclY : forall (a : under G), Y(gcl G a)).
   Context `{forall (x : gquot G), IsHProp (Y x)}.
 
   Definition gquot_ind_prop : forall (g : gquot G), Y g.
@@ -192,39 +186,37 @@ Section gquot_ind_prop.
   Qed.
 End gquot_ind_prop.
 
-Arguments gquot_ind_prop {A G} Y gclY.
+Arguments gquot_ind_prop {G} Y gclY.
 
 (** The double recursion principle.
     We use [gquot_rec], [gquot_ind_set] and [gquot_ind_prop] to define it.
  *)
 Section gquot_double_rec.
-  Variable (A B : Type)
-           (G₁ : groupoid A)
-           (G₂ : groupoid B)
+  Variable (G₁ G₂ : groupoid)
            (Y : Type).
   Context `{IsTrunc 1 Y}
           `{Funext}.
 
-  Variable (f : A -> B -> Y)
-           (fr : forall (a : A) (b₁ b₂ : B), hom G₂ b₁ b₂ -> f a b₁ = f a b₂)
-           (fre : forall (a : A) (b : B), fr a b b (e b) = idpath)
-           (fri : forall (a : A) (b₁ b₂ : B) (g : hom G₂ b₁ b₂),
+  Variable (f : under G₁ -> under G₂ -> Y)
+           (fr : forall (a : under G₁) (b₁ b₂ : under G₂), hom G₂ b₁ b₂ -> f a b₁ = f a b₂)
+           (fre : forall (a : under G₁) (b : under G₂), fr a b b (e b) = idpath)
+           (fri : forall (a : under G₁) (b₁ b₂ : under G₂) (g : hom G₂ b₁ b₂),
                fr a b₂ b₁ (inv g) = (fr a b₁ b₂ g)^)
-           (frc : forall (a : A) (b₁ b₂ b₃ : B)
+           (frc : forall (a : under G₁) (b₁ b₂ b₃ : under G₂)
                          (g₁ : hom G₂ b₁ b₂) (g₂ : hom G₂ b₂ b₃),
-               fr a b₁ b₃ (g₁ × g₂)
+               fr a b₁ b₃ (g₁ · g₂)
                =
                (fr a b₁ b₂ g₁) @ (fr a b₂ b₃ g₂))
-           (fl : forall (a₁ a₂ : A) (b : B), hom G₁ a₁ a₂ -> f a₁ b = f a₂ b)
-           (fle : forall (a : A) (b : B), fl a a b (e a) = idpath)
-           (fli : forall (a₁ a₂ : A) (b : B) (g : hom G₁ a₁ a₂),
+           (fl : forall (a₁ a₂ : under G₁) (b : under G₂), hom G₁ a₁ a₂ -> f a₁ b = f a₂ b)
+           (fle : forall (a : under G₁) (b : under G₂), fl a a b (e a) = idpath)
+           (fli : forall (a₁ a₂ : under G₁) (b : under G₂) (g : hom G₁ a₁ a₂),
                fl a₂ a₁ b (inv g) = (fl a₁ a₂ b g)^)
-           (flc : forall (a₁ a₂ a₃ : A) (b : B)
+           (flc : forall (a₁ a₂ a₃ : under G₁) (b : under G₂)
                          (g₁ : hom G₁ a₁ a₂) (g₂ : hom G₁ a₂ a₃),
-               fl a₁ a₃ b (g₁ × g₂)
+               fl a₁ a₃ b (g₁ · g₂)
                =
                (fl a₁ a₂ b g₁) @ (fl a₂ a₃ b g₂))
-           (fp : forall (a₁ a₂ : A) (b₁ b₂ : B)
+           (fp : forall (a₁ a₂ : under G₁) (b₁ b₂ : under G₂)
                         (g₁ : hom G₁ a₁ a₂) (g₂ : hom G₂ b₁ b₂),
                square (fl a₁ a₂ b₂ g₁)
                       (fr a₁ b₁ b₂ g₂)
@@ -259,7 +251,7 @@ Section gquot_double_rec.
   Defined.
 
   Definition gquot_double_rec'_beta_l_gcleq
-             {a₁ a₂ : A} (b : B) (g : hom G₁ a₁ a₂)
+             {a₁ a₂ : under G₁} (b : under G₂) (g : hom G₁ a₁ a₂)
     : ap (fun z => gquot_double_rec' z (gcl G₂ b)) (gcleq G₁ g)
       =
       fl a₁ a₂ b g.
@@ -268,75 +260,73 @@ Section gquot_double_rec.
   Defined.
 
   Definition gquot_double_rec'_beta_r_gcleq
-             (a : A) {b₁ b₂ : B} (g : hom G₂ b₁ b₂)
+             (a : under G₁) {b₁ b₂ : under G₂} (g : hom G₂ b₁ b₂)
     : ap (gquot_double_rec' (gcl G₁ a)) (gcleq G₂ g)
       =
       fr a b₁ b₂ g.
   Proof.
-    apply (gquot_rec_beta_gcleq _ G₂).
+    apply (gquot_rec_beta_gcleq G₂).
   Defined.
 
   Definition gquot_double_rec : gquot G₁ * gquot G₂ -> Y
     := uncurry gquot_double_rec'.
 
-  Definition gquot_double_rec_point (a : A) (b : B)
+  Definition gquot_double_rec_point (a : under G₁) (b : under G₂)
     : gquot_double_rec (gcl G₁ a, gcl G₂ b) = f a b
     := idpath.
 
   Definition gquot_double_rec_beta_gcleq
-             {a₁ a₂ : A} {b₁ b₂ : B}
+             {a₁ a₂ : under G₁} {b₁ b₂ : under G₂}
              (g₁ : hom G₁ a₁ a₂) (g₂ : hom G₂ b₁ b₂)
     : ap gquot_double_rec (path_prod' (gcleq G₁ g₁) (gcleq G₂ g₂))
       =
       fl a₁ a₂ b₁ g₁ @ fr a₂ b₁ b₂ g₂.
   Proof.
     refine (uncurry_ap _ _ _ @ _).
-    refine (ap (fun p => p @ _) (gquot_rec_beta_gcleq A G₁ _ _ _ _ _ _ _ _ _ _) @ _).
-    exact (ap (fun p => _ @ p) (gquot_rec_beta_gcleq B G₂ _ _ _ _ _ _ _ _ _ _)).
+    refine (ap (fun p => p @ _) (gquot_rec_beta_gcleq G₁ _ _ _ _ _ _ _ _ _ _) @ _).
+    exact (ap (fun p => _ @ p) (gquot_rec_beta_gcleq G₂ _ _ _ _ _ _ _ _ _ _)).
   Qed.
 
   Definition gquot_double_rec_beta_l_gcleq
-             {a₁ a₂ : A} (b : B) (g : hom G₁ a₁ a₂)
+             {a₁ a₂ : under G₁} (b : under G₂) (g : hom G₁ a₁ a₂)
     : ap gquot_double_rec (path_prod' (gcleq G₁ g) (idpath : gcl G₂ b = _))
       =
       fl a₁ a₂ b g.
   Proof.
     refine (uncurry_ap _ _ _ @ _).
-    refine (ap (fun p => p @ _) (gquot_rec_beta_gcleq A G₁ _ _ _ _ _ _ _ _ _ _) @ _).
+    refine (ap (fun p => p @ _) (gquot_rec_beta_gcleq G₁ _ _ _ _ _ _ _ _ _ _) @ _).
     apply concat_p1.
   Qed.
   
   Definition gquot_double_rec_beta_r_gcleq
-             (a : A) {b₁ b₂ : B} (g : hom G₂ b₁ b₂)
+             (a : under G₁) {b₁ b₂ : under G₂} (g : hom G₂ b₁ b₂)
     : ap gquot_double_rec (path_prod' (idpath  : gcl G₁ a = _) (gcleq G₂ g))
       =
       fr a b₁ b₂ g.
   Proof.
     refine (uncurry_ap _ _ _ @ _).
-    refine (ap (fun p => _ @ p) (gquot_rec_beta_gcleq B G₂ _ _ _ _ _ _ _ _ _ _) @ _).
+    refine (ap (fun p => _ @ p) (gquot_rec_beta_gcleq G₂ _ _ _ _ _ _ _ _ _ _) @ _).
     apply concat_1p.
   Qed.
 End gquot_double_rec.
 
-Arguments gquot_double_rec {A B G₁ G₂} Y {_ _}.
-Arguments gquot_double_rec' {A B G₁ G₂} Y {_ _}.
-Arguments gquot_double_rec_beta_gcleq {A B G₁ G₂} Y {_ _}.
+Arguments gquot_double_rec {G₁ G₂} Y {_ _}.
+Arguments gquot_double_rec' {G₁ G₂} Y {_ _}.
+Arguments gquot_double_rec_beta_gcleq {G₁ G₂} Y {_ _}.
 
 (** Double induction over a family of sets.
     We use the same trick as for double recursion.
  *)
 Section gquot_double_ind_set.
-  Variable (A B : Type)
-           (G₁ : groupoid A)
-           (G₂ : groupoid B)
+  Variable (G₁ G₂ : groupoid)
            (Y : gquot G₁ -> gquot G₂ -> Type).
   Context `{forall (a : gquot G₁) (b : gquot G₂), IsHSet (Y a b)}
           `{Funext}.
   
-  Variable (f : forall (a : A) (b : B), Y (gcl G₁ a) (gcl G₂ b))
-           (fr : forall (a : A) (b₁ b₂ : B) (g : hom G₂ b₁ b₂),
+  Variable (f : forall (a : under G₁) (b : under G₂), Y (gcl G₁ a) (gcl G₂ b))
+           (fr : forall (a : under G₁) (b₁ b₂ : under G₂) (g : hom G₂ b₁ b₂),
                path_over (Y (gcl G₁ a)) (gcleq G₂ g) (f a b₁) (f a b₂))
-           (fl : forall (a₁ a₂ : A) (b : B) (g : hom G₁ a₁ a₂),
+           (fl : forall (a₁ a₂ : under G₁) (b : under G₂) (g : hom G₁ a₁ a₂),
                path_over (fun z : gquot G₁ => Y z (gcl G₂ b)) (gcleq G₁ g) (f a₁ b) (f a₂ b)).
   
   Definition gquot_double_ind_set : forall (a : gquot G₁) (b : gquot G₂), Y a b.
@@ -350,20 +340,18 @@ Section gquot_double_ind_set.
   Defined.
 End gquot_double_ind_set.
 
-Arguments gquot_double_ind_set {A B G₁ G₂} Y {_ _}.
+Arguments gquot_double_ind_set {G₁ G₂} Y {_ _}.
 
 (** Double induction over a family of propositions.
     We use the same trick as before.
  *)
 Section gquot_double_ind_prop.
-  Variable (A B : Type)
-           (G₁ : groupoid A)
-           (G₂ : groupoid B)
+  Variable (G₁ G₂ : groupoid)
            (Y : gquot G₁ -> gquot G₂ -> Type).
   Context `{forall (a : gquot G₁) (b : gquot G₂), IsHProp (Y a b)}
           `{Funext}.
   
-  Variable (f : forall (a : A) (b : B), Y (gcl G₁ a) (gcl G₂ b)).
+  Variable (f : forall (a : under G₁) (b : under G₂), Y (gcl G₁ a) (gcl G₂ b)).
   
   Definition gquot_double_ind_prop : forall (a : gquot G₁) (b : gquot G₂), Y a b.
   Proof.
@@ -373,7 +361,7 @@ Section gquot_double_ind_prop.
   Defined.
 End gquot_double_ind_prop.
 
-Arguments gquot_double_ind_prop {A B G₁ G₂} Y.
+Arguments gquot_double_ind_prop {G₁ G₂} Y.
 
 (*
 Definition gquot_encode_ind
@@ -419,28 +407,26 @@ Defined.
     For the higher coherencies, these functions need to satisfy some laws.
  *)
 Section gquot_relation.
-  Variable (A B : Type)
-           (G₁ : groupoid A)
-           (G₂ : groupoid B)
-           (R : A -> B -> hSet)
-           (fl : forall (a₁ a₂ : A) (b : B), hom G₁ a₁ a₂ -> R a₁ b -> R a₂ b)
-           (fr : forall (a : A) (b₁ b₂ : B), hom G₂ b₁ b₂ -> R a b₁ -> R a b₂).
+  Variable (G₁ G₂ : groupoid)
+           (R : under G₁ -> under G₂ -> hSet)
+           (fl : forall (a₁ a₂ : under G₁) (b : under G₂), hom G₁ a₁ a₂ -> R a₁ b -> R a₂ b)
+           (fr : forall (a : under G₁) (b₁ b₂ : under G₂), hom G₂ b₁ b₂ -> R a b₁ -> R a b₂).
   
-  Context `{forall (a₁ a₂ : A) (b : B) (g : hom G₁ a₁ a₂), IsEquiv (fl a₁ a₂ b g)}
-          `{forall (a : A) (b₁ b₂ : B) (g : hom G₂ b₁ b₂), IsEquiv (fr a b₁ b₂ g)}.
+  Context `{forall (a₁ a₂ : under G₁) (b : under G₂) (g : hom G₁ a₁ a₂), IsEquiv (fl a₁ a₂ b g)}
+          `{forall (a : under G₁) (b₁ b₂ : under G₂) (g : hom G₂ b₁ b₂), IsEquiv (fr a b₁ b₂ g)}.
   Context `{Univalence}.
 
-  Variable (fl_id : forall (a : A) (b : B), fl a a b (e a) == idmap)
-           (fl_inv : forall (a₁ a₂ : A) (b : B) (g : hom G₁ a₁ a₂),
+  Variable (fl_id : forall (a : under G₁) (b : under G₂), fl a a b (e a) == idmap)
+           (fl_inv : forall (a₁ a₂ : under G₁) (b : under G₂) (g : hom G₁ a₁ a₂),
                fl a₂ a₁ b (inv g) == (fl a₁ a₂ b g)^-1)
-           (fl_comp : forall (a₁ a₂ a₃ : A) (b : B) (g₁ : hom G₁ a₁ a₂) (g₂ : hom G₁ a₂ a₃),
-               fl a₁ a₃ b (g₁ × g₂) == fl a₂ a₃ b g₂ o (fl a₁ a₂ b g₁))
-           (fr_id : forall (a : A) (b : B), fr a b b (e b) == idmap)
-           (fr_inv : forall (a : A) (b₁ b₂ : B) (g : hom G₂ b₁ b₂),
+           (fl_comp : forall (a₁ a₂ a₃ : under G₁) (b : under G₂) (g₁ : hom G₁ a₁ a₂) (g₂ : hom G₁ a₂ a₃),
+               fl a₁ a₃ b (g₁ · g₂) == fl a₂ a₃ b g₂ o (fl a₁ a₂ b g₁))
+           (fr_id : forall (a : under G₁) (b : under G₂), fr a b b (e b) == idmap)
+           (fr_inv : forall (a : under G₁) (b₁ b₂ : under G₂) (g : hom G₂ b₁ b₂),
                fr a b₂ b₁ (inv g) == (fr a b₁ b₂ g)^-1)
-           (fr_comp : forall (a : A) (b₁ b₂ b₃ : B) (g₁ : hom G₂ b₁ b₂) (g₂ : hom G₂ b₂ b₃),
-               fr a b₁ b₃ (g₁ × g₂) == fr a b₂ b₃ g₂ o (fr a b₁ b₂ g₁))
-           (fc : forall (a₁ a₂ : A) (b₁ b₂ : B)
+           (fr_comp : forall (a : under G₁) (b₁ b₂ b₃ : under G₂) (g₁ : hom G₂ b₁ b₂) (g₂ : hom G₂ b₂ b₃),
+               fr a b₁ b₃ (g₁ · g₂) == fr a b₂ b₃ g₂ o (fr a b₁ b₂ g₁))
+           (fc : forall (a₁ a₂ : under G₁) (b₁ b₂ : under G₂)
                         (g₁ : hom G₁ a₁ a₂) (g₂ : hom G₂ b₁ b₂),
                fl a₁ a₂ b₂ g₁ o fr a₁ b₁ b₂ g₂
                ==
@@ -485,20 +471,20 @@ Section gquot_relation.
   Defined.
 
   Definition gquot_relation_beta_l_gcleq
-             {a₁ a₂ : A} (b : B) (g : hom G₁ a₁ a₂)
+             {a₁ a₂ : under G₁} (b : under G₂) (g : hom G₁ a₁ a₂)
     : ap (fun z => gquot_relation z (gcl G₂ b)) (gcleq G₁ g)
       =
       path_hset (BuildEquiv _ _ (fl a₁ a₂ b g) _).
   Proof.
-    exact (gquot_double_rec'_beta_l_gcleq A B G₁ G₂ hSet R _ _ _ _ _ _ _ _ _ b g).
+    exact (gquot_double_rec'_beta_l_gcleq G₁ G₂ hSet R _ _ _ _ _ _ _ _ _ b g).
   Defined.
 
   Definition gquot_relation_beta_r_gcleq
-             (a : A) {b₁ b₂ : B} (g : hom G₂ b₁ b₂)
+             (a : under G₁) {b₁ b₂ : under G₂} (g : hom G₂ b₁ b₂)
     : ap (gquot_relation (gcl G₁ a)) (gcleq G₂ g)
       =
       path_hset (BuildEquiv _ _ (fr a b₁ b₂ g) _).
   Proof.
-    exact (gquot_double_rec'_beta_r_gcleq A B G₁ G₂ hSet R _ _ _ _ _ _ _ _ _ a g).
+    exact (gquot_double_rec'_beta_r_gcleq G₁ G₂ hSet R _ _ _ _ _ _ _ _ _ a g).
   Defined.
 End gquot_relation.
