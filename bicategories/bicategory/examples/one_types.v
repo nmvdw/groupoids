@@ -40,8 +40,7 @@ Section OneTypesBiCategory.
     simple refine (Build_Functor _ _ _ _ _ _).
     - exact (fun f => (fst f) o (snd f)).
     - intros [f₁ f₂] [g₁ g₂] [h₁ h₂] ; cbn in *.
-      induction h₁, h₂ ; cbn.
-      reflexivity.
+      exact (ap (fun z => z o f₂) h₁ @ ap (fun z => g₁ o z) h₂).
     - intros [f₁ f₂] [g₁ g₂] [h₁ h₂] [p₁ p₂] [q₁ q₂] ; cbn in *.
       induction p₁, p₂, q₁, q₂ ; cbn.
       reflexivity.

@@ -7,6 +7,7 @@ basics/globe_over.v
 basics/polynomial.v
 bicategories/general_category.v
 bicategories/bicategory/bicategory.v
+bicategories/bicategory/bicategory_laws.v
 bicategories/bicategory/equivalence.v
 bicategories/bicategory/adjoint.v
 bicategories/bicategory/strict.v

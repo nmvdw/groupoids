@@ -18,5 +18,5 @@ Definition full_sub
        un_r_iso := fun X Y => un_r_iso C X.1 Y.1 ;
        assoc := fun W X Y Z => assoc ;
        assoc_iso := fun W X Y Z => assoc_iso C W.1 X.1 Y.1 Z.1 ;
-       triangle := fun X Y Z => @triangle _ C X.1 Y.1 Z.1 ;
+       triangle_r := fun X Y Z => @triangle_r _ C X.1 Y.1 Z.1 ;
        pentagon := fun V W X Y Z => @pentagon _ C V.1 W.1 X.1 Y.1 Z.1|}.

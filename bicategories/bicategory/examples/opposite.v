@@ -1,7 +1,10 @@
 Require Import HoTT.
 From HoTT.Categories Require Import
      Category Functor NaturalTransformation FunctorCategory.
-Require Import bicategory.
+From GR.bicategories Require Import
+     general_category.
+From GR.bicategories.bicategory Require Import
+     bicategory bicategory_laws.
 
 Section OpBiCategory.
   Context `{Univalence}.
@@ -170,10 +173,15 @@ Section OpBiCategory.
              un_r := oUnitor_r ;
              assoc := oAssociator|}.
     - intros X Y Z g f ; cbn in *.
-      pose (triangle C Z Y X f g).
-      admit.
+      exact (triangle_l C f g)^.
     - intros W V X Y Z k h g f ; cbn in *.
       pose (pentagon C Z Y X V W f g h k).
-      admit.
-  Admitted.
+      rewrite <- !inverse_id.
+      rewrite <- !inverse_pair.
+      rewrite !inverse_of.
+      rewrite <- !inverse_compose.
+      apply path_inverse.
+      rewrite p.
+      apply associativity.
+  Defined.
 End OpBiCategory.

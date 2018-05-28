@@ -28,7 +28,7 @@ Record BiCategory `{Univalence} :=
                                             _
                                             _
                                             (assoc w x y z) ;
-      triangle : (forall (x y z : Obj) (g : Hom y z) (f : Hom x y),
+      triangle_r : (forall (x y z : Obj) (g : Hom y z) (f : Hom x y),
                      @morphism_of _
                                   _
                                   c_m
