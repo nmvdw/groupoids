@@ -53,11 +53,11 @@ Section LaxTransformation.
           (laxnaturality_of (g ⋅ f)
           o (Fcomp G (g,f) ∗ 1))%morphism
           = ((1 ∗ Fcomp F (g,f))
-            o (assoc _ _ _ _ (laxcomponent_of Z, Fmor F g, Fmor F f))
+            o (assoc (laxcomponent_of Z, Fmor F g, Fmor F f))
             o (laxnaturality_of g ∗ 1)
-            o ((inverse (assoc _ _ _ _))
+            o ((inverse assoc)
                  (Fmor G g, laxcomponent_of Y, Fmor F f))
             o (1 ∗ laxnaturality_of f)
-            o (assoc _ _ _ _ (Fmor G g, Fmor G f, laxcomponent_of X)))%morphism
+            o (assoc (Fmor G g, Fmor G f, laxcomponent_of X)))%morphism
     }.
 End LaxTransformation.

@@ -1,6 +1,9 @@
 Require Import HoTT.
 From GR.basics Require Import general path_over globe_over square.
-From GR Require Export groupoid.groupoid_quotient.
+From GR Require Export
+     groupoid.grpd_bicategory.grpd_bicategory
+     groupoid.grpd_bicategory.grpd_laws
+     groupoid.groupoid_quotient.gquot_principles.
 
 (** * Encode-decode method for characterizing the path space of [gquot G]. *)
 Section encode_decode.

@@ -1,6 +1,13 @@
 Require Import HoTT.
-From GR Require Import basics.general.
-From GR Require Export basics.polynomial groupoid.groupoid_quotient.
+From GR.basics Require Import
+     general.
+From GR Require Export
+     groupoid.grpd_bicategory.grpd_bicategory
+     groupoid.grpd_bicategory.sum_grpd
+     groupoid.grpd_bicategory.prod_grpd
+     groupoid.grpd_bicategory.grpd_laws
+     groupoid.groupoid_quotient.gquot_principles
+     basics.polynomial.
 
 (** * Groupoid quotient commmutes with polynomials *)
 

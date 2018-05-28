@@ -1,88 +1,17 @@
-(** This file defines a groupoid quotient HIT and derives some recursion/induction principles for it. *)
 Require Import HoTT.
-From GR Require Import general.
-From GR Require Export globe_over path_over square groupoid.
+From GR Require Import
+     general.
+From GR.basics Require Export
+     globe_over path_over square.
+From GR.groupoid.grpd_bicategory Require Import
+     grpd_bicategory prod_grpd grpd_laws.
+From GR.groupoid.path_groupoid Require Import
+     path_groupoid.
+From GR.groupoid.groupoid_quotient Require Export
+     gquot.
+From HoTT.Categories Require Import
+     Category GroupoidCategory Functor.
 
-(** * The groupoid quotient over a type. *)
-(** Given a type [A] and a groupoid [G], we construct a type [gquot G] such that
-    we have [A -> gquot A G] and the equality of [gquot A G] is described by [G].
-    We use the standard method to define the HIT
-    <<
-    HIT gquot G :=
-     | gcl : A -> gquot G
-     | gcleq : Π(a₁ a₂ : A), hom G a₁ a₂ -> gcl a₁ = gcl a₂
-     | ge : Π(a : A), gcleq (e a) = idpath
-     | ginv : Π(a₁ a₂ : A) (g : hom G a₁ a₂), gcleq g⁻¹ = (gcleq g)^
-     | gconcat : Π(a₁ a₂ a₃ : A) (g₁ : hom G a₁ a₂) (g₂ : hom G a₂ a₃),
-               gcleq (g₁ × g₂) = gcleq g₁ @ gcleq g₂
-     | gtrunc : Is-1-Type (gquot G)
-    >>
-*)
-Module Export gquot.
-  Private Inductive gquot (G : groupoid) :=
-  | gcl : under G -> gquot G.
-
-  Axiom gcleq
-    : forall (G : groupoid) {a₁ a₂ : under G} (g : hom G a₁ a₂),
-      gcl G a₁ = gcl G a₂.
-
-  Axiom ge
-    : forall (G : groupoid) (a : under G),
-      gcleq G (e a) = idpath.
-
-  Axiom ginv
-    : forall (G : groupoid) {a₁ a₂ : under G} (g : hom G a₁ a₂),
-      gcleq G (inv g) = (gcleq G g)^.
-
-  Axiom gconcat
-    : forall (G : groupoid)
-             {a₁ a₂ a₃ : under G}
-             (g₁ : hom G a₁ a₂) (g₂ : hom G a₂ a₃),
-      gcleq G (g₁ · g₂) = gcleq G g₁ @ gcleq G g₂.
-  
-  Axiom gtrunc
-    : forall (G : groupoid), IsTrunc 1 (gquot G).
-
-  Section gquot_ind.
-    Variable (G : groupoid)
-             (Y : gquot G -> Type)
-             (gclY : forall (a : under G), Y(gcl G a))
-             (gcleqY : forall (a₁ a₂ : under G) (g : hom G a₁ a₂),
-                 path_over Y (gcleq G g) (gclY a₁) (gclY a₂))
-             (geY : forall (a : under G), globe_over Y
-                                                (path_to_globe (ge G a))
-                                                (gcleqY a a (e a))
-                                                (path_over_id (gclY a)))
-             (ginvY : forall (a₁ a₂ : under G) (g : hom G a₁ a₂),
-                 globe_over Y
-                            (path_to_globe (ginv G g))
-                            (gcleqY a₂ a₁ (inv g))
-                            (path_over_inv (gcleqY a₁ a₂ g)))
-             (gconcatY : forall (a₁ a₂ a₃ : under G)
-                                (g₁ : hom G a₁ a₂) (g₂ : hom G a₂ a₃),
-                 globe_over Y
-                            (path_to_globe (gconcat G g₁ g₂))
-                            (gcleqY a₁ a₃ (g₁ · g₂))
-                            (path_over_concat (gcleqY a₁ a₂ g₁)
-                                              (gcleqY a₂ a₃ g₂)))
-             (truncY : forall (x : gquot G), IsTrunc 1 (Y x)).
-
-    Fixpoint gquot_ind (g : gquot G) : Y g
-      := (match g with
-         | gcl a => fun _ _ _ _ _ => gclY a
-          end) gcleqY geY ginvY gconcatY truncY.
-
-    Axiom gquot_ind_beta_gcleq : forall (a₁ a₂ : under G) (g : hom G a₁ a₂),
-        apd_po gquot_ind (gcleq G g)
-        =
-        gcleqY a₁ a₂ g.
-  End gquot_ind.
-End gquot.
-
-Arguments gquot_ind {G} Y gclY gcleqY geY ginvY gconcatY truncY.
-
-(** * Derived recursion/induction principles *)
-(** The recursion principle of the HIT. *)
 Section gquot_rec.
   Variable (G : groupoid)
            (Y : Type)
@@ -146,6 +75,32 @@ End gquot_rec.
 
 Arguments gquot_rec {G}.
 
+(** * Derived recursion/induction principles *)
+(** The recursion principle of the HIT. *)
+Section gquot_rec_functor.
+  Context `{Univalence}.
+  Variable (G : groupoid)
+           (Y : 1 -Type)
+           (F : grpd_functor G (path_groupoid Y)).
+
+  Definition gquot_rec_functor : gquot G -> Y
+    := gquot_rec Y
+                 (grpd_object_of F)
+                 (fun a₁ a₂ g => grpd_morphism_of F g)
+                 (grpd_identity_of F)
+                 (@grpd_inverse_of _ _ _ F)
+                 (@grpd_composition_of _ _ _ F)
+                 _.
+
+  Definition gquot_rec_functor_beta_gcleq (a₁ a₂ : under G) (g : hom G a₁ a₂)
+    : ap gquot_rec_functor (gcleq G g) = grpd_morphism_of F g.
+  Proof.
+    apply gquot_rec_beta_gcleq.
+  Defined.
+End gquot_rec_functor.
+
+Arguments gquot_rec_functor {_ G}.
+
 (** If the we have a family of sets, then we can simplify the induction principle. *)
 Section gquot_ind_set.
   Variable (G : groupoid)
@@ -198,8 +153,10 @@ Section gquot_double_rec.
           `{Funext}.
 
   Variable (f : under G₁ -> under G₂ -> Y)
-           (fr : forall (a : under G₁) (b₁ b₂ : under G₂), hom G₂ b₁ b₂ -> f a b₁ = f a b₂)
-           (fre : forall (a : under G₁) (b : under G₂), fr a b b (e b) = idpath)
+           (fr : forall (a : under G₁) (b₁ b₂ : under G₂),
+               hom G₂ b₁ b₂ -> f a b₁ = f a b₂)
+           (fre : forall (a : under G₁) (b : under G₂),
+               fr a b b (e b) = idpath)
            (fri : forall (a : under G₁) (b₁ b₂ : under G₂) (g : hom G₂ b₁ b₂),
                fr a b₂ b₁ (inv g) = (fr a b₁ b₂ g)^)
            (frc : forall (a : under G₁) (b₁ b₂ b₃ : under G₂)
@@ -207,8 +164,10 @@ Section gquot_double_rec.
                fr a b₁ b₃ (g₁ · g₂)
                =
                (fr a b₁ b₂ g₁) @ (fr a b₂ b₃ g₂))
-           (fl : forall (a₁ a₂ : under G₁) (b : under G₂), hom G₁ a₁ a₂ -> f a₁ b = f a₂ b)
-           (fle : forall (a : under G₁) (b : under G₂), fl a a b (e a) = idpath)
+           (fl : forall (a₁ a₂ : under G₁) (b : under G₂),
+               hom G₁ a₁ a₂ -> f a₁ b = f a₂ b)
+           (fle : forall (a : under G₁) (b : under G₂),
+               fl a a b (e a) = idpath)
            (fli : forall (a₁ a₂ : under G₁) (b : under G₂) (g : hom G₁ a₁ a₂),
                fl a₂ a₁ b (inv g) = (fl a₁ a₂ b g)^)
            (flc : forall (a₁ a₂ a₃ : under G₁) (b : under G₂)
@@ -313,6 +272,112 @@ End gquot_double_rec.
 Arguments gquot_double_rec {G₁ G₂} Y {_ _}.
 Arguments gquot_double_rec' {G₁ G₂} Y {_ _}.
 Arguments gquot_double_rec_beta_gcleq {G₁ G₂} Y {_ _}.
+
+(** The double recursion principle.
+    We use [gquot_rec], [gquot_ind_set] and [gquot_ind_prop] to define it.
+ *)
+Section gquot_double_rec_functor.
+  Context `{Univalence}.
+  Variable (G₁ G₂ : groupoid)
+           (Y : 1 -Type)
+           (F : grpd_functor (prod_groupoid G₁ G₂) (path_groupoid Y)).
+
+  Definition gquot_double_rec'_functor : gquot G₁ -> gquot G₂ -> Y.
+  Proof.
+    simple refine (gquot_double_rec' Y
+                                     (fun x y => F(x,y))
+                                     _ _ _ _ _ _ _ _ _).
+    - intros a b₁ b₂ g ; cbn.
+      apply (morphism_of F).
+      exact (e a,g).
+    - intros a b ; cbn.
+      apply (identity_of F).
+    - intros a b₁ b₂ g ; cbn.
+      refine (_ @ grpd_inverse_of F _) ; cbn.
+      apply ap.
+      exact  (path_prod' (inv_e a)^ idpath).
+    - intros a b₁ b₂ b₃ g₁ g₂ ; cbn.
+      refine (_ @ composition_of F _ _ _ _ _).
+      apply ap ; cbn.
+      exact (path_prod' (ce (e a))^ idpath).
+    - intros a₁ a₂ b g ; cbn.
+      apply (morphism_of F).
+      exact (g,e b).
+    - intros a b ; cbn.
+      apply (identity_of F).
+    - intros a₁ a₂ b g ; cbn.
+      refine (_ @ grpd_inverse_of F _) ; cbn.
+      apply ap.
+      exact  (path_prod' idpath (inv_e b)^).
+    - intros a₁ a₂ a₃ b g₁ g₂ ; cbn.
+      refine (_ @ composition_of F _ _ _ _ _).
+      apply ap ; cbn.
+      exact (path_prod' idpath (ce (e b))^).
+    - intros a₁ a₂ b₁ b₂ g h ; cbn.
+      apply path_to_square.
+      refine (((composition_of F (a₁,b₁) (a₁,b₂) (a₂,b₂) (e a₁, h) (g, e b₂))^)
+                @ _
+                @ composition_of F (a₁,b₁) (a₂,b₁) (a₂,b₂) (g, e b₁) (e a₂, h)).
+      apply ap ; simpl.
+      exact (path_prod' (ec g @ (ce g)^) (ce h @ (ec h)^)).
+  Defined.
+
+  Definition gquot_double_rec'_functor_beta_r_gcleq
+             (a : under G₁) {b₁ b₂ : under G₂} (g : hom G₂ b₁ b₂)
+    : ap (gquot_double_rec'_functor (gcl G₁ a)) (gcleq G₂ g)
+      =
+      @grpd_morphism_of _
+                        (prod_groupoid G₁ G₂)
+                        (path_groupoid Y)
+                        F
+                        (a,b₁)
+                        (a,b₂)
+                        (e a,g).
+  Proof.
+    apply (gquot_double_rec'_beta_r_gcleq).
+  Defined.
+
+  Definition gquot_double_rec'_functor_beta_l_gcleq
+             {a₁ a₂ : under G₁} (b : under G₂) (g : hom G₁ a₁ a₂)
+    : ap (fun z => gquot_double_rec'_functor z (gcl G₂ b)) (gcleq G₁ g)
+      =
+      @grpd_morphism_of _
+                        (prod_groupoid G₁ G₂)
+                        (path_groupoid Y)
+                        F
+                        (a₁,b)
+                        (a₂,b)
+                        (g, e b).
+  Proof.
+    apply (gquot_double_rec'_beta_l_gcleq).
+  Defined.
+
+  Definition gquot_double_rec_functor : gquot G₁ * gquot G₂ -> Y
+    := uncurry gquot_double_rec'_functor.
+
+  Definition gquot_double_rec_functor_point (a : under G₁) (b : under G₂)
+    : gquot_double_rec_functor (gcl G₁ a, gcl G₂ b) = grpd_object_of F (a,b)
+    := idpath.
+
+  Definition gquot_double_rec_functor_beta_gcleq
+             {a₁ a₂ : under G₁} {b₁ b₂ : under G₂}
+             (g₁ : hom G₁ a₁ a₂) (g₂ : hom G₂ b₁ b₂)
+    : ap gquot_double_rec_functor (path_prod' (gcleq G₁ g₁) (gcleq G₂ g₂))
+      =
+      (@grpd_morphism_of _ _ _ F (a₁,b₁) (a₂,b₁) (g₁,e b₁))
+        @ @grpd_morphism_of _ _ _ F (a₂,b₁) (a₂,b₂) (e a₂,g₂).
+  Proof.
+    unfold gquot_double_rec_functor.
+    pose @gquot_double_rec_beta_gcleq as p.
+    unfold gquot_double_rec in p.
+    rewrite p.
+    reflexivity.
+  Qed.
+End gquot_double_rec_functor.
+
+Arguments gquot_double_rec_functor {_ G₁ G₂} Y.
+Arguments gquot_double_rec'_functor {_ G₁ G₂} Y.
+Arguments gquot_double_rec_functor_beta_gcleq {_ G₁ G₂} Y.
 
 (** Double induction over a family of sets.
     We use the same trick as for double recursion.

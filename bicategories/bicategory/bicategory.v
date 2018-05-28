@@ -68,7 +68,7 @@ Arguments id_m {_} {B} x : rename.
 Arguments c_m {_} {B} {x y z} : rename.
 Arguments un_l {_ B} X Y : rename.
 Arguments un_r {_ B} X Y : rename.
-Arguments assoc {_ B} w x y z : rename.
+Arguments assoc {_ B w x y z} : rename.
 
 Delimit Scope bicategory_scope with bicategory.
 Bind Scope bicategory_scope with BiCategory.
@@ -91,7 +91,7 @@ Proof.
 Defined.
 
 Instance assoc_iso_componenetwise `{Univalence} {B : BiCategory} {W X Y Z : B} f :
-  Morphisms.IsIsomorphism (assoc W X Y Z f).
+  Morphisms.IsIsomorphism (@assoc _ _ W X Y Z f).
 Proof.
   unshelve eapply isisomorphism_components_of.
   - apply _.
@@ -131,9 +131,50 @@ Section BiCategory.
     : ((k' o h') ∗ (k o h) = (k' ∗ k) o (h' ∗ h))%morphism.
   Proof.
     rewrite <- composition_of.
-    cbn.
     reflexivity.
   Defined.
 End BiCategory.
 
 Notation "f '∗' g" := (hcomp g f) (at level 40) : bicategory_scope.
+
+Section whiskering.
+  Context `{Univalence}.
+  Variable (BC : BiCategory).
+
+  Definition bc_whisker_r
+             {A B C : BC}
+             {f₁ : one_cell A B} (f₂ : one_cell A B)
+             (g : one_cell B C)
+             (α : two_cell f₁ f₂)
+    : (two_cell (g ⋅ f₁) (g ⋅ f₂))%bicategory.
+  Proof.
+    refine (morphism_of _ _).
+    split ; cbn.
+    - exact 1%morphism.
+    - exact α.
+  Defined.
+
+  Definition bc_whisker_l
+             {A B C : BC}
+             (f : one_cell A B)
+             {g₁ : one_cell B C} (g₂ : one_cell B C)
+             (β : two_cell g₁ g₂)
+    : (two_cell (g₁ ⋅ f) (g₂ ⋅ f))%bicategory.
+  Proof.
+    refine (morphism_of _ _).
+    split ; cbn.
+    - exact β.
+    - exact 1%morphism.
+  Defined.
+
+  Definition bc_whisker_lr
+             {A B C : BC}
+             {f₁ f₂ : one_cell A B} {g₁ g₂ : one_cell B C}
+             (α : two_cell f₁ f₂) (β : two_cell g₁ g₂)
+    : (two_cell (g₁ ⋅ f₁) (g₂ ⋅ f₂))%bicategory
+    := (bc_whisker_l f₂ _ β o bc_whisker_r _ g₁ α)%morphism.
+End whiskering.
+
+Arguments bc_whisker_r {_ BC A B C f₁} f₂ g α.
+Arguments bc_whisker_l {_ BC A B C} f {g₁} g₂ β.
+Arguments bc_whisker_lr {_ BC A B C f₁} f₂ {g₁} g₂ α β.

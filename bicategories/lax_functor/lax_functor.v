@@ -30,12 +30,11 @@ Record LaxFunctor
        Fassoc : forall (W X Y Z : C) (h : Hom C Y Z) (g : Hom C X Y) (f : Hom C W X),
            ((Fcomp (h, (g ⋅ f)))
               o (1 ∗ (Fcomp (g,f)))
-              o (assoc _ _ _ _
-                       (Fmor h,
+              o (assoc (Fmor h,
                         Fmor g,
                        Fmor f))
            =
-           (morphism_of Fmor (assoc W X Y Z (h,g,f)))
+           (morphism_of Fmor (assoc (h,g,f)))
              o Fcomp (h ⋅ g,f)
              o (Fcomp (h,g) ∗ 1))%morphism
     }.

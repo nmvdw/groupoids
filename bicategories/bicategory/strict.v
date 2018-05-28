@@ -34,6 +34,6 @@ Section TwoCategoryAxioms.
     (h ⋅ g) ⋅ f = h ⋅ (g ⋅ f).
   Proof.
     apply (isotoid (Hom _ W Z) _ _).
-    simple refine {| morphism_isomorphic := assoc W X Y Z (h, g, f) |}.
+    simple refine {| morphism_isomorphic := assoc (h, g, f) |}.
   Defined.
 End TwoCategoryAxioms.
