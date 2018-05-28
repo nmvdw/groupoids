@@ -16,6 +16,7 @@ bicategories/bicategory/examples/one_types.v
 bicategories/bicategory/examples/cat.v
 bicategories/bicategory/examples/full_sub.v
 bicategories/bicategory/examples/opposite.v
+bicategories/bicategory/examples/prod.v
 bicategories/lax_functor/lax_functor.v
 bicategories/lax_functor/examples/ap_functor.v
 bicategories/lax_transformation/lax_transformation.v
