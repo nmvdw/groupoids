@@ -1,10 +1,8 @@
 Require Import HoTT.
 From GR.bicategories Require Import
      bicategory.bicategory lax_functor.lax_functor.
-
 From HoTT.Categories Require Import
      Category Functor NaturalTransformation FunctorCategory.
-Require Import bicategory lax_functor two_type.
 
 Section LaxTransformation.
   Context `{Univalence}.
@@ -61,3 +59,6 @@ Section LaxTransformation.
             o (assoc (Fmor G g, Fmor G f, laxcomponent_of X)))%morphism
     }.
 End LaxTransformation.
+
+Arguments laxcomponent_of {_ C D F G}.
+Arguments laxnaturality_of {_ C D F G} _ {X Y}.

@@ -45,6 +45,7 @@ Definition laxmorphism_of
            {X Y : C} : Functor (Hom C X Y) (Hom D (F X) (F Y))
   := Fmor _ _ F.
 
+Arguments Fobj {_ C D} F : rename.
 Arguments Fmor {_ C D} F {X Y} : rename.
 Arguments Fcomp {_ C D} F {X Y Z} : rename.
 Arguments Fid {_ C D} F X : rename.
