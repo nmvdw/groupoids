@@ -1,7 +1,8 @@
 Require Import HoTT.
 From HoTT.Categories Require Import
      Category Category.Prod NaturalTransformation FunctorCategory.
-Require Import bicategory.
+From GR.bicategories Require Import
+     general_category bicategory.bicategory.
 
 Local Notation "x ₁" := (Datatypes.fst x) (at level 80).
 Local Notation "x ₂" := (Datatypes.snd x) (at level 80).

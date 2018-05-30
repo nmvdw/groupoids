@@ -1,7 +1,8 @@
 Require Import HoTT.
 From HoTT.Categories Require Import
      Category Category.Prod NaturalTransformation FunctorCategory DiscreteCategory.
-Require Import bicategory.
+From GR.bicategories Require Import
+     general_category bicategory.bicategory.
 
 Section DiscreteBiCategory.
   Context `{Univalence}.
