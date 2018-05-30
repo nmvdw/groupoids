@@ -1,7 +1,8 @@
 Require Import HoTT.
 From HoTT.Categories Require Import
      Category Functor NaturalTransformation FunctorCategory.
-Require Import bicategory.
+From GR.bicategories Require Import
+     general_category bicategory.bicategory.
 
 Section TwoTypeBiGroupoid.
   Context `{Univalence}.

@@ -2,7 +2,7 @@ Require Import HoTT.
 From HoTT.Categories Require Export
      Category Functor NaturalTransformation FunctorCategory.
 From GR.bicategories Require Import
-     general_category bicategory.
+     general_category bicategory.bicategory.
 
 Section laws.
   Context `{Univalence}.
