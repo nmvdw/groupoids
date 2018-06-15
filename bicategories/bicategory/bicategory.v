@@ -1,6 +1,8 @@
 Require Import HoTT.
 From HoTT.Categories Require Export
      Category Functor NaturalTransformation FunctorCategory.
+From HoTT.Categories Require Import
+     GroupoidCategory.
 From GR Require Import bicategories.general_category.
 
 Record BiCategory `{Univalence} :=
@@ -178,3 +180,7 @@ End whiskering.
 Arguments bc_whisker_r {_ BC A B C f₁} f₂ g α.
 Arguments bc_whisker_l {_ BC A B C} f {g₁} g₂ β.
 Arguments bc_whisker_lr {_ BC A B C f₁} f₂ {g₁} g₂ α β.
+
+Definition is_21 `{Univalence} (C : BiCategory)
+  : hProp
+  := BuildhProp (forall (X Y : C), IsGroupoid (Hom C X Y)).

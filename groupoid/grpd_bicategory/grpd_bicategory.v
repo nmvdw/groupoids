@@ -1,10 +1,13 @@
 Require Import HoTT.
-From HoTT.Categories Require Import GroupoidCategory.
+From HoTT.Categories Require Import Category GroupoidCategory.
 From GR.bicategories.bicategory Require Import
-     bicategory examples.cat examples.full_sub.
+     bicategory examples.precat examples.full_sub.
 
 (** The definition of groupoids. *)
 Definition groupoid := {C : PreCategory & IsGroupoid C}.
+
+Class strict_grpd (G : groupoid)
+  := { obj_cat : IsCategory G.1 }.
 
 (** The structure of groupoids *)
 
@@ -13,6 +16,15 @@ Definition under (G : groupoid) : Type
   := object G.1.
 
 Coercion grpd_to_type := under.
+
+Global Instance strict_grpd_obj
+       (G : groupoid)
+       `{strict_grpd G}
+  : IsTrunc 1 G.
+Proof.
+  apply @HoTT.Categories.Category.Univalent.trunc_category.
+  apply obj_cat.
+Defined.
 
 (** The homsets. *)
 Definition hom (G : groupoid) : G -> G -> hSet
@@ -40,7 +52,7 @@ Definition cal
            {v x y z : G}
            (p : hom G v x) (q : hom G x y) (r : hom G y z)
   : (p · q) · r = p · (q · r)
-  := (associativity G.1 v x y z p q r)^.
+  := (associativity _ v x y z p q r)^.
 
 (** Right associativity. *)
 Definition car
@@ -48,7 +60,7 @@ Definition car
            {v x y z : G}
            (p : hom G v x) (q : hom G x y) (r : hom G y z)
   : p · (q · r) = (p · q) · r
-  := associativity G.1 v x y z p q r.
+  := associativity _ v x y z p q r.
 
 (** Right neutrality. *)
 Definition ce
@@ -56,7 +68,7 @@ Definition ce
            {x y : G}
            (p : hom G x y)
   : p · e y = p
-  := left_identity G.1 x y p.
+  := left_identity _ x y p.
 
 (** Left neutrality. *)
 Definition ec
@@ -64,7 +76,7 @@ Definition ec
            {x y : G}
            (p : hom G x y)
   : e x · p = p
-  := right_identity G.1 x y p.
+  := right_identity _ x y p.
 
 (** Right inverse. *)
 Definition ci
@@ -72,7 +84,7 @@ Definition ci
            {x y : G}
            (p : hom G x y)
   : p · inv p = e x
-  := @left_inverse G.1 x y p (G.2 x y p).
+  := @left_inverse _ x y p (G.2 x y p).
 
 (** Left inverse. *)
 Definition ic
@@ -80,7 +92,7 @@ Definition ic
            {x y : G}
            (p : hom G x y)
   : inv p · p = e y
-  := @right_inverse G.1 x y p (G.2 x y p).
+  := @right_inverse _ x y p (G.2 x y p).
 
 (** A function for building groupoids. *)
 Definition Build_grpd
@@ -101,22 +113,20 @@ Definition Build_grpd
                comp p (inv p) = e x)
   : groupoid.
 Proof.
-  simple refine (_;_).
-  - simple refine (@Build_PreCategory
-                     obj
-                     hom
-                     e
-                     (fun _ _ _ p q => comp _ _ _ q p)
-                     _ _ _ _).
-    + cbn ; intros.
-      apply assoc.
-    + cbn ; intros.
-      apply ce.
-    + cbn ; intros.
-      apply ec.
-  - intros x y p ; cbn in *.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _) ; cbn.
-    + exact (inv _ _ p).
+  simple refine (@Build_PreCategory
+                   obj
+                   hom
+                   e
+                   (fun _ _ _ p q => comp _ _ _ q p) _ _ _ _;_).
+  - cbn ; intros.
+    apply assoc.
+  - cbn ; intros.
+    apply ce.
+  - cbn ; intros.
+    apply ec.
+  - intros x y g ; cbn in *.
+    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+    + exact (inv _ _ g).
     + apply ci.
     + apply ic.
 Defined.
@@ -161,7 +171,7 @@ Defined.
 
 (** We have a bicategory of groupoids. *)
 Definition grpd `{Univalence} : BiCategory
-  := full_sub Cat (fun C => BuildhProp (IsGroupoid C)).
+  := full_sub PreCat (fun C => BuildhProp (IsGroupoid C)).
 
 (** Note: it has the expected objects and morphisms. *)
 Definition grpd_obj `{Univalence} : Obj grpd = groupoid
@@ -169,3 +179,24 @@ Definition grpd_obj `{Univalence} : Obj grpd = groupoid
 
 Definition grpd_hom `{Univalence} : Hom grpd = grpd_functor
   := idpath.
+
+Definition grpd_21 `{Univalence} : is_21 grpd.
+Proof.
+  intros G₁ G₂ F₁ F₂ α ; simpl in *.
+  simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+  - simple refine (Build_NaturalTransformation _ _ _ _).
+    + intros C.
+      apply G₂.
+      exact (α C).
+    + intros x y g ; cbn.
+      refine (iso_moveR_Mp _ _ _) ; cbn.
+      refine (_ @ associativity _ _ _ _ _ _ _ _).
+      apply iso_moveL_pV.
+      apply α.
+  - apply path_natural_transformation ; simpl.
+    intro x.
+    apply left_inverse.
+  - apply path_natural_transformation ; simpl.
+    intro x.
+    apply right_inverse.
+Defined.

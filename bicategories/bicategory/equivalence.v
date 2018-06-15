@@ -11,10 +11,36 @@ Record is_equivalence
   := {
       f_inv : one_cell Y X ;
       retr : two_cell (f ⋅ f_inv) (id_m Y) ;
-      sect : two_cell (f_inv ⋅ f) (id_m X)
+      sect : two_cell (f_inv ⋅ f) (id_m X) ;
+      retr_iso : IsIsomorphism retr ;
+      sect_iso : IsIsomorphism sect
     }.
 
 Arguments f_inv {_ C X Y} {_} _.
+Arguments retr {_ C X Y} f _.
+Arguments sect {_ C X Y} f _.
+
+Global Instance retr_isisomorphism
+       `{Univalence}
+       {C : BiCategory}
+       {X Y : C}
+       (f : one_cell X Y)
+       (H : is_equivalence f)
+  : IsIsomorphism (retr f H).
+Proof.
+  apply retr_iso.
+Defined.
+
+Global Instance sect_isisomorphism
+       `{Univalence}
+       {C : BiCategory}
+       {X Y : C}
+       (f : one_cell X Y)
+       (H : is_equivalence f)
+  : IsIsomorphism (sect f H).
+Proof.
+  apply sect_iso.
+Defined.
 
 Record equivalence
        `{Univalence}
@@ -69,29 +95,93 @@ Definition inv_equiv
   : equivalence Y X
   := {| equiv := e_inv f ; equiv_isequiv := inv_isequiv f |}.
 
+Definition comp_sect
+           `{Univalence}
+           {C : BiCategory}
+           {X Y Z : C}
+           (g : equivalence Y Z) (f : equivalence X Y)
+  : two_cell ((e_inv f ⋅ e_inv g) ⋅ (equiv g ⋅ equiv f))%morphism (id_m X).
+Proof.
+  refine (_ o assoc (e_inv f,e_inv g,equiv g ⋅ equiv f))%morphism ; cbn.
+  simple refine (_ o bc_whisker_r f (e_inv f) _)%morphism.
+  - apply sect.
+  - refine (_ o (assoc (e_inv g, equiv g, equiv f))^-1)%morphism ; simpl.
+    refine (un_l _ _ _ o _)%morphism ; cbn.
+    refine (bc_whisker_l f _ _) ; cbn.
+    apply sect.
+Defined.
+
+Global Instance pair_equiv
+       {C D : PreCategory}
+       {X₁ Y₁ : C} {X₂ Y₂ : D}
+       (f : morphism C X₁ Y₁) (g : morphism D X₂ Y₂)
+       `{IsIsomorphism _ _ _ f} `{IsIsomorphism _ _ _ g}
+  : @IsIsomorphism (Category.prod C D) (X₁,X₂) (Y₁,Y₂) (f,g)%morphism.
+Proof.
+  apply _.
+Defined.
+
+Local Instance comp_sect_isiso
+      `{Univalence}
+      {C : BiCategory}
+      {X Y Z : C}
+      (g : equivalence Y Z) (f : equivalence X Y)
+  : IsIsomorphism (comp_sect g f).
+Proof.
+  unfold comp_sect.
+  repeat (apply Category.isisomorphism_compose).
+  - apply _.
+  - unfold bc_whisker_r.
+    apply Morphisms.iso_functor.
+    apply iso_pair.
+    + apply _.
+    + repeat (apply Category.isisomorphism_compose)
+      ; unfold bc_whisker_l ; apply _.
+  - apply _.
+Defined.
+
+Definition comp_retr
+           `{Univalence}
+           {C : BiCategory}
+           {X Y Z : C}
+           (g : equivalence Y Z) (f : equivalence X Y)
+  : two_cell ((equiv g ⋅ equiv f) ⋅ (e_inv f ⋅ e_inv g))%morphism (id_m Z).
+Proof.
+  refine (_ o assoc (equiv g, equiv f,e_inv f ⋅ e_inv g))%morphism ; cbn.
+  simple refine (_ o bc_whisker_r (e_inv g) g _)%morphism.
+  - apply retr.
+  - refine (_ o (assoc (equiv f,e_inv f,e_inv g))^-1)%morphism ; simpl.
+    refine (un_l _ _ _ o _)%morphism.
+    refine (bc_whisker_l (e_inv g) _ _) ; cbn.
+    apply retr.
+Defined.
+
+Local Instance comp_retr_isiso
+      `{Univalence}
+      {C : BiCategory}
+      {X Y Z : C}
+      (g : equivalence Y Z) (f : equivalence X Y)
+  : IsIsomorphism (comp_retr g f).
+Proof.
+  unfold comp_sect.
+  repeat (apply Category.isisomorphism_compose).
+  - apply _.
+  - unfold bc_whisker_r.
+    apply Morphisms.iso_functor.
+    apply iso_pair.
+    + apply _.
+    + repeat (apply Category.isisomorphism_compose)
+      ; unfold bc_whisker_l ; apply _.
+  - apply _.
+Defined.
+
 Definition comp_isequiv
        `{Univalence}
        {C : BiCategory}
        {X Y Z : C}
        (g : equivalence Y Z) (f : equivalence X Y)
-  : is_equivalence (equiv g ⋅ equiv f).
-Proof.
-  simple refine {| f_inv := e_inv f ⋅ e_inv g|}.
-  - refine (_ o assoc (equiv g, equiv f,e_inv f ⋅ e_inv g))%morphism ; cbn.
-    simple refine (_ o bc_whisker_r (e_inv g) g _)%morphism.
-    + apply retr.
-    + refine (_ o (assoc (equiv f,e_inv f,e_inv g))^-1)%morphism ; simpl.
-      refine (un_l _ _ _ o _)%morphism.
-      refine (bc_whisker_l (e_inv g) _ _) ; cbn.
-      apply retr.
-  - refine (_ o assoc (e_inv f,e_inv g,equiv g ⋅ equiv f))%morphism ; cbn.
-    simple refine (_ o bc_whisker_r f (e_inv f) _)%morphism.
-    + apply sect.
-    + refine (_ o (assoc (e_inv g, equiv g, equiv f))^-1)%morphism ; simpl.
-      refine (un_l _ _ _ o _)%morphism ; cbn.
-      refine (bc_whisker_l f _ _) ; cbn.
-      apply sect.
-Defined.
+  : is_equivalence (equiv g ⋅ equiv f)
+  := {| f_inv := e_inv f ⋅ e_inv g ; sect := comp_sect g f ; retr := comp_retr g f|}.
 
 Definition comp_equiv
            `{Univalence}

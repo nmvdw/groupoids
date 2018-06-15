@@ -70,8 +70,8 @@ Definition inverse_pair
 
 Definition inverse_of
            {C D : PreCategory}
-           {X Y : C}
            (F : Functor C D)
+           {X Y : C}
            (f : morphism C X Y)
            `{IsIsomorphism C _ _ f}
   : (morphism_of F (f^-1) = (morphism_of F f)^-1)%morphism

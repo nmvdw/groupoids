@@ -236,3 +236,30 @@ Proof.
       apply _.
     * reflexivity.
 Defined.
+
+Definition ap_precompose
+           `{Funext}
+           {A B C : Type}
+           {f g : A -> B}
+           (h : B -> C)
+           (e : f == g)
+  : ap (fun z : A -> B => h o z) (path_forall f g e)
+    =
+    path_forall (h o f) (h o g) (fun z : A => ap h (e z))
+  := @ap_functor_forall _ _ _ _ _ idmap (fun _ => h) f g e.
+
+Definition ap_postcompose
+           `{Funext}
+           {A B C : Type}
+           {f g : B -> C}
+           (h : A -> B)
+           (e : f == g)
+  : ap (fun z : B -> C => z o h) (path_forall f g e)
+    =
+    path_forall (f o h) (g o h) (e o h).
+Proof.
+  refine (@ap_functor_forall _ B _ A (fun _ => C) h (fun _ => idmap) f g e @ _).
+  apply ap.
+  funext x.
+  apply ap_idmap.
+Defined.

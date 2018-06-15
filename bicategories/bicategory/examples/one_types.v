@@ -184,4 +184,10 @@ Section OneTypesBiCategory.
     - intros A B C D E k h g f ; cbn.
       reflexivity.
   Defined.
+
+  Definition one_types_21 : is_21 one_types.
+  Proof.
+    intros X Y ; cbn.
+    apply _.
+  Defined.
 End OneTypesBiCategory.

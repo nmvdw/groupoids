@@ -62,3 +62,15 @@ End LaxTransformation.
 
 Arguments laxcomponent_of {_ C D F G}.
 Arguments laxnaturality_of {_ C D F G} _ {X Y}.
+
+Class is_pseudo_transformation
+      `{Univalence}
+      {C D : BiCategory}
+      {F G : LaxFunctor C D}
+      (η : LaxTransformation F G)
+  := { laxnaturality_of_iso : forall {X Y : C},
+         @IsIsomorphism (_ -> _)
+                        _
+                        _
+                        (@laxnaturality_of _ _ _ _ _ η X Y)
+     }.
