@@ -94,9 +94,7 @@ Section counit.
       simpl.      
       rewrite !concat_1p, ap_V.
       rewrite ap_precompose.
-      rewrite <- path_forall_V.
-      repeat f_ap.
-      rewrite <- path_forall_1.
+      rewrite <- path_forall_V, <- path_forall_1.
       f_ap.
       funext x ; revert x.
       simple refine (gquot_ind_prop _ _ _).
@@ -143,7 +141,7 @@ Definition naturality_of_counit `{Univalence} {X Y : one_types} (f : X -> Y)
 Proof.
   simple refine (gquot_ind_set _ _ _ _).
   - reflexivity.
-  - intros a₁ a₂ g ; simpl.
+  - intros a₁ a₂ g.
     exact (naturality_help f g).
 Defined.
 
@@ -156,20 +154,35 @@ Definition counit_naturality
                 o Fmor (lax_comp gquot_functor path_groupoid_functor)).
 Proof.
   simple refine (Build_NaturalTransformation _ _ _ _).
-  - intros f ; simpl in *.
+  - intros f.
     funext x.
     exact (naturality_of_counit f x).
   - intros f g p.
-    induction p ; simpl.
-    rewrite !concat_1p.
-    rewrite ap_precompose.
-    rewrite <- path_forall_pp.
-    f_ap.
-    funext x ; revert x.
-    simple refine (gquot_ind_prop _ _ _).
-    intros a ; simpl.
-    rewrite ge.
+    induction p.
+    rewrite !identity_of, left_identity, !right_identity.
     reflexivity.
+Defined.
+
+Definition kek `{Univalence} (X : 1 -Type)
+  : forall x : gquot (path_groupoid X),
+    naturality_of_counit idmap x =
+    ap (counit X)
+       ((gquot_functorial_idmap (path_groupoid X) x)
+          @ gquot_functorial_natural (path_groupoid_map_id X) x).
+Proof.
+  simple refine (gquot_ind_prop _ _ _).
+  intro a.
+  Opaque naturality_of_counit gquot_functorial_natural gquot_functorial_idmap.
+  simpl.
+  rewrite ap_pp.
+  rewrite concat_1p.
+  Transparent naturality_of_counit gquot_functorial_natural.
+  assert (gquot_functorial_natural (path_groupoid_map_id X) (gcl (path_groupoid X) a)
+          =
+          gcleq _ (e a)) as ->.
+  { reflexivity. }
+  rewrite ge.
+  reflexivity.
 Defined.
 
 Definition test `{Univalence}
@@ -182,25 +195,21 @@ Proof.
   - apply counit_naturality.
   - intros X.
     simpl.
-    rewrite !concat_1p.
+    repeat refine (_ @ (concat_1p _)^).
     unfold hcomp.
     simpl.
-    rewrite concat_1p.
+    refine (concat_1p _ @ _).
     unfold lax_comp_id.
     cbn.
     unfold gquot_id.
-    rewrite <- path_forall_pp.
-    rewrite ap_precompose.
-    f_ap.
+    refine (_ @ ap _ (path_forall_pp _ _ _ _ _)).
+    refine (_ @ (ap_precompose _ _)^).
+    apply ap.
     funext x ; revert x.
-    simple refine (gquot_ind_prop _ _ _).
-    intros a ; simpl.
-    rewrite concat_1p, ge.
-    simpl.
-    reflexivity.
+    exact (kek X).
   - intros X Y Z f g.
-    simpl.
+    (* simpl.
     unfold hcomp.
     rewrite identity_of.
-    rewrite !concat_1p.
+    rewrite !concat_1p.*)
 Admitted.
