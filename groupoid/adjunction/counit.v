@@ -70,12 +70,10 @@ Section counit.
   Defined.
 
   Definition counit_equivalence
-    : is_equivalence counit.
-  Proof.
-    simple refine {| f_inv := counit_inv ;
-                     retr := counit_retr ;
-                     sect := counit_sect |}.
-  Defined.
+    : is_equivalence counit
+    := {| f_inv := counit_inv ;
+          retr := counit_retr ;
+          sect := counit_sect |}.
 
   Definition counit_adjunction
     : is_adjunction counit counit_inv.
@@ -84,22 +82,26 @@ Section counit.
     - cbn ; symmetry.
       apply counit_sect.
     - apply counit_retr.
-    - unfold bc_whisker_r, bc_whisker_l ; cbn.
-      hott_simpl.
-      rewrite ap_V.
+    - unfold bc_whisker_r, bc_whisker_l ; simpl.
+      rewrite concat_1p, !concat_p1, ap_V.
       rewrite ap_postcompose.
       rewrite <- path_forall_V, <- path_forall_1.
       reflexivity.
-    - unfold bc_whisker_r, bc_whisker_l.
-      simpl ; hott_simpl.
-      rewrite ap_V.
+    - apply Morphisms.iso_moveR_pV.
+      unfold bc_whisker_r, bc_whisker_l.
+      rewrite !left_identity.
+      apply Morphisms.iso_moveR_Vp.
+      simpl.      
+      rewrite !concat_1p, ap_V.
       rewrite ap_precompose.
-      rewrite <- !path_forall_V, <- path_forall_1.
-      (* apply ap.
+      rewrite <- path_forall_V.
+      repeat f_ap.
+      rewrite <- path_forall_1.
+      f_ap.
       funext x ; revert x.
       simple refine (gquot_ind_prop _ _ _).
-      reflexivity. *)
-  Admitted.
+      reflexivity.
+  Defined.
 End counit.
 
 Definition naturality_help
@@ -144,9 +146,6 @@ Proof.
   - intros a₁ a₂ g ; simpl.
     exact (naturality_help f g).
 Defined.
-
-Definition todo T : T.
-Admitted.
 
 Definition counit_naturality
            `{Univalence}
