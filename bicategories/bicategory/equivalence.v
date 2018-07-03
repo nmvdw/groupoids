@@ -8,14 +8,16 @@ Record is_equivalence
        {C : BiCategory}
        {X Y : C}
        (f : one_cell X Y)
-  := {
-      f_inv : one_cell Y X ;
-      retr : two_cell (f ⋅ f_inv) (id_m Y) ;
-      sect : two_cell (f_inv ⋅ f) (id_m X) ;
-      retr_iso : IsIsomorphism retr ;
-      sect_iso : IsIsomorphism sect
-    }.
+  := Build_IsEquivalence
+       {
+         f_inv : one_cell Y X ;
+         retr : two_cell (f · f_inv) (id_m Y) ;
+         sect : two_cell (f_inv · f) (id_m X) ;
+         retr_iso : IsIsomorphism retr ;
+         sect_iso : IsIsomorphism sect
+       }.
 
+Arguments Build_IsEquivalence {_ C X Y f} f_inv retr sect {_ _}.
 Arguments f_inv {_ C X Y} {_} _.
 Arguments retr {_ C X Y} f _.
 Arguments sect {_ C X Y} f _.
@@ -46,11 +48,13 @@ Record equivalence
        `{Univalence}
        {C : BiCategory}
        (X Y : C)
-  := {
-      equiv :> one_cell X Y ;
-      equiv_isequiv : is_equivalence equiv
-    }.
+  := Build_Equivalence
+       {
+         equiv :> one_cell X Y ;
+         equiv_isequiv : is_equivalence equiv
+       }.
 
+Arguments Build_Equivalence {_ C X Y} equiv equiv_isequiv.
 Arguments equiv {_ C X Y} _.
 Arguments equiv_isequiv {_ C X Y} _.
 
@@ -67,17 +71,17 @@ Definition id_isequiv
        {C : BiCategory}
        (X : C)
   : is_equivalence (id_m X)
-  := {| f_inv := id_m X ;
-        retr := un_l X X (id_m X) ;
-        sect := un_l X X (id_m X)
-     |}.
+  := Build_IsEquivalence
+       (id_m X)
+       (un_l X X (id_m X))
+       (un_l X X (id_m X)).
 
 Definition id_equiv
            `{Univalence}
            {C : BiCategory}
            (X : C)
   : equivalence X X
-  := {| equiv := id_m X ; equiv_isequiv := id_isequiv X|}.
+  := Build_Equivalence (id_m X) (id_isequiv X).
 
 Definition inv_isequiv
        `{Univalence}
@@ -85,7 +89,10 @@ Definition inv_isequiv
        {X Y : C}
        (f : equivalence X Y)
   : is_equivalence (e_inv f)
-  := {| f_inv := f ; retr := sect f (equiv_isequiv f) ; sect := retr f _|}.
+  := Build_IsEquivalence
+       f
+       (sect f _)
+       (retr f _).
 
 Definition inv_equiv
            `{Univalence}
@@ -93,16 +100,16 @@ Definition inv_equiv
            {X Y : C}
            (f : equivalence X Y)
   : equivalence Y X
-  := {| equiv := e_inv f ; equiv_isequiv := inv_isequiv f |}.
+  := Build_Equivalence (e_inv f) (inv_isequiv f).
 
 Definition comp_sect
            `{Univalence}
            {C : BiCategory}
            {X Y Z : C}
            (g : equivalence Y Z) (f : equivalence X Y)
-  : two_cell ((e_inv f ⋅ e_inv g) ⋅ (equiv g ⋅ equiv f))%morphism (id_m X).
+  : two_cell ((e_inv f · e_inv g) · (equiv g · equiv f))%morphism (id_m X).
 Proof.
-  refine (_ o assoc (e_inv f,e_inv g,equiv g ⋅ equiv f))%morphism ; cbn.
+  refine (_ o assoc (e_inv f,e_inv g,equiv g · equiv f))%morphism ; cbn.
   simple refine (_ o bc_whisker_r f (e_inv f) _)%morphism.
   - apply sect.
   - refine (_ o (assoc (e_inv g, equiv g, equiv f))^-1)%morphism ; simpl.
@@ -111,43 +118,22 @@ Proof.
     apply sect.
 Defined.
 
-Global Instance pair_equiv
-       {C D : PreCategory}
-       {X₁ Y₁ : C} {X₂ Y₂ : D}
-       (f : morphism C X₁ Y₁) (g : morphism D X₂ Y₂)
-       `{IsIsomorphism _ _ _ f} `{IsIsomorphism _ _ _ g}
-  : @IsIsomorphism (Category.prod C D) (X₁,X₂) (Y₁,Y₂) (f,g)%morphism.
-Proof.
-  apply _.
-Defined.
-
 Local Instance comp_sect_isiso
       `{Univalence}
       {C : BiCategory}
       {X Y Z : C}
       (g : equivalence Y Z) (f : equivalence X Y)
-  : IsIsomorphism (comp_sect g f).
-Proof.
-  unfold comp_sect.
-  repeat (apply Category.isisomorphism_compose).
-  - apply _.
-  - unfold bc_whisker_r.
-    apply Morphisms.iso_functor.
-    apply iso_pair.
-    + apply _.
-    + repeat (apply Category.isisomorphism_compose)
-      ; unfold bc_whisker_l ; apply _.
-  - apply _.
-Defined.
+  : IsIsomorphism (comp_sect g f)
+  := _.
 
 Definition comp_retr
            `{Univalence}
            {C : BiCategory}
            {X Y Z : C}
            (g : equivalence Y Z) (f : equivalence X Y)
-  : two_cell ((equiv g ⋅ equiv f) ⋅ (e_inv f ⋅ e_inv g))%morphism (id_m Z).
+  : two_cell ((equiv g · equiv f) · (e_inv f · e_inv g))%morphism (id_m Z).
 Proof.
-  refine (_ o assoc (equiv g, equiv f,e_inv f ⋅ e_inv g))%morphism ; cbn.
+  refine (_ o assoc (equiv g, equiv f,e_inv f · e_inv g))%morphism ; cbn.
   simple refine (_ o bc_whisker_r (e_inv g) g _)%morphism.
   - apply retr.
   - refine (_ o (assoc (equiv f,e_inv f,e_inv g))^-1)%morphism ; simpl.
@@ -161,27 +147,19 @@ Local Instance comp_retr_isiso
       {C : BiCategory}
       {X Y Z : C}
       (g : equivalence Y Z) (f : equivalence X Y)
-  : IsIsomorphism (comp_retr g f).
-Proof.
-  unfold comp_sect.
-  repeat (apply Category.isisomorphism_compose).
-  - apply _.
-  - unfold bc_whisker_r.
-    apply Morphisms.iso_functor.
-    apply iso_pair.
-    + apply _.
-    + repeat (apply Category.isisomorphism_compose)
-      ; unfold bc_whisker_l ; apply _.
-  - apply _.
-Defined.
+  : IsIsomorphism (comp_retr g f)
+  := _.
 
 Definition comp_isequiv
        `{Univalence}
        {C : BiCategory}
        {X Y Z : C}
        (g : equivalence Y Z) (f : equivalence X Y)
-  : is_equivalence (equiv g ⋅ equiv f)
-  := {| f_inv := e_inv f ⋅ e_inv g ; sect := comp_sect g f ; retr := comp_retr g f|}.
+  : is_equivalence (equiv g · equiv f)
+  := Build_IsEquivalence
+       (e_inv f · e_inv g)
+       (comp_retr g f)
+       (comp_sect g f).
 
 Definition comp_equiv
            `{Univalence}
@@ -189,9 +167,13 @@ Definition comp_equiv
            {X Y Z : C}
            (g : equivalence Y Z) (f : equivalence X Y)
   : equivalence X Z
-  := {| equiv := equiv g ⋅ equiv f ; equiv_isequiv := comp_isequiv g f |}.
+  := Build_Equivalence (equiv g · equiv f) (comp_isequiv g f).
 
-Definition idtoequiv `{Univalence} {C : BiCategory} (X Y : C) (Heq : X = Y)
+Definition idtoequiv
+           `{Univalence}
+           {C : BiCategory}
+           (X Y : C)
+           (Heq : X = Y)
   : equivalence X Y.
 Proof.
   destruct Heq.

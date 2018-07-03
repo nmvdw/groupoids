@@ -68,7 +68,7 @@ Section ProductBicategory.
   Defined.
 
   Global Instance prUnitor_l_iso (x y : prod_obj)
-    : @IsIsomorphism (prod_hom x y -> prod_hom x y) _ _ (prUnitor_l x y).
+    : @IsIsomorphism (_ -> _) _ _ (prUnitor_l x y).
   Proof.
     simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
     - apply prUnitor_l_inv.
@@ -111,7 +111,7 @@ Section ProductBicategory.
   Defined.
 
   Global Instance prUnitor_r_iso (x y : prod_obj)
-    : @IsIsomorphism (prod_hom x y -> prod_hom x y) _ _ (prUnitor_r x y).
+    : @IsIsomorphism (_ -> _) _ _ (prUnitor_r x y).
   Proof.
     simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
     - apply prUnitor_r_inv.
@@ -184,9 +184,7 @@ Section ProductBicategory.
   Defined.
 
   Global Instance prAssociator_iso (w x y z : prod_obj)
-    : @IsIsomorphism ((prod_hom y z * prod_hom x y) * prod_hom w x
-                      -> prod_hom w z)
-                     _ _ (prAssociator w x y z).
+    : @IsIsomorphism (_ -> _) _ _ (prAssociator w x y z).
   Proof.
     simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
     - apply prAssociator_inv.
@@ -204,21 +202,17 @@ Section ProductBicategory.
       + exact (@right_inverse _ _ _ (assoc ((p₁ ₁) ₂, (p₁ ₂) ₂, p₂ ₂)) _).
   Defined.
 
-  Definition prod
-    : BiCategory.
+  Definition prod : BiCategory.
   Proof.
-    simple refine {|Obj := prod_obj ;
-                    Hom := prod_hom ;
-                    id_m := prod_id_m ;
-                    c_m := prod_c_m ;
-                    un_l := prUnitor_l ;
-                    un_l_iso := prUnitor_l_iso ;
-                    un_r := prUnitor_r ;
-                    un_r_iso := prUnitor_r_iso ;
-                    assoc := prAssociator ;
-                    assoc_iso := prAssociator_iso ;
-                    triangle_r := _ ;
-                    pentagon := _|}.
+    simple refine (Build_BiCategory prod_obj
+                                    prod_hom
+                                    prod_id_m
+                                    prod_c_m
+                                    prUnitor_l
+                                    prUnitor_r
+                                    prAssociator
+                                    _
+                                    _).
     - intros.
       apply path_prod' ; apply triangle_r.
     - intros.

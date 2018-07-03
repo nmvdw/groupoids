@@ -57,7 +57,7 @@ Section DiscreteBiCategory.
   Defined.
 
   Global Instance cdnitor_l_iso (x y : d_obj)
-    : @IsIsomorphism (d_hom x y -> d_hom x y) _ _ (dUnitor_l x y).
+    : @IsIsomorphism (_ -> _) _ _ (dUnitor_l x y).
   Proof.
     simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
     - apply dUnitor_l_inv.
@@ -98,7 +98,7 @@ Section DiscreteBiCategory.
   Defined.
 
   Global Instance dUnitor_r_iso (x y : d_obj)
-    : @IsIsomorphism (d_hom x y -> d_hom x y) _ _ (dUnitor_r x y).
+    : @IsIsomorphism (_ -> _) _ _ (dUnitor_r x y).
   Proof.
     simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
     - apply dUnitor_r_inv.
@@ -141,9 +141,7 @@ Section DiscreteBiCategory.
   Defined.
 
   Global Instance dAssociator_iso (w x y z : d_obj)
-    : @IsIsomorphism ((d_hom y z * d_hom x y) * d_hom w x
-                      -> d_hom w z)
-                     _ _ (dAssociator w x y z).
+    : @IsIsomorphism (_ -> _) _ _ (dAssociator w x y z).
   Proof.
     simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
     - apply dAssociator_inv.
@@ -159,14 +157,15 @@ Section DiscreteBiCategory.
 
   Definition discrete_bicategory : BiCategory.
   Proof.
-    simple refine {| Obj := d_obj ;
-                     Hom := d_hom ;
-                     id_m := d_id_m ;
-                     c_m := d_c_m ;
-                     un_l := dUnitor_l ;
-                     un_r := dUnitor_r ;
-                     assoc := dAssociator
-                  |}.
+    simple refine (Build_BiCategory d_obj
+                                    d_hom
+                                    d_id_m
+                                    d_c_m
+                                    dUnitor_l
+                                    dUnitor_r
+                                    dAssociator
+                                    _
+                                    _).
     - intros ; apply path_ishprop.
     - intros ; apply path_ishprop.
   Defined.

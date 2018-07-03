@@ -15,12 +15,12 @@ Record BiCategory `{Univalence} :=
           NaturalTransformation (@c_m X Y Y o (const_functor (id_m Y) * 1))
                                 1 ;
       un_l_iso :> forall (X Y : Obj),
-         @IsIsomorphism (Hom X Y -> Hom X Y) _ _ (un_l X Y) ;
+         @IsIsomorphism (_ -> _) _ _ (un_l X Y) ;
       un_r : forall (X Y : Obj),
           NaturalTransformation (@c_m X X Y o (1 * const_functor (id_m X)))
                                 1 ;
       un_r_iso :> forall (X Y : Obj),
-          @IsIsomorphism (Hom X Y -> Hom X Y) _ _ (un_r X Y) ;
+          @IsIsomorphism (_ -> _) _ _ (un_r X Y) ;
       assoc : forall (w x y z : Obj),
         NaturalTransformation
           ((c_m o (c_m, 1)))
@@ -66,6 +66,8 @@ Record BiCategory `{Univalence} :=
                                        (assoc w x y z (k,h,g),1)))%morphism
     }.
 
+Arguments Build_BiCategory {_} Obj Hom id_m c_m un_l {un_l_iso} un_r {un_r_iso}
+          assoc {assoc_iso} triangle_r pentagon.
 Arguments id_m {_} {B} x : rename.
 Arguments c_m {_} {B} {x y z} : rename.
 Arguments un_l {_ B} X Y : rename.
@@ -74,9 +76,9 @@ Arguments assoc {_ B w x y z} : rename.
 
 Delimit Scope bicategory_scope with bicategory.
 Bind Scope bicategory_scope with BiCategory.
-Notation "f '⋅' g" := (c_m (f,g)) (at level 40): bicategory_scope.
+Notation "f '·' g" := (c_m (f,g)) (at level 40): bicategory_scope.
 
-Instance un_r_iso_componenetwise `{Univalence} {B : BiCategory} {X Y : B} f :
+Instance un_r_iso_componentwise `{Univalence} {B : BiCategory} {X Y : B} f :
   Morphisms.IsIsomorphism (un_r X Y f).
 Proof.
   unshelve eapply isisomorphism_components_of.
@@ -84,7 +86,7 @@ Proof.
   - apply B.
 Defined.
 
-Instance un_l_iso_componenetwise `{Univalence} {B : BiCategory} {X Y : B} f :
+Instance un_l_iso_componentwise `{Univalence} {B : BiCategory} {X Y : B} f :
   Morphisms.IsIsomorphism (un_l X Y f).
 Proof.
   unshelve eapply isisomorphism_components_of.
@@ -92,7 +94,7 @@ Proof.
   - apply B.
 Defined.
 
-Instance assoc_iso_componenetwise `{Univalence} {B : BiCategory} {W X Y Z : B} f :
+Instance assoc_iso_componentwise `{Univalence} {B : BiCategory} {W X Y Z : B} f :
   Morphisms.IsIsomorphism (@assoc _ _ W X Y Z f).
 Proof.
   unshelve eapply isisomorphism_components_of.
@@ -116,7 +118,7 @@ Section BiCategory.
              {A B C : BC}
              {f f' : one_cell A B} {g g' : one_cell B C}
              (α : two_cell f f') (β : two_cell g g')
-    : (two_cell (g ⋅ f) (g' ⋅ f'))%bicategory
+    : (two_cell (g · f) (g' · f'))%bicategory
     := (c_m _1 ((β, α) : morphism (Hom _ B C * Hom _ A B) (g,f) (g',f')))%morphism.
 
   Local Notation "f '∗' g" := (hcomp g f) (at level 40) : bicategory_scope.
@@ -141,14 +143,14 @@ Notation "f '∗' g" := (hcomp g f) (at level 40) : bicategory_scope.
 
 Section whiskering.
   Context `{Univalence}.
-  Variable (BC : BiCategory).
+  Variable (C : BiCategory).
 
   Definition bc_whisker_r
-             {A B C : BC}
-             {f₁ : one_cell A B} (f₂ : one_cell A B)
-             (g : one_cell B C)
+             {X Y Z : C}
+             {f₁ : one_cell X Y} (f₂ : one_cell X Y)
+             (g : one_cell Y Z)
              (α : two_cell f₁ f₂)
-    : (two_cell (g ⋅ f₁) (g ⋅ f₂))%bicategory.
+    : (two_cell (g · f₁) (g · f₂))%bicategory.
   Proof.
     refine (morphism_of _ _).
     split ; cbn.
@@ -156,12 +158,25 @@ Section whiskering.
     - exact α.
   Defined.
 
+  Global Instance bc_whisker_r_iso
+         {X Y Z : C}
+         {f₁ : one_cell X Y} (f₂ : one_cell X Y)
+         (g : one_cell Y Z)
+         (α : two_cell f₁ f₂)
+         `{IsIsomorphism _ _ _ α}
+    : IsIsomorphism (bc_whisker_r f₂ g α).
+  Proof.
+    unfold bc_whisker_r.
+    apply Morphisms.iso_functor.
+    apply iso_pair ; apply _.
+  Defined.
+  
   Definition bc_whisker_l
-             {A B C : BC}
-             (f : one_cell A B)
-             {g₁ : one_cell B C} (g₂ : one_cell B C)
+             {X Y Z : C}
+             (f : one_cell X Y)
+             {g₁ : one_cell Y Z} (g₂ : one_cell Y Z)
              (β : two_cell g₁ g₂)
-    : (two_cell (g₁ ⋅ f) (g₂ ⋅ f))%bicategory.
+    : (two_cell (g₁ · f) (g₂ · f))%bicategory.
   Proof.
     refine (morphism_of _ _).
     split ; cbn.
@@ -169,17 +184,42 @@ Section whiskering.
     - exact 1%morphism.
   Defined.
 
+  Global Instance bc_whisker_l_iso
+         {X Y Z : C}
+         (f : one_cell X Y)
+         {g₁ : one_cell Y Z} (g₂ : one_cell Y Z)
+         (β : two_cell g₁ g₂)
+         `{IsIsomorphism _ _ _ β}
+    : IsIsomorphism (bc_whisker_l f g₂ β).
+  Proof.
+    unfold bc_whisker_l.
+    apply Morphisms.iso_functor.
+    apply iso_pair ; apply _.
+  Defined.
+
   Definition bc_whisker_lr
-             {A B C : BC}
-             {f₁ f₂ : one_cell A B} {g₁ g₂ : one_cell B C}
+             {X Y Z : C}
+             {f₁ f₂ : one_cell X Y} {g₁ g₂ : one_cell Y Z}
              (α : two_cell f₁ f₂) (β : two_cell g₁ g₂)
-    : (two_cell (g₁ ⋅ f₁) (g₂ ⋅ f₂))%bicategory
+    : (two_cell (g₁ · f₁) (g₂ · f₂))%bicategory
     := (bc_whisker_l f₂ _ β o bc_whisker_r _ g₁ α)%morphism.
+
+  Global Instance bc_whisker_lr_iso
+         {X Y Z : C}
+         {f₁ f₂ : one_cell X Y} {g₁ g₂ : one_cell Y Z}
+         (α : two_cell f₁ f₂) (β : two_cell g₁ g₂)
+         `{IsIsomorphism _ _ _ α}
+         `{IsIsomorphism _ _ _ β}
+    : IsIsomorphism (bc_whisker_lr α β).
+  Proof.
+    unfold bc_whisker_lr.
+    apply _.
+  Defined.
 End whiskering.
 
-Arguments bc_whisker_r {_ BC A B C f₁} f₂ g α.
-Arguments bc_whisker_l {_ BC A B C} f {g₁} g₂ β.
-Arguments bc_whisker_lr {_ BC A B C f₁} f₂ {g₁} g₂ α β.
+Arguments bc_whisker_r {_ C X Y Z f₁} f₂ g α.
+Arguments bc_whisker_l {_ C X Y Z} f {g₁} g₂ β.
+Arguments bc_whisker_lr {_ C X Y Z f₁} f₂ {g₁} g₂ α β.
 
 Definition is_21 `{Univalence} (C : BiCategory)
   : hProp

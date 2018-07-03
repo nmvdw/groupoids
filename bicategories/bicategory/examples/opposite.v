@@ -58,7 +58,7 @@ Section OpBiCategory.
   Defined.
   
   Global Instance oUnitor_l_iso {C : BiCategory} (X Y : C)
-    : @IsIsomorphism (Hom C Y X -> Hom C Y X) _ _ (oUnitor_l X Y).
+    : @IsIsomorphism (_ -> _) _ _ (oUnitor_l X Y).
   Proof.
     simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
     - apply oUnitor_l_inv.
@@ -104,7 +104,7 @@ Section OpBiCategory.
   Defined.
 
   Global Instance oUnitor_r_iso {C : BiCategory} (X Y : C)
-    : @IsIsomorphism (Hom C Y X -> Hom C Y X) _ _ (oUnitor_r X Y).
+    : @IsIsomorphism (_ -> _) _ _ (oUnitor_r X Y).
   Proof.
     simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
     - apply oUnitor_r_inv.
@@ -146,9 +146,7 @@ Section OpBiCategory.
   Defined.
 
   Global Instance oAssociator_iso {C : BiCategory} (V X Y Z : C)
-    : @IsIsomorphism ((Hom C Z Y * Hom C Y X) * Hom C X V
-                      -> Hom C Z V)
-                     _ _ (oAssociator V X Y Z).
+    : @IsIsomorphism (_ -> _) _ _ (oAssociator V X Y Z).
   Proof.
     simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
     - apply oAssociator_inv.
@@ -164,16 +162,17 @@ Section OpBiCategory.
 
   Definition op (C : BiCategory) : BiCategory.
   Proof.
-    simple refine
-           {|Obj := C ;
-             Hom := fun X Y => Hom C Y X ;
-             id_m := id_m ;
-             c_m := op_comp C ;
-             un_l := oUnitor_l ;
-             un_r := oUnitor_r ;
-             assoc := oAssociator|}.
+    simple refine (Build_BiCategory C
+                                    (fun X Y => Hom C Y X)
+                                    id_m
+                                    (op_comp C)
+                                    oUnitor_l
+                                    oUnitor_r
+                                    oAssociator
+                                    _
+                                    _).
     - intros X Y Z g f ; cbn in *.
-      exact (triangle_l C f g)^.
+      exact (triangle_l f g)^.
     - intros W V X Y Z k h g f ; cbn in *.
       pose (pentagon C Z Y X V W f g h k).
       rewrite <- !inverse_id.

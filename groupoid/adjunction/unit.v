@@ -1,12 +1,16 @@
 Require Import HoTT.
-From HoTT.Categories Require Import
-     Category.
 From GR.bicategories Require Import
+     general_category
      bicategory.bicategory
      bicategory.examples.one_types
+     bicategory.examples.full_sub
+     bicategory.examples.precat
      bicategory.equivalence
      bicategory.adjoint
-     lax_functor.lax_functor.
+     lax_functor.lax_functor
+     lax_functor.examples.identity
+     lax_functor.examples.composition
+     lax_transformation.lax_transformation.
 From GR.groupoid Require Import
      groupoid_quotient.gquot
      groupoid_quotient.gquot_functor
@@ -16,135 +20,142 @@ From GR.groupoid Require Import
 From GR.basics Require Import
      general.
 
-Definition strict_grpd_eq
+Definition inverse_assoc_grpd
            `{Univalence}
-           (G : groupoid)
-           `{strict_grpd G}
-           {x y : G}
-           (g : hom G x y)
-  : x = y
-  := @equiv_inv _
-                _
-                (@Category.idtoiso G.1 x y)
-                (@obj_cat G _ x y)
-                (Build_Isomorphic (G.2 _ _ g)).
-
-Definition strict_grpd_eq_e
-           `{Univalence}
-           (G : groupoid)
-           `{strict_grpd G}
-           (x : G)
-  : strict_grpd_eq G (e x) = 1%path.
+           (G₁ G₂ G₃ G₄ : groupoid)
+  : inverse (@assoc _ grpd G₁ G₂ G₃ G₄)
+    =
+    nAssociator_inv _ _ _ _.
 Proof.
-  rewrite <- (@eissect _
-                       _
-                       (@Category.Morphisms.idtoiso G.1 x x)
-                       (@obj_cat G _ x x)).
-  unfold strict_grpd_eq.
-  apply ap.
-  apply path_isomorphic ; cbn.
+  apply path_natural_transformation.
+  intros [[f₁ f₂] f₃].
+  apply path_natural_transformation.
+  intros y ; simpl.
+  rewrite iso_component.
+  apply iso_moveR_V1 ; cbn.
+  rewrite right_identity.
   reflexivity.
-Defined.
+Qed.
 
-Definition strict_grpd_eq_comp
-           `{Univalence}
-           (G : groupoid)
-           `{strict_grpd G}
-           {x y z : G}
-           (g₁ : hom G x y) (g₂ : hom G y z)
-  : strict_grpd_eq G (g₁ · g₂) = strict_grpd_eq G g₁ @ strict_grpd_eq G g₂.
-Proof.
-  rewrite <-
-          (@eissect _
-                    _
-                    (@Category.Morphisms.idtoiso G.1 x z)
-                    (@obj_cat G _ x z)
-                    (strict_grpd_eq G (g₁ · g₂))
-          ).
-  rewrite <-
-          (@eissect _
-                    _
-                    (@Category.Morphisms.idtoiso G.1 x z)
-                    (@obj_cat G _ x z)
-                    (strict_grpd_eq G g₁ @ strict_grpd_eq G g₂)
-          ).
-  apply ap ; simpl.
-  apply path_isomorphic.
-  rewrite <- (idtoiso_comp G.1 (strict_grpd_eq G g₂) (strict_grpd_eq G g₁)).
-  rewrite !eisretr.
-  reflexivity.
-Defined.
-
-Definition strict_grpd_eq_inv
-           `{Univalence}
-           (G : groupoid)
-           `{strict_grpd G}
-           {x y : G}
-           (g : hom G x y)
-  : strict_grpd_eq G (inv g) = (strict_grpd_eq G g)^.
-Proof.
-  rewrite <-
-          (@eissect _
-                    _
-                    (@Category.Morphisms.idtoiso G.1 y x)
-                    (@obj_cat G _ y x)
-                    (strict_grpd_eq G (inv g))
-          ).
-  rewrite <-
-          (@eissect _
-                    _
-                    (@Category.Morphisms.idtoiso G.1 y x)
-                    (@obj_cat G _ y x)
-                    (strict_grpd_eq G g)^
-          ).
-  apply ap ; simpl.
-  apply path_isomorphic.
-  rewrite <- (idtoiso_inv G.1 (strict_grpd_eq G g)).
-  rewrite !eisretr.
-  reflexivity.
-Defined.
-
-Section unit.
+Section Unit.
   Context `{Univalence}.
-  Variable (G : groupoid).
 
-  Definition unit
+  Definition unit_map (G : groupoid)
     : @one_cell _ grpd G (path_groupoid(gquot_o G)).
   Proof.
     cbn.
     simple refine (Build_Functor _ _ _ _ _ _) ; simpl.
     - apply gcl.
     - intros ? ? g ; cbn in *.
-      apply (gcleq _ g).
+      exact (gcleq _ g).
     - intros ? ? ? g₁ g₂ ; cbn in *.
       apply gconcat.
     - intros x ; cbn in *.
       apply ge.
   Defined.
 
-  Definition unit_inv `{strict_grpd G}
-    : @one_cell _ grpd (path_groupoid(gquot_o G)) G.
+  Definition unit_naturality (G₁ G₂ : grpd)
+    : NaturalTransformation
+        (precomp (unit_map G₁) ((lax_comp path_groupoid_functor gquot_functor) G₂)
+                 o Fmor (lax_comp path_groupoid_functor gquot_functor))
+        (postcomp (unit_map G₂) ((lax_id_functor grpd) G₁) o Fmor (lax_id_functor grpd)).
   Proof.
-    cbn.
-    simple refine (Build_Functor _ _ _ _ _ _) ; simpl.
-    - simple refine (gquot_rec _ _ _ _ _ _ _).
-      + exact idmap.
-      + exact (fun _ _ => strict_grpd_eq G).
-      + exact (strict_grpd_eq_e G).
-      + exact (fun _ _ => strict_grpd_eq_inv G).
-      + exact (fun _ _ _ => strict_grpd_eq_comp G).
-    - intros x y p ; simpl.
-      induction p.
-      apply e.
-    - intros x y z p q.
-      induction p, q ; simpl.
-      symmetry.
-      rewrite <- ce ; cbn.
-      reflexivity.
-    - intros x ; cbn.
+    simple refine (Build_NaturalTransformation _ _ _ _).
+    - intros F ; simpl.
+      simple refine (Build_NaturalTransformation _ _ _ _).
+      + reflexivity.
+      + intros ; simpl.
+        refine (concat_p1 _ @ _ @ (concat_1p _)^).
+        exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _).
+    - intros F₁ F₂ α.
+      simpl.
+      apply path_natural_transformation.
+      intros x ; simpl in *.
+      refine (concat_p1 _ @ concat_1p _ @ _ @ (concat_p1 _)^ @ (concat_1p _)^).
+      exact (ap10_path_forall _ _ _ (gcl G₁ x)).
+  Defined.
+
+  Definition unit_naturality_inv (G₁ G₂ : grpd)
+    : NaturalTransformation
+        (postcomp (unit_map G₂) ((lax_id_functor grpd) G₁) o Fmor (lax_id_functor grpd))
+        (precomp (unit_map G₁) ((lax_comp path_groupoid_functor gquot_functor) G₂)
+                 o Fmor (lax_comp path_groupoid_functor gquot_functor)).
+  Proof.
+    simple refine (Build_NaturalTransformation _ _ _ _).
+    - intros F ; cbn in *.
+      simple refine (Build_NaturalTransformation _ _ _ _).
+      + reflexivity.
+      + intros x y g ; simpl in *.
+        refine (concat_p1 _ @ _ @ (concat_1p _)^).
+        exact ((gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)^).
+    - intros F₁ F₂ β ; simpl in *.
+      apply path_natural_transformation.
+      intros x ; simpl.
+      refine (concat_p1 _ @ concat_p1 _ @ _ @ (concat_1p _)^ @ (concat_1p _)^).
+      rewrite ap10_path_forall.
       reflexivity.
   Defined.
-End unit.
+
+  Global Instance unit_naturality_pseudo (G₁ G₂ : grpd)
+    : @IsIsomorphism (_ -> _) _ _ (unit_naturality G₁ G₂).
+  Proof.
+    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+    - apply unit_naturality_inv.
+    - apply path_natural_transformation.
+      intros F ; simpl.
+      apply path_natural_transformation.
+      intros x ; simpl.
+      reflexivity.
+    - apply path_natural_transformation.
+      intros F ; simpl.
+      apply path_natural_transformation.
+      intros x ; simpl.
+      reflexivity.
+  Defined.
+
+  Definition unit_d
+    : LaxTransformation_d
+        (lax_id_functor grpd)
+        (lax_comp path_groupoid_functor gquot_functor).
+  Proof.
+    simple refine (Build_LaxTransformation_d _ _).
+    - exact unit_map.
+    - exact unit_naturality.
+  Defined.
+  
+  Definition is_lax_unit
+    : is_lax_transformation unit_d.
+  Proof.
+    split.
+    - intros G ; simpl.
+      apply path_natural_transformation.
+      intros x ; simpl in *.
+      refine (concat_p1 _ @ concat_1p _ @ concat_1p _ @ _
+                        @ (concat_p1 _)^ @ (concat_1p _)^ @ (concat_1p _)^).
+      refine (ap10_path_forall _ _ _ (gcl G x) @ _).
+      exact (ge G _)^.
+    - intros G₁ G₂ G₃ F₁ F₂.
+      rewrite inverse_assoc_grpd.
+      apply path_natural_transformation.
+      intros x ; simpl.
+      rewrite ap10_path_forall.
+      rewrite !ge.
+      rewrite !concat_1p.
+      reflexivity.
+  Defined.
+
+  Definition unit
+    : LaxTransformation
+        (lax_id_functor grpd)
+        (lax_comp path_groupoid_functor gquot_functor)
+    := Build_LaxTransformation unit_d is_lax_unit.
+
+  Global Instance unit_pseudo
+    : is_pseudo_transformation unit.
+  Proof.
+    split ; apply _.
+  Defined.
+End Unit.
 
 (*
   Definition unit_retr
@@ -210,4 +221,4 @@ End unit.
       reflexivity. *)
   Admitted.
 End counit.
-*)
+ *)

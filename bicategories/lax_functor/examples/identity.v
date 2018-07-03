@@ -1,82 +1,69 @@
 Require Import HoTT.
 From HoTT.Categories Require Import
      Category Functor NaturalTransformation FunctorCategory.
-Require Import bicategory lax_functor two_type.
+From GR.bicategories Require Import
+     bicategory.bicategory lax_functor.lax_functor.
 
-Definition id_functor_c_m
-           `{Univalence}
-           {C : BiCategory}
-           (a b c : C)
-  : NaturalTransformation (@c_m _ C a b c o (1, 1)) (1 o c_m).
-Proof.
-  simple refine (Build_NaturalTransformation _ _ _ _).
-  - cbn ; intros [p q].
-    apply identity.
-  - intros [p₁ p₂] [q₁ q₂] [r₁ r₂] ; cbn in *.
-    exact (left_identity _ _ _ _ @ (right_identity _ _ _ _)^).
-Defined.
+Section IdentityFunctor.
+  Context `{Univalence}.
+  Variable (C : BiCategory).
 
-Global Instance id_functor_pp_iso
-       `{Univalence}
-       {C : BiCategory}
-       (a b c : C)
-  : @IsIsomorphism (_ -> _) _ _ (id_functor_c_m a b c).
-Proof.
-  simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-  - simple refine (Build_NaturalTransformation _ _ _ _) ; cbn.
-    + intros [q p].
+  Definition id_functor_c_m (a b c : C)
+    : NaturalTransformation (@c_m _ C a b c o (1, 1)) (1 o c_m).
+  Proof.
+    simple refine (Build_NaturalTransformation _ _ _ _).
+    - cbn ; intros [p q].
       apply identity.
-    + intros [q₁ p₁] [q₂ p₂] [r₁ r₂] ; simpl in *.
+    - intros [p₁ p₂] [q₁ q₂] [r₁ r₂] ; cbn in *.
       exact (left_identity _ _ _ _ @ (right_identity _ _ _ _)^).
-  - apply path_natural_transformation.
-    intros [q p] ; simpl in *.
-    apply left_identity.
-  - apply path_natural_transformation.
-    intros [q p] ; simpl in *.
-    apply left_identity.
-Defined.
+  Defined.
 
-Definition lax_id_functor_d
-           `{Univalence}
-           (C : BiCategory)
-  : LaxFunctor_d C C.
-Proof.
-  simple refine {| Fobj_d := idmap ; Fmor_d := fun _ _ => 1%functor |}.
-  - exact id_functor_c_m.
-  - intros a ; cbn.
-    apply 1%morphism.
-Defined.
+  Global Instance id_functor_pp_iso (a b c : C)
+    : @IsIsomorphism (_ -> _) _ _ (id_functor_c_m a b c).
+  Proof.
+    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+    - simple refine (Build_NaturalTransformation _ _ _ _) ; cbn.
+      + intros [q p].
+        apply identity.
+      + intros [q₁ p₁] [q₂ p₂] [r₁ r₂] ; simpl in *.
+        exact (left_identity _ _ _ _ @ (right_identity _ _ _ _)^).
+    - apply path_natural_transformation.
+      intros [q p] ; simpl in *.
+      apply left_identity.
+    - apply path_natural_transformation.
+      intros [q p] ; simpl in *.
+      apply left_identity.
+  Defined.
 
-Definition is_lax_id
-           `{Univalence}
-           (C : BiCategory)
-  : is_lax (lax_id_functor_d C).
-Proof.
-  repeat split.
-  - intros a b p ; cbn in *.
-    unfold hcomp.
-    rewrite identity_of, !right_identity.
-    reflexivity.
-  - intros a b p ; cbn.
-    unfold hcomp.
-    rewrite identity_of, !right_identity.
-    reflexivity.
-  - intros a b c d p q r ; cbn.
-    unfold hcomp.
-    rewrite !identity_of, !right_identity, !left_identity.
-    reflexivity.
-Qed.
+  Definition lax_id_functor_d : LaxFunctor_d C C
+    := Build_LaxFunctor_d idmap
+                          (fun _ _ => 1%functor)
+                          id_functor_c_m
+                          (fun _ => 1%morphism).
 
-Definition lax_id_functor
-           `{Univalence}
-           (C : BiCategory)
-  : LaxFunctor C C
-  := (lax_id_functor_d C;is_lax_id C).
+  Definition is_lax_id : is_lax lax_id_functor_d.
+  Proof.
+    repeat split.
+    - intros ; cbn in *.
+      unfold hcomp.
+      rewrite identity_of, !right_identity.
+      reflexivity.
+    - intros ; cbn.
+      unfold hcomp.
+      rewrite identity_of, !right_identity.
+      reflexivity.
+    - intros ; cbn.
+      unfold hcomp.
+      rewrite !identity_of, !right_identity, !left_identity.
+      reflexivity.
+  Qed.
 
-Global Instance lax_id_functor_pseudo
-       `{Univalence}
-       (C : BiCategory)    
-  : is_pseudo_functor (lax_id_functor C).
-Proof.
-  simple refine {| Fcomp_iso := _ |}.
-Defined.
+  Definition lax_id_functor : LaxFunctor C C
+    := Build_LaxFunctor lax_id_functor_d is_lax_id.
+
+  Global Instance lax_id_functor_pseudo
+    : is_pseudo_functor lax_id_functor.
+  Proof.
+    simple refine {| Fcomp_iso := _ |}.
+  Defined.
+End IdentityFunctor.

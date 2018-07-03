@@ -6,50 +6,38 @@ From GR.bicategories Require Import
      bicategory.examples.full_sub
      lax_functor.lax_functor.
 
-Definition lax_restriction_d
-           `{Univalence}
-           {C D : BiCategory}
-           (F : LaxFunctor C D)
-           (P : C -> hProp)
-  : LaxFunctor_d (full_sub C P) D.
-Proof.
-  simple refine {| Fobj_d := _ |} ; unfold full_sub ; simpl.
-  - exact (fun X => Fobj F X.1).
-  - intros ; cbn.
-    apply (Fmor F).
-  - intros ; cbn.
-    apply Fcomp.
-  - intros ; cbn.
-    apply Fid.
-Defined.
+Section RestrictionFunctor.
+  Context `{Univalence}
+          {C D : BiCategory}.
+  Variable (F : LaxFunctor C D)
+           (P : C -> hProp).
+  
+  Definition lax_restriction_d : LaxFunctor_d (full_sub C P) D.
+  Proof.
+    simple refine (Build_LaxFunctor_d _ _ _ _) ; unfold full_sub ; simpl.
+    - exact (fun X => Fobj F X.1).
+    - intros ; cbn.
+      apply (Fmor F).
+    - intros ; cbn.
+      apply Fcomp.
+    - intros ; cbn.
+      apply Fid.
+  Defined.
 
-Definition is_lax_restriction
-           `{Univalence}
-           {C D : BiCategory}
-           (F : LaxFunctor C D)
-           (P : C -> hProp)
-  : is_lax (lax_restriction_d F P).
-Proof.
-  repeat split ; intros ; simpl ; apply F.
-Qed.
+  Definition is_lax_restriction : is_lax lax_restriction_d.
+  Proof.
+    repeat split ; intros ; simpl ; apply F.
+  Qed.
 
-Definition lax_restriction
-           `{Univalence}
-           {C D : BiCategory}
-           (F : LaxFunctor C D)
-           (P : C -> hProp)
-  : LaxFunctor (full_sub C P) D
-  := (lax_restriction_d F P;is_lax_restriction F P).
+  Definition lax_restriction : LaxFunctor (full_sub C P) D
+    := Build_LaxFunctor lax_restriction_d is_lax_restriction.
 
-Global Instance lax_id_functor_pseudo
-           `{Univalence}
-           {C D : BiCategory}
-           (F : LaxFunctor C D)
-           (P : C -> hProp)
-           `{@is_pseudo_functor _ _ _ F}
-  : is_pseudo_functor (lax_restriction F P).
-Proof.
-  simple refine {| Fcomp_iso := _ |} ; intros ; cbn in *.
-  - apply Fcomp_iso.
-  - apply Fid_iso.
-Defined.
+  Global Instance lax_id_functor_pseudo
+         `{@is_pseudo_functor _ _ _ F}
+    : is_pseudo_functor lax_restriction.
+  Proof.
+    simple refine {| Fcomp_iso := _ |} ; intros ; cbn in *.
+    - apply Fcomp_iso.
+    - apply Fid_iso.
+  Defined.
+End RestrictionFunctor.

@@ -15,7 +15,7 @@ Definition comp_modification
            (q : modification η₂ η₃) (p : modification η₁ η₂)
   : modification η₁ η₃.
 Proof.
-  simple refine (_;_).
+  simple refine (Build_Modification _ _).
   - exact (fun A => mod_component q A o mod_component p A)%morphism.
   - intros A B f.
     rewrite bc_whisker_r_compose, bc_whisker_l_compose.

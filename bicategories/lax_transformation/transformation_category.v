@@ -12,7 +12,7 @@ From GR.bicategories Require Import
 Definition transformation_category
            `{Univalence}
            {C D : BiCategory}
-           {F G : LaxFunctor C D}
+           (F G : LaxFunctor C D)
   : PreCategory.
 Proof.
   simple refine (@Build_PreCategory (LaxTransformation F G)

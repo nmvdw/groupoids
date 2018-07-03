@@ -81,7 +81,7 @@ Section CatBiCategory.
   Defined.
 
   Global Instance nUnitor_l_iso (C₁ C₂ : PreCategory)
-    : @IsIsomorphism (cat_H C₁ C₂ -> cat_H C₁ C₂) _ _ (nUnitor_l C₁ C₂).
+    : @IsIsomorphism (_ -> _) _ _ (nUnitor_l C₁ C₂).
   Proof.
     simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
     - apply nUnitor_l_inv.
@@ -146,7 +146,7 @@ Section CatBiCategory.
   Defined.
 
   Global Instance nUnitor_r_iso (C₁ C₂ : PreCategory)
-    : @IsIsomorphism (cat_H C₁ C₂ -> cat_H C₁ C₂) _ _ (nUnitor_r C₁ C₂).
+    : @IsIsomorphism (_ -> _) _ _ (nUnitor_r C₁ C₂).
   Proof.
     simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
     - apply nUnitor_r_inv.
@@ -209,9 +209,7 @@ Section CatBiCategory.
   Defined.
 
   Global Instance nAssociator_iso (C₁ C₂ C₃ C₄ : PreCategory)
-    : @IsIsomorphism ((cat_H C₃ C₄ * cat_H C₂ C₃) * cat_H C₁ C₂
-                      -> cat_H C₁ C₄)
-                     _ _ (nAssociator C₁ C₂ C₃ C₄).
+    : @IsIsomorphism (_ -> _) _ _ (nAssociator C₁ C₂ C₃ C₄).
   Proof.
     simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
     - apply nAssociator_inv.
@@ -231,14 +229,15 @@ Section CatBiCategory.
 
   Definition PreCat : BiCategory.
   Proof.
-    simple refine
-           {|Obj := PreCategory ;
-             Hom := cat_H ;
-             id_m := _ ;
-             c_m := comp_funct ;
-             un_l := nUnitor_l ;
-             un_r := nUnitor_r ;
-             assoc := nAssociator|}.
+    simple refine (Build_BiCategory PreCategory
+                                    cat_H
+                                    _
+                                    comp_funct
+                                    nUnitor_l
+                                    nUnitor_r
+                                    nAssociator
+                                    _
+                                    _).
     - intros C₁ C₂ C₃ F G ; cbn in *.
       apply path_natural_transformation ; cbn.
       intros C.

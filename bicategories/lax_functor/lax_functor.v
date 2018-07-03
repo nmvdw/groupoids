@@ -9,15 +9,17 @@ Local Open Scope bicategory_scope.
 Record LaxFunctor_d
        `{Univalence}
        (C D : BiCategory)
-  := { Fobj_d :> Obj C -> Obj D ;
-       Fmor_d : forall {X Y : C}, Functor (Hom C X Y) (Hom D (Fobj_d X) (Fobj_d Y)) ;
-       Fcomp_d : forall {X Y Z : C},
-           NaturalTransformation
-             (c_m o (Functor.pair (@Fmor_d Y Z) (@Fmor_d X Y)))
-             ((@Fmor_d X Z) o c_m);
-       Fid_d : forall (X : C), morphism _ (id_m (Fobj_d X)) (Fmor_d (id_m X))
-     }.
+  := Build_LaxFunctor_d
+       { Fobj_d :> Obj C -> Obj D ;
+         Fmor_d : forall {X Y : C}, Functor (Hom C X Y) (Hom D (Fobj_d X) (Fobj_d Y)) ;
+         Fcomp_d : forall {X Y Z : C},
+             NaturalTransformation
+               (c_m o (Functor.pair (@Fmor_d Y Z) (@Fmor_d X Y)))
+               ((@Fmor_d X Z) o c_m);
+         Fid_d : forall (X : C), morphism _ (id_m (Fobj_d X)) (Fmor_d (id_m X))
+       }.
 
+Arguments Build_LaxFunctor_d {_ C D} Fobj_d Fmor_d Fcomp_d Fid_d.
 Arguments Fobj_d {_ C D}.
 Arguments Fmor_d {_ C D} _ {X Y}.
 Arguments Fcomp_d {_ C D} _ {X Y Z}.
@@ -40,9 +42,14 @@ Definition path_LaxFunctor_d_help
 Proof.
   simple refine ((forall (X : C), _ = Fid_d G X) *
                  (forall (X Y Z : C), _ = @Fcomp_d _ _ _ G X Y Z)).
-  - rewrite <- mor_eq, <- obj_eq ; simpl.
+  - induction (mor_eq X X).
+    simpl in *.
+    clear mor_eq.
+    induction obj_eq ; simpl.
     exact (Fid_d F X).
-  - rewrite <- !mor_eq, <- obj_eq ; simpl.
+  - induction (mor_eq X Z), (mor_eq Y Z), (mor_eq X Y) ; cbn in *.
+    clear mor_eq.
+    induction obj_eq ; simpl.
     exact (Fcomp_d F).
 Defined.
   
@@ -65,26 +72,30 @@ Proof.
   destruct trans_eq as [t1 t2].
   destruct F, G ; simpl in *.
   induction obj_eq ; simpl in *.
-  assert (Fmor_d0 = Fmor_d1) as X.
+  pose (p := path_forall _ _ (fun x => path_forall _ _ (fun y => mor_eq x y))).
+  assert (forall (X Y : C), mor_eq X Y = apD10 (apD10 p X) Y) as q.
   {
-    funext x y.
-    apply mor_eq.
+    intros ; unfold p.
+    rewrite !apD10_path_forall.
+    reflexivity.
   }
-  induction X ; simpl.
+  induction p ; simpl in *.
   assert (Fid_d0 = Fid_d1) as X.
   {
     funext X.
-    admit.
+    rewrite <- (t1 X), q ; cbn.
+    reflexivity.
   }
   induction X.
   assert (Fcomp_d0 = Fcomp_d1) as X.
   {
     funext x y z.
-    admit.
+    rewrite <- (t2 x y z), !q ; cbn.
+    reflexivity.
   }
   induction X.
   reflexivity.
-Admitted.
+Defined.
 
 Definition is_lax
            `{Univalence}
@@ -107,19 +118,27 @@ Definition is_lax
               o (Fid_d F Y ∗ 1))%morphism)
         *
         (forall (W X Y Z : C) (h : Hom C Y Z) (g : Hom C X Y) (f : Hom C W X),
-           ((Fcomp_d F (h, (g ⋅ f)))
+           ((Fcomp_d F (h, (g · f)))
               o (1 ∗ (Fcomp_d F (g,f)))
               o (assoc (Fmor_d F h,
                         Fmor_d F g,
                         Fmor_d F f))
            =
            (morphism_of (Fmor_d F) (assoc (h,g,f)))
-             o Fcomp_d F (h ⋅ g,f)
+             o Fcomp_d F (h · g,f)
              o (Fcomp_d F (h,g) ∗ 1))%morphism
        )).
 
 Definition LaxFunctor `{Univalence} (C D : BiCategory)
   := {F : LaxFunctor_d C D & is_lax F}.
+
+Definition Build_LaxFunctor
+           `{Univalence}
+           {C D : BiCategory}
+           (F : LaxFunctor_d C D)
+           (F_lax : is_lax F)
+  : LaxFunctor C D
+  := (F;F_lax).
 
 Definition path_LaxFunctor
            `{Univalence}
@@ -171,14 +190,14 @@ Section LaxFunctorData.
   Definition Fassoc
              {W X Y Z : C}
              (h : Hom C Y Z) (g : Hom C X Y) (f : Hom C W X)
-    : ((Fcomp (h, (g ⋅ f)))
+    : ((Fcomp (h, (g · f)))
          o (1 ∗ (Fcomp (g,f)))
          o (assoc (Fmor h,
                    Fmor g,
                    Fmor f))
        =
        (morphism_of Fmor (assoc (h,g,f)))
-         o Fcomp (h ⋅ g,f)
+         o Fcomp (h · g,f)
          o (Fcomp (h,g) ∗ 1))%morphism.
   Proof.
     apply F.2.
@@ -186,42 +205,6 @@ Section LaxFunctorData.
 End LaxFunctorData.
 
 Coercion Fobj : LaxFunctor >-> Funclass.
-
-(*
-Record LaxFunctor
-       `{Univalence}
-       (C D : BiCategory)
-  := { Fobj :> Obj C -> Obj D ;
-       Fmor : forall {X Y : C}, Functor (Hom C X Y) (Hom D (Fobj X) (Fobj Y)) ;
-       Fcomp : forall {X Y Z : C},
-           NaturalTransformation
-             (c_m o (Functor.pair (@Fmor Y Z) (@Fmor X Y)))
-             ((@Fmor X Z) o c_m);
-       Fid : forall (X : C), morphism _ (id_m (Fobj X)) (Fmor (id_m X));
-       Fun_r : forall {X Y : C} (f : Hom C X Y),
-           un_r (Fobj X) (Fobj Y) (Fmor f)
-           =
-           ((morphism_of Fmor (un_r _ _ f))
-              o (Fcomp (f,id_m X))
-              o (1 ∗ Fid X))%morphism ;
-       Fun_l : forall (X Y : C) (f : Hom C X Y),
-           un_l (Fobj X) (Fobj Y) (Fmor f)
-           =
-           ((morphism_of Fmor (un_l X Y f))
-              o (Fcomp (id_m Y,f))
-              o (Fid Y ∗ 1))%morphism ;
-       Fassoc : forall (W X Y Z : C) (h : Hom C Y Z) (g : Hom C X Y) (f : Hom C W X),
-           ((Fcomp (h, (g ⋅ f)))
-              o (1 ∗ (Fcomp (g,f)))
-              o (assoc (Fmor h,
-                        Fmor g,
-                       Fmor f))
-           =
-           (morphism_of Fmor (assoc (h,g,f)))
-             o Fcomp (h ⋅ g,f)
-             o (Fcomp (h,g) ∗ 1))%morphism
-     }.
-*)
 
 Class is_pseudo_functor
       `{Univalence}
@@ -235,3 +218,25 @@ Class is_pseudo_functor
        Fid_iso : forall {X : C},
            IsIsomorphism (Fid F X)
      }.
+
+Global Instance Fcomp_is_iso_class
+       `{Univalence}
+       {C D : BiCategory}
+       (F : LaxFunctor C D)
+       `{@is_pseudo_functor _ C D F}
+       {X Y Z : C}
+  : @IsIsomorphism (_ -> _) _ _ (@Fcomp _ _ _ F X Y Z).
+Proof.
+  apply Fcomp_iso.
+Defined.
+
+Global Instance Fid_is_iso_class
+       `{Univalence}
+       {C D : BiCategory}
+       (F : LaxFunctor C D)
+       `{@is_pseudo_functor _ _ _ F}
+       {X : C}
+  : IsIsomorphism (Fid F X).
+Proof.
+  apply Fid_iso.
+Defined.

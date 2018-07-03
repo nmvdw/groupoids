@@ -116,6 +116,10 @@ Section gquot_ind_set.
     ; intros ; apply path_globe_over_hset ; apply _.
   Defined.
 
+  Definition gquot_ind_set_beta_gcl (a : G)
+    : gquot_ind_set (gcl G a) = gclY a
+    := idpath.
+
   Definition gquot_ind_set_beta_gcleq : forall (a₁ a₂ : G) (g : hom G a₁ a₂),
       apd_po gquot_ind_set (gcleq G g)
       =

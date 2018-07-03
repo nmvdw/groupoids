@@ -91,3 +91,17 @@ Proof.
   refine (ap (fun z => z o _)%morphism (@left_inverse _ _ _ f _) @ _).
   apply left_identity.
 Defined.
+
+Definition iso_component
+           `{Funext}
+           {C D : PreCategory}
+           {F G : Functor C D}
+           (η : NaturalTransformation F G)
+           `{IsIsomorphism (_ -> _) _ _ η}
+           (X : C)
+  : Core.components_of (@morphism_inverse (_ -> _) _ _ η _) X
+    =
+    morphism_inverse (Core.components_of η X).
+Proof.
+  reflexivity.
+Defined.

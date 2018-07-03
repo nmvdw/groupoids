@@ -74,7 +74,7 @@ Section OneTypesBiCategory.
   Defined.
 
   Global Instance cUnitor_l_iso (A B : 1 -Type)
-    : @IsIsomorphism (maps A B -> maps A B) _ _ (cUnitor_l A B).
+    : @IsIsomorphism (_ -> _) _ _ (cUnitor_l A B).
   Proof.
     simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
     - apply cUnitor_l_inv.
@@ -111,7 +111,7 @@ Section OneTypesBiCategory.
   Defined.
 
   Global Instance cUnitor_r_iso (A B : 1 -Type)
-    : @IsIsomorphism (maps A B -> maps A B) _ _ (cUnitor_r A B).
+    : @IsIsomorphism (_ -> _) _ _ (cUnitor_r A B).
   Proof.
     simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
     - apply cUnitor_r_inv.
@@ -154,9 +154,7 @@ Section OneTypesBiCategory.
   Defined.
 
   Global Instance cAssociator_iso (A B C D : 1 -Type)
-    : @IsIsomorphism ((maps C D * maps B C) * maps A B
-                      -> maps A D)
-                     _ _ (cAssociator A B C D).
+    : @IsIsomorphism (_ -> _) _ _ (cAssociator A B C D).
   Proof.
     simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
     - apply cAssociator_inv.
@@ -170,19 +168,28 @@ Section OneTypesBiCategory.
       reflexivity.
   Defined.
 
+  Definition assoc_inv_one_types
+             (A B C D : 1 -Type)
+             (f : (C -> D) * (B -> C) * (A -> B))
+    : @morphism_inverse (_ -> _) _ _ (cAssociator A B C D) _ f
+      =
+      cAssociator_inv A B C D f.
+  Proof.
+    reflexivity.
+  Defined.
+
   Definition one_types : BiCategory.
   Proof.
-    simple refine {|Obj := 1 -Type ;
-                    Hom := maps ;
-                    id_m := fun _ => idmap ;
-                    c_m := comp_functor ;
-                    un_l := cUnitor_l ;
-                    un_r := cUnitor_r ;
-                    assoc := cAssociator|}.
-    - intros A B C g f ; cbn.
-      reflexivity.
-    - intros A B C D E k h g f ; cbn.
-      reflexivity.
+    simple refine (Build_BiCategory (1 -Type)
+                                    maps
+                                    (fun _ => idmap)
+                                    comp_functor
+                                    cUnitor_l
+                                    cUnitor_r
+                                    cAssociator
+                                    _
+                                    _)
+    ; reflexivity.
   Defined.
 
   Definition one_types_21 : is_21 one_types.

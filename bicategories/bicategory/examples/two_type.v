@@ -163,13 +163,15 @@ Section TwoTypeBiGroupoid.
 
   Definition path_bigroupoid : BiCategory.
   Proof.
-    simple refine {|Obj := X ;
-             Hom := fun x y => oneto (x = y) ;
-             id_m := fun _ => idpath ;
-             c_m := concat_functor ;
-             un_l := pUnitor_l ;
-             un_r := pUnitor_r ;
-             assoc := pAssociator|}.
+    simple refine (Build_BiCategory X
+                                    (fun x y => oneto (x = y))
+                                    (fun _ => idpath)
+                                    concat_functor
+                                    pUnitor_l
+                                    pUnitor_r
+                                    pAssociator
+                                    _
+                                    _).
     - intros x y z p q ; cbn in *.
       induction p, q ; cbn.
       reflexivity.

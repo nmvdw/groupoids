@@ -12,7 +12,7 @@ Definition id_modification
            (η : LaxTransformation F G)
   : modification η η.
 Proof.
-  simple refine (_;_).
+  simple refine (Build_Modification _ _).
   - intros X.
     exact 1%morphism.
   - intros A B f ; cbn.
