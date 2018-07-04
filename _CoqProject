@@ -35,9 +35,13 @@ bicategories/lax_transformation/examples/equal_transformation.v
 bicategories/lax_transformation/examples/whisker_L.v
 bicategories/lax_transformation/examples/whisker_R.v
 bicategories/lax_transformation/examples/composition.v
+bicategories/lax_transformation/examples/restriction.v
+bicategories/lax_transformation/examples/factor_full_sub.v
 bicategories/modification/modification.v
 bicategories/modification/examples/identity.v
 bicategories/modification/examples/composition.v
+bicategories/modification/examples/restriction.v
+bicategories/modification/examples/factor_full_sub.v
 bicategories/lax_transformation/transformation_category.v
 bicategories/biadjunction/biadjunction.v
 setoid/setoid.v
