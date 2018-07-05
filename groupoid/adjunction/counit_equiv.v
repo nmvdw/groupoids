@@ -56,11 +56,11 @@ Section CounitEquivalence.
   Context `{Univalence}.
 
   Definition counit_retr_map (A : 1 -Type)
-    : two_cell (laxcomponent_of (compose counit counit_inv) A)
+    : two_cell (laxcomponent_of (compose counit_gq counit_inv) A)
                (laxcomponent_of (identity_transformation
                                    (lax_comp gquot_functor path_groupoid_functor)) A).
   Proof.
-    unfold identity_transformation, compose, counit, counit_inv ; cbn.
+    unfold identity_transformation, compose, counit_gq, counit_inv ; cbn.
     funext x ; revert x.
     simple refine (gquot_ind_set _ _ _ _).
     - intros a ; simpl.
@@ -86,11 +86,12 @@ Section CounitEquivalence.
       =
       (hcomp 1 (counit_retr_map B)
            o
-           (laxnaturality_of (compose counit counit_inv)) f)%morphism.
+           (laxnaturality_of (compose counit_gq counit_inv)) f)%morphism.
   Proof.
-    cbn -[inverse].
+    cbn -[inverse counit_gq counit_inv].
     rewrite !inverse_assoc_one_type.
     rewrite !concat_1p, !concat_p1.
+    simpl.
     rewrite !ap_precompose.
     rewrite !ap_postcompose.
     rewrite <- path_forall_pp.
@@ -101,7 +102,7 @@ Section CounitEquivalence.
   Qed.
 
   Definition counit_retr
-    : modification (compose counit counit_inv) (identity_transformation _).
+    : modification (compose counit_gq counit_inv) (identity_transformation _).
   Proof.
     simple refine (Build_Modification _ _).
     - exact counit_retr_map.
@@ -112,7 +113,7 @@ Section CounitEquivalence.
     : two_cell
         (laxcomponent_of (identity_transformation
                             (lax_comp gquot_functor path_groupoid_functor)) A)
-        (laxcomponent_of (compose counit counit_inv) A).
+        (laxcomponent_of (compose counit_gq counit_inv) A).
   Proof.
     funext x ; revert x ; cbn.
     simple refine (gquot_ind_set _ _ _ _).
@@ -132,7 +133,7 @@ Section CounitEquivalence.
   Defined.
 
   Definition counit_retr_inv_naturality (A B : 1 -Type) (f : A -> B)
-    : (((laxnaturality_of (compose counit counit_inv)) f)
+    : (((laxnaturality_of (compose counit_gq counit_inv)) f)
          o hcomp (retr_inv_map A) 1)%morphism
       =
       ((hcomp 1 (retr_inv_map B))
@@ -140,9 +141,9 @@ Section CounitEquivalence.
               (identity_transformation
                  (lax_comp gquot_functor path_groupoid_functor))) f)%morphism.
   Proof.
-    Opaque inverse.
-    unfold hcomp, retr_inv_map ; simpl.
-    rewrite !inverse_assoc_one_type.
+    unfold hcomp, retr_inv_map.
+    cbn -[inverse counit_gq counit_inv].
+    rewrite !inverse_assoc_one_type ; simpl.
     rewrite !concat_1p, !concat_p1.
     rewrite !ap_precompose.
     rewrite !ap_postcompose.
@@ -154,7 +155,7 @@ Section CounitEquivalence.
   Qed.
 
   Definition counit_retr_inv
-    : modification (identity_transformation _) (compose counit counit_inv).
+    : modification (identity_transformation _) (compose counit_gq counit_inv).
   Proof.
     simple refine (Build_Modification _ _).
     - exact retr_inv_map.
@@ -201,11 +202,11 @@ Section CounitEquivalence.
   Definition counit_sect_naturality (A B : 1 -Type)
     : identity_naturality (lax_id_functor one_types) A B
       =
-      compose_naturality counit_inv counit A B.
+      compose_naturality counit_inv counit_gq A B.
   Proof.
     apply path_natural_transformation.
     intros g.
-    simpl.
+    cbn -[inverse counit_inv counit_gq].
     rewrite !inverse_assoc_one_type.
     rewrite !inverse_un_l_one_type.
     rewrite !concat_1p, !concat_p1.
@@ -216,7 +217,7 @@ Section CounitEquivalence.
   Qed.
 
   Definition counit_sect
-    : modification (compose counit_inv counit) (identity_transformation _).
+    : modification (compose counit_inv counit_gq) (identity_transformation _).
   Proof.
     simple refine (Build_Modification _ _).
     - reflexivity.
@@ -229,13 +230,13 @@ Section CounitEquivalence.
   Defined.
 
   Definition counit_sect_inv_naturality (A B : 1 -Type)
-    : compose_naturality counit_inv counit A B
+    : compose_naturality counit_inv counit_gq A B
       =
       identity_naturality (lax_id_functor one_types) A B.
   Proof.
     apply path_natural_transformation.
     intros g.
-    simpl.
+    cbn -[inverse counit_inv counit_gq].
     rewrite !inverse_assoc_one_type.
     rewrite !inverse_un_l_one_type.
     rewrite !concat_1p, !concat_p1.
@@ -246,7 +247,7 @@ Section CounitEquivalence.
   Qed.
 
   Definition counit_sect_inv
-    : modification (identity_transformation _) (compose counit_inv counit).
+    : modification (identity_transformation _) (compose counit_inv counit_gq).
   Proof.
     simple refine (Build_Modification _ _).
     - reflexivity.

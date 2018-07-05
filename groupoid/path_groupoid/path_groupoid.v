@@ -25,11 +25,11 @@ Definition path_groupoid (X : 1 -Type) : groupoid
                 (fun _ _ => concat_Vp)
                 (fun _ _ => concat_pV).
 
-Global Instance path_groupoid_strict (X : 1 -Type)
-  : strict_grpd (path_groupoid X).
+Global Instance path_groupoid_univalent (X : 1 -Type)
+  : is_univalent (path_groupoid X).
 Proof.
-  unfold path_groupoid ; simpl.
-  refine {| obj_cat := _ |}.
+  unfold path_groupoid, is_univalent.
+  apply _.
 Defined.
 
 Definition path_groupoid_map `{Univalence} (X Y : 1 -Type)

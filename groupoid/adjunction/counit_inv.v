@@ -25,101 +25,76 @@ Section CounitInverse.
     : @one_cell _ one_types A (gquot_o(path_groupoid A))
     := gcl (path_groupoid A).
 
-  Definition counit_inv_naturality (X Y : one_types)
-    : NaturalTransformation
-        (precomp (counit_inv_map X) ((lax_comp gquot_functor path_groupoid_functor) Y)
-                 o Fmor (lax_comp gquot_functor path_groupoid_functor))
-        (postcomp (counit_inv_map Y) ((lax_id_functor one_types) X)
-                  o Fmor (lax_id_functor one_types)).
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    - reflexivity.
-    - intros f g p.
-      induction p ; simpl.
-      rewrite ap_postcompose, !concat_p1.
-      rewrite <- path_forall_1.
-      f_ap.
-      funext x ; simpl.
-      apply ge.
-  Defined.
-
-  Definition counit_inv_naturality_inv (X Y : one_types)
-    : NaturalTransformation
-        (postcomp (counit_inv_map Y) ((lax_id_functor one_types) X)
-                  o Fmor (lax_id_functor one_types))
-        (precomp (counit_inv_map X) ((lax_comp gquot_functor path_groupoid_functor) Y)
-                 o Fmor (lax_comp gquot_functor path_groupoid_functor)).
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    - reflexivity.
-    - intros f g p ; simpl.
-      induction p ; simpl.
-      rewrite ap_postcompose, !concat_1p, concat_p1.
-      rewrite <- path_forall_1.
-      f_ap.
-      funext x ; simpl.
-      rewrite ge.
-      reflexivity.
-  Defined.
-
-  Global Instance counit_inv_naturality_pseudo (X Y : one_types)
-    : @IsIsomorphism (_ -> _) _ _ (counit_inv_naturality X Y).
-  Proof.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    - apply counit_inv_naturality_inv.
-    - apply path_natural_transformation.
-      intros f ; reflexivity.
-    - apply path_natural_transformation.
-      intros f ; reflexivity.
-  Defined.
-
-  Definition counit_inv_d
-    : LaxTransformation_d
+  Definition counit_gq_inv_rd
+    : PseudoTransformation_d
         (lax_id_functor one_types)
         (lax_comp gquot_functor path_groupoid_functor).
   Proof.
-    simple refine (Build_LaxTransformation_d _ _).
+    simple refine (Build_PseudoTransformation_d _ _ _).
     - exact counit_inv_map.
-    - exact counit_inv_naturality.
+    - reflexivity.
+    - reflexivity.
   Defined.
 
-  Definition is_lax_counit_inv
-    : is_lax_transformation counit_inv_d.
+  Definition counit_gq_inv_rd_is_lax
+    : is_pseudo_transformation_rd counit_gq_inv_rd.
   Proof.
-    split.
-    - intros X.
-      simpl.
-      unfold hcomp.
-      simpl.
+    repeat split.
+    - intros X Y f g α ; simpl.
+      induction α.
+      unfold hcomp ; simpl.
+      rewrite !concat_p1.
+      rewrite !ap_postcompose.
+      rewrite <- path_forall_1.
+      f_ap.
+      funext x.
+      unfold counit_inv_map.
+      unfold gquot_functorial_natural.
+      rewrite gquot_ind_set_beta_gcl.
+      rewrite ge.
+      reflexivity.
+    - intros X ; simpl.
+      unfold hcomp ; simpl.
       rewrite !concat_p1 ; cbn.
-      unfold Fid, lax_comp, gquot_id, counit_inv_map.
       rewrite <- path_forall_pp.
       rewrite !ap_postcompose.
       rewrite <- path_forall_1.
       f_ap.
       funext x.
-      simpl.
-      rewrite ge.
+      unfold counit_inv_map, gquot_functorial_natural.
+      rewrite gquot_ind_set_beta_gcl, ge.
       reflexivity.
     - intros X Y Z f g.
       assert ((inverse assoc)
                 ((Fmor (lax_comp gquot_functor path_groupoid_functor)) g,
-                 laxcomponent_of_d counit_inv_d Y, (Fmor (lax_id_functor one_types) f))
+                 laxcomponent_of_rd _ _ counit_gq_inv_rd Y, (Fmor (lax_id_functor one_types) f))
               = 1%morphism) as ->.
       {
         apply Morphisms.iso_moveR_1V.
         reflexivity.
       }
+      simpl.
+      rewrite !concat_1p, !concat_p1.
+      unfold hcomp ; simpl.
+      rewrite <- path_forall_pp.
+      rewrite ap_postcompose.
+      rewrite !concat_p1.
+      rewrite <- path_forall_1.
+      f_ap.
+      funext x.
+      unfold counit_inv_map, gquot_functorial_natural.
+      rewrite gquot_ind_set_beta_gcl, ge.
+      reflexivity.
+    - intros X Y f g α.
+      induction α.
       unfold hcomp ; simpl.
       rewrite !concat_1p, !concat_p1.
-      rewrite <- path_forall_pp.
       rewrite ap_postcompose.
       rewrite <- path_forall_1.
       f_ap.
       funext x.
-      unfold gquot_functorial_natural.
-      rewrite gquot_ind_set_beta_gcl.
-      rewrite ge, concat_p1.
+      unfold counit_inv_map, gquot_functorial_natural.
+      rewrite gquot_ind_set_beta_gcl, ge.
       reflexivity.
   Qed.
 
@@ -127,11 +102,11 @@ Section CounitInverse.
     : LaxTransformation
         (lax_id_functor one_types)
         (lax_comp gquot_functor path_groupoid_functor)        
-    := Build_LaxTransformation counit_inv_d is_lax_counit_inv.
+    := Build_PseudoTransformation counit_gq_inv_rd counit_gq_inv_rd_is_lax.
 
   Global Instance counit_inv_pseudo
     : is_pseudo_transformation counit_inv.
   Proof.
-    split ; apply _.
+    apply _.
   Defined.
 End CounitInverse.

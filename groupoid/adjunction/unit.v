@@ -54,106 +54,79 @@ Section Unit.
       apply ge.
   Defined.
 
-  Definition unit_naturality (G₁ G₂ : grpd)
-    : NaturalTransformation
-        (precomp (unit_map G₁) ((lax_comp path_groupoid_functor gquot_functor) G₂)
-                 o Fmor (lax_comp path_groupoid_functor gquot_functor))
-        (postcomp (unit_map G₂) ((lax_id_functor grpd) G₁) o Fmor (lax_id_functor grpd)).
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    - intros F ; simpl.
-      simple refine (Build_NaturalTransformation _ _ _ _).
-      + reflexivity.
-      + intros ; simpl.
-        refine (concat_p1 _ @ _ @ (concat_1p _)^).
-        exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _).
-    - intros F₁ F₂ α.
-      simpl.
-      apply path_natural_transformation.
-      intros x ; simpl in *.
-      refine (concat_p1 _ @ concat_1p _ @ _ @ (concat_p1 _)^ @ (concat_1p _)^).
-      exact (ap10_path_forall _ _ _ (gcl G₁ x)).
-  Defined.
-
-  Definition unit_naturality_inv (G₁ G₂ : grpd)
-    : NaturalTransformation
-        (postcomp (unit_map G₂) ((lax_id_functor grpd) G₁) o Fmor (lax_id_functor grpd))
-        (precomp (unit_map G₁) ((lax_comp path_groupoid_functor gquot_functor) G₂)
-                 o Fmor (lax_comp path_groupoid_functor gquot_functor)).
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    - intros F ; cbn in *.
-      simple refine (Build_NaturalTransformation _ _ _ _).
-      + reflexivity.
-      + intros x y g ; simpl in *.
-        refine (concat_p1 _ @ _ @ (concat_1p _)^).
-        exact ((gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)^).
-    - intros F₁ F₂ β ; simpl in *.
-      apply path_natural_transformation.
-      intros x ; simpl.
-      refine (concat_p1 _ @ concat_p1 _ @ _ @ (concat_1p _)^ @ (concat_1p _)^).
-      rewrite ap10_path_forall.
-      reflexivity.
-  Defined.
-
-  Global Instance unit_naturality_pseudo (G₁ G₂ : grpd)
-    : @IsIsomorphism (_ -> _) _ _ (unit_naturality G₁ G₂).
-  Proof.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    - apply unit_naturality_inv.
-    - apply path_natural_transformation.
-      intros F ; simpl.
-      apply path_natural_transformation.
-      intros x ; simpl.
-      reflexivity.
-    - apply path_natural_transformation.
-      intros F ; simpl.
-      apply path_natural_transformation.
-      intros x ; simpl.
-      reflexivity.
-  Defined.
-
-  Definition unit_d
-    : LaxTransformation_d
+  Definition unit_gq_rd
+    : PseudoTransformation_d
         (lax_id_functor grpd)
         (lax_comp path_groupoid_functor gquot_functor).
   Proof.
-    simple refine (Build_LaxTransformation_d _ _).
+    simple refine (Build_PseudoTransformation_d _ _ _).
     - exact unit_map.
-    - exact unit_naturality.
-  Defined.
-  
-  Definition is_lax_unit
-    : is_lax_transformation unit_d.
-  Proof.
-    split.
-    - intros G ; simpl.
-      apply path_natural_transformation.
-      intros x ; simpl in *.
-      refine (concat_p1 _ @ concat_1p _ @ concat_1p _ @ _
-                        @ (concat_p1 _)^ @ (concat_1p _)^ @ (concat_1p _)^).
-      refine (ap10_path_forall _ _ _ (gcl G x) @ _).
-      exact (ge G _)^.
-    - intros G₁ G₂ G₃ F₁ F₂.
-      rewrite inverse_assoc_grpd.
-      apply path_natural_transformation.
-      intros x ; simpl.
-      rewrite ap10_path_forall.
-      rewrite !ge.
-      rewrite !concat_1p.
-      reflexivity.
+    - intros G₁ G₂ F ; simpl.
+      simple refine (Build_NaturalTransformation _ _ _ _).
+      + reflexivity.
+      + intros x y g ; simpl.
+        refine (concat_p1 _ @ _ @ (concat_1p _)^).
+        exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _).
+    - intros G₁ G₂ F ; simpl.
+      simple refine (Build_NaturalTransformation _ _ _ _).
+      + reflexivity.
+      + intros x y g ; simpl.
+        refine (concat_p1 _ @ _ @ (concat_1p _)^).
+        exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)^.
   Defined.
 
-  Definition unit
+  Definition unit_gq_rd_is_lax
+    : is_pseudo_transformation_rd unit_gq_rd.
+  Proof.
+    repeat split.
+    - intros G₁ G₂ F₁ F₂ α.
+      apply path_natural_transformation.
+      intros x ; simpl in *.
+      refine (concat_p1 _ @ concat_1p _ @ _ @ (concat_1p _ @ concat_p1 _)^).
+      rewrite ap10_path_forall.
+      reflexivity.
+    - intros G.
+      apply path_natural_transformation.
+      intros x ; simpl in *.
+      refine (concat_p1 _ @ concat_1p _ @ concat_1p _ @ _).
+      refine (_ @ (concat_1p _ @ concat_1p _ @ concat_p1 _)^).
+      rewrite ap10_path_forall.
+      rewrite ge.
+      reflexivity.
+    - intros G₁ G₂ G₃ F₁ F₂.
+      apply path_natural_transformation.
+      intro x.
+      rewrite !inverse_assoc_grpd ; simpl in *.
+      rewrite !concat_1p, !concat_p1.
+      rewrite ap10_path_forall.
+      rewrite !ge ; simpl.
+      reflexivity.
+    - intros G₁ G₂ F₁ F₂ α.
+      apply path_natural_transformation.
+      intros x ; simpl in *.
+      refine (concat_p1 _ @ concat_p1 _ @ _ @ (concat_1p _)^ @ (concat_1p _)^).
+      rewrite ap10_path_forall.
+      reflexivity.
+    - intros G₁ G₂ F.
+      apply path_natural_transformation.
+      intro x ; simpl.
+      reflexivity.
+    - intros G₁ G₂ F.
+      apply path_natural_transformation.
+      intro x ; simpl.
+      reflexivity.
+  Qed.
+
+  Definition unit_gq
     : LaxTransformation
         (lax_id_functor grpd)
         (lax_comp path_groupoid_functor gquot_functor)
-    := Build_LaxTransformation unit_d is_lax_unit.
+    := Build_PseudoTransformation unit_gq_rd unit_gq_rd_is_lax.
 
   Global Instance unit_pseudo
-    : is_pseudo_transformation unit.
+    : is_pseudo_transformation unit_gq.
   Proof.
-    split ; apply _.
+    apply _.
   Defined.
 End Unit.
 

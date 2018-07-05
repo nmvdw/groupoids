@@ -141,7 +141,6 @@ Arguments Build_LaxTransformation_d {_ C D F G} _ _.
 Arguments laxcomponent_of_d {_ C D F G} η X : rename.
 Arguments laxnaturality_of_d {_ C D F G} η {X Y} : rename.
 
-
 Class is_pseudo_transformation
       `{Univalence}
       {C D : BiCategory}
@@ -165,3 +164,111 @@ Global Instance laxnaturality_of_iso_class
 Proof.
   apply laxnaturality_of_iso.
 Defined.
+
+Local Open Scope bicategory.
+
+Section RawBuilder.
+  Context `{Univalence}
+          {C D : BiCategory}.  
+  
+  Record PseudoTransformation_d
+         (F G : LaxFunctor C D)
+    := Build_PseudoTransformation_d
+         { laxcomponent_of_rd : forall (X : C), Hom D (F X) (G X) ;
+           laxnaturality_of_rd : forall (X Y : C) (f : Hom C X Y),
+               Core.morphism (Hom D (F X) (G Y))
+                             (Fmor G f · laxcomponent_of_rd X)
+                             (laxcomponent_of_rd Y · Fmor F f) ;
+           laxnaturality_of_rd_inv : forall (X Y : C) (f : Hom C X Y),
+               Core.morphism (Hom D (F X) (G Y))
+                             (laxcomponent_of_rd Y · Fmor F f)
+                             (Fmor G f · laxcomponent_of_rd X)
+         }.
+
+  Arguments laxcomponent_of_rd {F G} _ X.
+  Arguments laxnaturality_of_rd {F G} _ X Y f.
+  Arguments laxnaturality_of_rd_inv {F G} _ X Y f.
+
+  Definition is_pseudo_transformation_rd
+             {F G : LaxFunctor C D}
+             (η : PseudoTransformation_d F G)
+    : Type.
+  Proof.
+    refine (_ * _ * _ * _ * _ * _).
+    - exact (forall (X Y : C)
+                    (f g : Hom C X Y)
+                    (α : morphism (Hom C X Y) f g),
+                (laxnaturality_of_rd η X Y g o hcomp 1 (Fmor G _1 α)) =
+                (hcomp (Fmor F _1 α) 1 o laxnaturality_of_rd η X Y f))%morphism.
+    - exact (forall (X : C),
+                (laxnaturality_of_rd η X X (id_m X) o (Fid G X ∗ 1))
+                =
+                ((1 ∗ Fid F X)
+                   o (inverse (un_r (F X) (G X))) (laxcomponent_of_rd η X)
+                   o (un_l (F X) (G X)) (laxcomponent_of_rd η X)))%morphism.
+    - exact (forall (X Y Z : C) (f : Hom C X Y) (g : Hom C Y Z),
+                ((laxnaturality_of_rd η X Z (g · f))
+                   o ((Fcomp G) (g, f) ∗ 1))
+                =
+                ((1 ∗ (Fcomp F) (g, f))
+                   o assoc (laxcomponent_of_rd η Z, (Fmor F) g, (Fmor F) f)
+                   o (laxnaturality_of_rd η Y Z g ∗ 1)
+                   o (inverse assoc) ((Fmor G) g, laxcomponent_of_rd η Y, (Fmor F) f)
+                   o (1 ∗ laxnaturality_of_rd η X Y f)
+                   o assoc ((Fmor G) g, (Fmor G) f, laxcomponent_of_rd η X)))%morphism.
+    - exact (forall (X Y : C)
+                    (f g : Hom C X Y)
+                    (α : morphism (Hom C X Y) f g),
+                (laxnaturality_of_rd_inv η X Y g o hcomp (Fmor F _1 α) 1) =
+                (hcomp 1 (Fmor G _1 α) o laxnaturality_of_rd_inv η X Y f))%morphism.
+    - exact (forall (X Y : C)
+                    (f : Hom C X Y),
+                (laxnaturality_of_rd_inv η X Y f)
+                  o laxnaturality_of_rd η X Y f
+                = 1)%morphism.
+    - exact (forall (X Y : C)
+                    (f : Hom C X Y),
+                (laxnaturality_of_rd η X Y f)
+                  o laxnaturality_of_rd_inv η X Y f
+                = 1)%morphism.
+  Defined.
+
+  Definition Build_PseudoTransformation
+             {F G : LaxFunctor C D}
+             (η : PseudoTransformation_d F G)
+             (Hη : is_pseudo_transformation_rd η)
+    : LaxTransformation F G.
+  Proof.
+    destruct Hη as [[[[[H₁ H₂] H₃] H₄] H₅] H₆].
+    simple refine (Build_LaxTransformation _ _).
+    - simple refine (Build_LaxTransformation_d _ _).
+      + exact (laxcomponent_of_rd η).
+      + intros X Y.
+        simple refine (Build_NaturalTransformation _ _ _ _).
+        * exact (laxnaturality_of_rd η X Y).
+        * exact (H₁ X Y).
+    - exact (H₂,H₃).
+  Defined.
+
+  Global Instance Build_Pseudo_is_pseudo
+         {F G : LaxFunctor C D}
+         (η : PseudoTransformation_d F G)
+         (Hη : is_pseudo_transformation_rd η)
+    : is_pseudo_transformation (Build_PseudoTransformation η Hη).
+  Proof.
+    destruct Hη as [[[[[H₁ H₂] H₃] H₄] H₅] H₆].
+    split.
+    intros X Y.
+    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+    - simple refine (Build_NaturalTransformation _ _ _ _).
+      + exact (laxnaturality_of_rd_inv η X Y).
+      + exact (H₄ X Y).
+    - apply path_natural_transformation.
+      exact (H₅ X Y).
+    - apply path_natural_transformation.
+      exact (H₆ X Y).
+  Defined.
+End RawBuilder.
+
+Arguments Build_PseudoTransformation_d {_ C D F G}.
+Arguments Build_PseudoTransformation {_ C D F G}.

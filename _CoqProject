@@ -29,6 +29,7 @@ bicategories/lax_functor/examples/restriction.v
 bicategories/lax_functor/examples/inclusion.v
 bicategories/lax_functor/examples/factor_full_sub.v
 bicategories/lax_functor/laws/composition_laws.v
+bicategories/lax_functor/laws/restriction_laws.v
 bicategories/lax_transformation/lax_transformation.v
 bicategories/lax_transformation/examples/identity.v
 bicategories/lax_transformation/examples/equal_transformation.v
@@ -64,5 +65,6 @@ groupoid/groupoid_quotient/properties/gquot_encode_decode.v
 groupoid/groupoid_quotient/properties/gquot_general.v
 groupoid/adjunction/counit.v
 groupoid/adjunction/counit_inv.v
-groupoid/adjunction/unit.v
 groupoid/adjunction/counit_equiv.v
+groupoid/adjunction/unit.v
+groupoid/adjunction/unit_inv.v

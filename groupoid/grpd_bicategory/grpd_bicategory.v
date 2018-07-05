@@ -6,8 +6,15 @@ From GR.bicategories.bicategory Require Import
 (** The definition of groupoids. *)
 Definition groupoid := {C : PreCategory & IsGroupoid C}.
 
-Class strict_grpd (G : groupoid)
-  := { obj_cat : IsCategory G.1 }.
+Class is_univalent (G : groupoid)
+  := obj_cat : IsCategory G.1.
+
+Global Instance is_univalent_ishprop `{Univalence} (G : groupoid)
+  : IsHProp (is_univalent G).
+Proof.
+  unfold is_univalent.
+  apply _.
+Defined.
 
 (** The structure of groupoids *)
 
@@ -15,16 +22,14 @@ Class strict_grpd (G : groupoid)
 Definition under (G : groupoid) : Type
   := object G.1.
 
-Coercion grpd_to_type := under.
-
-Global Instance strict_grpd_obj
-       (G : groupoid)
-       `{strict_grpd G}
-  : IsTrunc 1 G.
+Global Instance univalent_one_type (G : groupoid) `{is_univalent G}
+  : IsTrunc 1 (under G).
 Proof.
-  apply @HoTT.Categories.Category.Univalent.trunc_category.
-  apply obj_cat.
+  unfold is_univalent, under in *.
+  apply _.
 Defined.
+
+Coercion grpd_to_type := under.
 
 (** The homsets. *)
 Definition hom (G : groupoid) : G -> G -> hSet
@@ -172,6 +177,10 @@ Defined.
 (** We have a bicategory of groupoids. *)
 Definition grpd `{Univalence} : BiCategory
   := full_sub PreCat (fun C => BuildhProp (IsGroupoid C)).
+
+(** We have a bicategory of univalent groupoids. *)
+Definition univalent_grpd `{Univalence} : BiCategory
+  := full_sub grpd (fun G => BuildhProp (is_univalent G)).
 
 (** Note: it has the expected objects and morphisms. *)
 Definition grpd_obj `{Univalence} : Obj grpd = groupoid
