@@ -12,9 +12,9 @@ bicategories/bicategory/equivalence.v
 bicategories/bicategory/adjoint.v
 bicategories/bicategory/examples/two_type.v
 bicategories/bicategory/examples/one_types.v
+bicategories/bicategory/examples/full_sub.v
 bicategories/bicategory/examples/precat.v
 bicategories/bicategory/examples/cat.v
-bicategories/bicategory/examples/full_sub.v
 bicategories/bicategory/examples/opposite.v
 bicategories/bicategory/examples/prod.v
 bicategories/bicategory/examples/terminal.v
