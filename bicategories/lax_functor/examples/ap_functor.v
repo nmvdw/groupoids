@@ -10,88 +10,53 @@ Section ApFunctor.
   Context `{Univalence}
           {X Y : 2 -Type}.
   Variable (f : X -> Y).
-  
-  Definition ap_functor {x₁ x₂ : X}
-    : Functor (oneto (x₁ = x₂)) (oneto (f x₁ = f x₂)).
-  Proof.
-    simple refine (Build_Functor _ _ _ _ _ _).
-    - cbn.
-      exact (ap f).
-    - cbn ; intros p q r.
-      induction r.
-      reflexivity.
-    - cbn ; intros p q r s₁ s₂.
-      induction s₁, s₂.
-      reflexivity.
-    - cbn ; intros p.
-      reflexivity.
-  Defined.
 
-  Definition ap_functor_pp (a b c : X)
-    : NaturalTransformation
-        (concat_functor Y (f a) (f b) (f c) o (ap_functor, ap_functor))
-        (ap_functor o concat_functor X a b c).
+  Definition ap_functor_rd
+    : PseudoFunctor_rd (path_bigroupoid X) (path_bigroupoid Y).
   Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    - cbn ; intros [p q].
-      apply (ap_pp f q p)^.
-    - intros [p₁ p₂] [q₁ q₂] [r₁ r₂] ; cbn in *.
-      induction r₁, r₂ ; cbn.
-      induction p₁, p₂ ; reflexivity.
-  Defined.
-
-  Global Instance ap_functor_pp_iso (a b c : X)
-    : @IsIsomorphism (_ -> _) _ _ (ap_functor_pp a b c).
-  Proof.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    - simple refine (Build_NaturalTransformation _ _ _ _) ; cbn.
-      + intros [q p].
-        apply ap_pp.
-      + intros [q₁ p₁] [q₂ p₂] [r₁ r₂] ; simpl in *.
-        induction r₁, r₂, p₁, q₁ ; simpl.
-        reflexivity.
-    - apply path_natural_transformation.
-      intros [q p] ; simpl in *.
-      induction p, q.
-      reflexivity.
-    - apply path_natural_transformation.
-      intros [q p] ; simpl in *.
-      induction p, q.
-      reflexivity.
-  Defined.
-
-  Definition lax_ap_functor_data
-    : LaxFunctor_d (path_bigroupoid X) (path_bigroupoid Y).
-  Proof.
-    simple refine (Build_LaxFunctor_d _ _ _ _) ; cbn.
+    simple refine (Build_PseudoFunctor_rd _ _ _ _ _ _ _) ; simpl.
     - exact f.
-    - intros a b ; cbn.
-      apply ap_functor.
-    - apply ap_functor_pp.
-    - reflexivity.
+    - exact (fun _ _ => ap f).
+    - exact (fun _ _ _ _ => ap02 f).
+    - exact (fun _ _ _ p q => (ap_pp f q p)^).
+    - exact (fun _ => idpath).
+    - exact (fun _ _ _ p q => ap_pp f q p).
+    - exact (fun _ => idpath).
   Defined.
 
-  Definition is_lax_ap : is_lax lax_ap_functor_data.
+  Definition ap_functor_rd_is_pseudo
+    : is_pseudo_functor_d ap_functor_rd.
   Proof.
-    repeat split.
-    - intros a b p ; cbn in *.
-      induction p ; cbn.
+    repeat split ; cbn.
+    - exact (fun _ _ _ _ _ => ap02_pp f).
+    - intros x y z p₁ p₂ q₁ q₂ r s ; cbn.
+      induction r, s ; cbn.
+      exact (concat_1p _ @ (concat_p1 _)^).
+    - intros x y p.
+      induction p ; simpl.
       reflexivity.
-    - intros a b p ; cbn.
-      induction p ; cbn.
+    - intros x y p.
+      induction p ; simpl.
       reflexivity.
-    - intros a b c d p q r ; cbn.
-      induction p, q, r ; cbn.
+    - intros x₁ x₂ x₃ x₄ p q r ; simpl.
+      induction p, q, r.
       reflexivity.
-  Qed.
+    - intros x y z p q.
+      apply concat_Vp.
+    - intros x y z p q.
+      apply concat_pV.
+    - intros x y z p₁ p₂ q₁ q₂ r s ; simpl.
+      induction r, s ; cbn.
+      exact (concat_1p _ @ (concat_p1 _)^).
+  Defined.
 
   Definition lax_ap_functor
     : LaxFunctor (path_bigroupoid X) (path_bigroupoid Y)
-    := Build_LaxFunctor lax_ap_functor_data is_lax_ap.
+    := Build_PseudoFunctor ap_functor_rd ap_functor_rd_is_pseudo.
 
   Global Instance lax_ap_functor_pseudo
     : is_pseudo_functor lax_ap_functor.
   Proof.
-    simple refine {| Fcomp_iso := _ |}.
+    apply _.
   Defined.
 End ApFunctor.

@@ -240,3 +240,153 @@ Global Instance Fid_is_iso_class
 Proof.
   apply Fid_iso.
 Defined.
+
+Local Open Scope bicategory.
+
+Section RawBuilder.
+  Context `{Univalence}
+          {C D : BiCategory}.
+
+  Record PseudoFunctor_rd
+    := Build_PseudoFunctor_rd
+         { F₀ : C -> D ;
+           F₁ : forall {X Y : C},
+               one_cell X Y -> one_cell (F₀ X) (F₀ Y) ;
+           F₂ : forall {X Y : C} {f g : one_cell X Y},
+               two_cell f g -> two_cell (F₁ f) (F₁ g) ;
+           Fcomp_rd : forall {X Y Z : C}
+                             (g : one_cell Y Z)
+                             (f : one_cell X Y),
+               two_cell (F₁ g · F₁ f) (F₁ (g · f)) ;
+           Fid_rd : forall (X : C),
+               two_cell (id_m (F₀ X)) (F₁ (id_m X)) ;
+           Fcomp_inv_rd : forall {X Y Z : C}
+                                 (g : one_cell Y Z)
+                                 (f : one_cell X Y),
+               two_cell (F₁ (g · f)) (F₁ g · F₁ f) ;
+           Fid_inv_rd : forall (X : C),
+               two_cell (F₁ (id_m X)) (id_m (F₀ X))
+         }.
+  
+  Definition is_pseudo_functor_d (F : PseudoFunctor_rd) : Type.
+  Proof.
+    refine (_ * _ * _ * _ * _ * _ * _ * _ * _ * _ * _).
+    - exact (forall (X Y : C)
+                    (f : one_cell X Y),
+                F₂ F (1%morphism : two_cell f f)
+                =
+                1%morphism).
+    - exact (forall (X Y : C)
+                    (f g h : one_cell X Y)
+                    (α : two_cell f g)
+                    (β : two_cell g h),
+                F₂ F (β o α)%morphism
+                =
+                (F₂ F β o F₂ F α)%morphism).
+    - exact (forall {X Y Z : C}
+                    (f₁ f₂ : one_cell X Y)
+                    (g₁ g₂ : one_cell Y Z)
+                    (α₁ : two_cell f₁ f₂)
+                    (α₂ : two_cell g₁ g₂),
+                (Fcomp_rd F g₂ f₂ o hcomp (F₂ F α₁) (F₂ F α₂))%morphism
+                =
+                (F₂ F (hcomp α₁ α₂) o Fcomp_rd F g₁ f₁)%morphism).
+    - exact (forall (X Y : C) (f : Hom C X Y),
+                (un_r (F₀ F X) (F₀ F Y)) (F₁ F f)
+                =
+                ((F₂ F ((un_r X Y) f))
+                   o Fcomp_rd F f (id_m X)
+                   o (1 ∗ Fid_rd F X))%morphism).
+    - exact (forall (X Y : C) (f : Hom C X Y),
+                (un_l (F₀ F X) (F₀ F Y)) (F₁ F f)
+                =
+                ((F₂ F ((un_l X Y) f))
+                   o Fcomp_rd F (id_m Y) f
+                   o (Fid_rd F Y ∗ 1))%morphism).
+    - exact (forall (W X Y Z : C)
+                    (h : Hom C Y Z) (g : Hom C X Y) (f : Hom C W X),
+                ((Fcomp_rd F h (g · f))
+                   o (1 ∗ Fcomp_rd F g f)
+                   o assoc (F₁ F h, F₁ F g, F₁ F f))%morphism =
+                ((F₂ F (assoc (h, g, f)))
+                   o Fcomp_rd F (h · g) f
+                   o (Fcomp_rd F h g ∗ 1))%morphism).
+    - exact (forall (X Y Z : C)
+                    (g : one_cell Y Z)
+                    (f : one_cell X Y),
+                (Fcomp_inv_rd F g f o Fcomp_rd F g f)%morphism = 1%morphism).
+    - exact (forall (X Y Z : C)
+                    (g : one_cell Y Z)
+                    (f : one_cell X Y),
+                (Fcomp_rd F g f o Fcomp_inv_rd F g f)%morphism = 1%morphism).
+    - exact (forall (X : C),
+                (Fid_inv_rd F X o Fid_rd F X)%morphism
+                =
+                1%morphism).
+    - exact (forall (X : C),
+                (Fid_rd F X o Fid_inv_rd F X)%morphism
+                =
+                1%morphism).
+    - exact (forall (X Y Z : C)
+                    (f₁ f₂ : one_cell X Y)
+                    (g₁ g₂ : one_cell Y Z)
+                    (α₂ : two_cell g₁ g₂)
+                    (α₁ : two_cell f₁ f₂),
+                (Fcomp_inv_rd F g₂ f₂ o F₂ F (hcomp α₁ α₂))%morphism
+                =
+                ((hcomp (F₂ F α₁) (F₂ F α₂)) o Fcomp_inv_rd F g₁ f₁)%morphism).
+  Defined.
+
+  Definition Build_PseudoFunctor
+             (F : PseudoFunctor_rd)
+             (HF : is_pseudo_functor_d F)
+    : LaxFunctor C D.
+  Proof.
+    destruct HF as [[[[[[[[[[H₁ H₂] H₃] H₄] H₅] H₆] H₇] H₈] H₉] H₁₀] H₁₁].
+    simple refine (Build_LaxFunctor _ _).
+    - simple refine (Build_LaxFunctor_d _ _ _ _).
+      + exact (F₀ F).
+      + intros X Y.
+        simple refine (Build_Functor _ _ _ _ _ _).
+        * exact (F₁ F).
+        * exact (@F₂ F X Y).
+        * exact (H₂ X Y).
+        * exact (H₁ X Y).
+      + intros X Y Z.
+        simple refine (Build_NaturalTransformation _ _ _ _).
+        * intros [g f] ; cbn.
+          exact (Fcomp_rd F g f).
+        * intros [g₁ f₁] [g₂ f₂] [α₂ α₁] ; simpl in *.
+          exact (H₃ X Y Z f₁ f₂ g₁ g₂ α₁ α₂).
+      + exact (Fid_rd F).
+    - exact (H₄,H₅,H₆).
+  Defined.
+
+  Global Instance Build_PseudoFunctor_is_pseudo
+         (F : PseudoFunctor_rd)
+         (HF : is_pseudo_functor_d F)
+    : is_pseudo_functor (Build_PseudoFunctor F HF).
+  Proof.
+    split.
+    - intros X Y Z.
+      simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+      + simple refine (Build_NaturalTransformation _ _ _ _).
+        * intros [g f] ; cbn.
+          exact (Fcomp_inv_rd F g f).
+        * intros [g₁ f₁] [g₂ f₂] [α₂ α₁].
+          apply HF.
+      + apply path_natural_transformation.
+        intros [g f] ; cbn.
+        apply HF.
+      + apply path_natural_transformation.
+        intros [g f] ; cbn.
+        apply HF.
+    - intros X.
+      simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+      + exact (Fid_inv_rd F X).
+      + apply HF.
+      + apply HF.
+  Defined.
+End RawBuilder.
+
+Arguments PseudoFunctor_rd {_} C D.
