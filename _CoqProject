@@ -63,8 +63,8 @@ groupoid/groupoid_quotient/gquot_functor.v
 groupoid/groupoid_quotient/properties/gquot_poly.v
 groupoid/groupoid_quotient/properties/gquot_encode_decode.v
 groupoid/groupoid_quotient/properties/gquot_general.v
+groupoid/adjunction/unit.v
+groupoid/adjunction/unit_inv.v
 groupoid/adjunction/counit.v
 groupoid/adjunction/counit_inv.v
 groupoid/adjunction/counit_equiv.v
-groupoid/adjunction/unit.v
-groupoid/adjunction/unit_inv.v

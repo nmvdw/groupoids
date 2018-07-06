@@ -71,7 +71,7 @@ Proof.
   - reflexivity.
   - intros X Y ; cbn.
     unfold lax_comp_mor, lax_id_functor, Fmor ; cbn.
-    apply Functor.Composition.right_identity.
+    admit.
   - split.
     + intros ; cbn.
 Admitted.
