@@ -22,7 +22,7 @@ Section Counit.
   Context `{Univalence}.
 
   Definition counit_map (X : 1 -Type)
-    : @one_cell _ one_types (gquot_o(path_groupoid X)) X.
+    : @one_cell _ one_types (gquot_functor(path_groupoid X)) X.
   Proof.
     simple refine (gquot_rec X _ _ _ _ _ _) ; cbn.
     - exact idmap.
@@ -38,10 +38,10 @@ Section Counit.
              {a₁ a₂ : path_groupoid X}
              (g : hom (path_groupoid X) a₁ a₂)
     : path_over
-        (fun g0 : gquot (path_groupoid X) =>
-           f (counit_map X g0)
+        (fun h : gquot (path_groupoid X) =>
+           f (counit_map X h)
            =
-           counit_map Y ((Fmor (lax_comp gquot_functor path_groupoid_functor)) f g0))
+           counit_map Y ((Fmor (lax_comp gquot_functor path_groupoid_functor)) f h))
         (gcleq (path_groupoid X) g)
         idpath
         idpath.
@@ -77,11 +77,11 @@ Section Counit.
         pose (naturality_help f g) as p.
         cbn in *.
         apply p.
-    - intros X Y f ; cbn.
+    - intros X Y f.
       funext x ; simpl ; revert x.
       simple refine (gquot_ind_set _ _ _ _).
       + reflexivity.
-      + intros a₁ a₂ g ; simpl.
+      + intros a₁ a₂ g .
         induction g.
         apply map_path_over.
         apply path_to_square.
@@ -99,28 +99,19 @@ Section Counit.
       rewrite !identity_of, left_identity, !right_identity.
       reflexivity.
     - intros X.
-      simpl.
+      unfold hcomp ; simpl.
       repeat refine (_ @ (concat_1p _)^).
-      unfold hcomp.
-      simpl.
       refine (concat_1p _ @ _).
-      unfold lax_comp_id.
       cbn.
-      unfold gquot_id.
       refine (_ @ ap _ (path_forall_pp _ _ _ _ _)).
       refine (_ @ (ap_precompose _ _)^).
       apply ap.
       funext x ; revert x.
       simple refine (gquot_ind_prop _ _ _).
       intro a.
-      cbn -[gquot_functorial gquot_functorial_idmap gquot_functorial_natural].
-      rewrite ap_pp.
+      simpl.
       rewrite concat_1p.
-      assert (gquot_functorial_natural (path_groupoid_map_id X) (gcl (path_groupoid X) a)
-            =
-            gcleq _ (e a)) as ->.
-      { reflexivity. }
-      rewrite ge.
+      rewrite gquot_rec_beta_gcleq.
       reflexivity.
     - intros X Y Z f g.
       assert ((inverse assoc)
@@ -131,8 +122,9 @@ Section Counit.
         apply Morphisms.iso_moveR_1V.
         reflexivity.
       }
-      unfold hcomp.
-      cbn -[gquot_functorial gquot_functorial_idmap gquot_functorial_natural].
+      unfold hcomp ; simpl.
+      Opaque gquot_functor_rd_map.
+      cbn.
       rewrite !concat_1p, !concat_p1.
       rewrite !ap_precompose, !ap_postcompose.
       rewrite concat_p_pp.
@@ -143,19 +135,16 @@ Section Counit.
       funext x ; revert x.
       simple refine (gquot_ind_prop _ _ _).
       intros a.
-      cbn -[gquot_functorial
-              gquot_functorial_natural gquot_functorial_idmap gquot_functorial_compose].
+      simpl.
       rewrite ap_pp.
       rewrite concat_1p.
       refine ((concat_p1 _)^ @ _).
       f_ap.
-      unfold gquot_functorial_natural.
-      rewrite gquot_ind_set_beta_gcl.
       rewrite ge.
       reflexivity.
     - intros X Y f g p.
       induction p.
-      cbn -[gquot_functor gquot_functorial].
+      cbn.
       rewrite concat_1p, ap_precompose.
       rewrite <- path_forall_pp.
       rewrite concat_p1.
@@ -163,12 +152,8 @@ Section Counit.
       funext x ; revert x.
       simple refine (gquot_ind_prop _ _ _).
       intro a.
-      Opaque gquot_functor gquot_functorial gquot_functorial_natural.
       simpl.
       rewrite concat_p1.
-      Transparent gquot_functorial_natural.
-      unfold gquot_functorial_natural.
-      rewrite gquot_ind_set_beta_gcl.
       rewrite ge.
       reflexivity.
     - intros X Y f ; simpl.

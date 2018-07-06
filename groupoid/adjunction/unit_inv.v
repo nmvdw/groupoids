@@ -16,8 +16,7 @@ From GR.groupoid Require Import
      groupoid_quotient.gquot_functor
      groupoid_quotient.gquot_principles
      grpd_bicategory.grpd_bicategory
-     path_groupoid.path_groupoid
-     adjunction.unit.
+     path_groupoid.path_groupoid.
 From GR.basics Require Import
      general.
 
@@ -257,12 +256,12 @@ Section UnitInv.
     simple refine (Build_PseudoTransformation_d _ _ _).
     - intros [G UG] ; simpl.
       exact (@unit_inv_map G UG).
-    - intros G₁ G₂ F ; simpl.
-      simple refine (Build_NaturalTransformation _ _ _ _) ; cbn.
+    - intros G₁ G₂ F.
+      simple refine (Build_NaturalTransformation _ _ _ _).
       + simple refine (gquot_ind_set _ _ _ _).
         * intros a ; simpl.
           apply 1%morphism.
-        * intros a₁ a₂ g.
+        * intros a₁ a₂ g ; simpl.
           apply path_to_path_over.
           rewrite transport_morphism_FlFr.
           rewrite ap_compose ; rewrite !gquot_rec_beta_gcleq.
@@ -271,9 +270,9 @@ Section UnitInv.
           destruct G₁ as [G₁ UG₁], G₂ as [G₂ UG₂].
           rewrite <- (@univalent_grpd_eq_functor _ G₁ G₂ F UG₁ UG₂).
           rewrite <- Morphisms.idtoiso_inv.
-          rewrite !eisretr ; cbn.
+          rewrite !eisretr.
           apply right_inverse.
-      + intros x y p.
+      + intros x y p ; simpl.
         induction p.
         revert x.
         simple refine (gquot_ind_prop _ _ _).
@@ -315,7 +314,6 @@ Section UnitInv.
       simple refine (gquot_ind_prop _ _ _).
       intro a ; simpl in *.
       rewrite identity_of, !right_identity, !left_identity.
-      unfold gquot_id.
       rewrite ap10_path_forall.
       rewrite transport_morphism_FlFr.
       rewrite right_identity, ap_const, right_identity ; simpl.
@@ -351,8 +349,6 @@ Section UnitInv.
       intros a ; simpl in *.
       rewrite identity_of, !left_identity, !right_identity.
       rewrite ap10_path_forall.
-      unfold gquot_functorial_natural.
-      rewrite gquot_ind_set_beta_gcl.
       rewrite transport_morphism_FlFr.
       rewrite ap_const ; simpl.
       rewrite !right_identity.

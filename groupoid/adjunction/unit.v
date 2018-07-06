@@ -41,7 +41,7 @@ Section Unit.
   Context `{Univalence}.
 
   Definition unit_map (G : groupoid)
-    : @one_cell _ grpd G (path_groupoid(gquot_o G)).
+    : @one_cell _ grpd G (path_groupoid(gquot_functor G)).
   Proof.
     cbn.
     simple refine (Build_Functor _ _ _ _ _ _) ; simpl.
@@ -81,8 +81,9 @@ Section Unit.
     repeat split.
     - intros G₁ G₂ F₁ F₂ α.
       apply path_natural_transformation.
-      intros x ; simpl in *.
+      intros x.
       refine (concat_p1 _ @ concat_1p _ @ _ @ (concat_1p _ @ concat_p1 _)^).
+      simpl in *.
       rewrite ap10_path_forall.
       reflexivity.
     - intros G.

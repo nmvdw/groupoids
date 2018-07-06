@@ -48,7 +48,7 @@ Section ApFunctor.
     - intros x y z p₁ p₂ q₁ q₂ r s ; simpl.
       induction r, s ; cbn.
       exact (concat_1p _ @ (concat_p1 _)^).
-  Defined.
+  Qed.
 
   Definition lax_ap_functor
     : LaxFunctor (path_bigroupoid X) (path_bigroupoid Y)

@@ -49,8 +49,6 @@ Section CounitInverse.
       f_ap.
       funext x.
       unfold counit_inv_map.
-      unfold gquot_functorial_natural.
-      rewrite gquot_ind_set_beta_gcl.
       rewrite ge.
       reflexivity.
     - intros X ; simpl.
@@ -61,8 +59,7 @@ Section CounitInverse.
       rewrite <- path_forall_1.
       f_ap.
       funext x.
-      unfold counit_inv_map, gquot_functorial_natural.
-      rewrite gquot_ind_set_beta_gcl, ge.
+      rewrite ge.
       reflexivity.
     - intros X Y Z f g.
       assert ((inverse assoc)
@@ -82,8 +79,7 @@ Section CounitInverse.
       rewrite <- path_forall_1.
       f_ap.
       funext x.
-      unfold counit_inv_map, gquot_functorial_natural.
-      rewrite gquot_ind_set_beta_gcl, ge.
+      rewrite ge.
       reflexivity.
     - intros X Y f g α.
       induction α.
@@ -93,8 +89,7 @@ Section CounitInverse.
       rewrite <- path_forall_1.
       f_ap.
       funext x.
-      unfold counit_inv_map, gquot_functorial_natural.
-      rewrite gquot_ind_set_beta_gcl, ge.
+      rewrite ge.
       reflexivity.
   Qed.
 

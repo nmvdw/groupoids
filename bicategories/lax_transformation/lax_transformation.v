@@ -239,15 +239,15 @@ Section RawBuilder.
              (Hη : is_pseudo_transformation_rd η)
     : LaxTransformation F G.
   Proof.
-    destruct Hη as [[[[[H₁ H₂] H₃] H₄] H₅] H₆].
     simple refine (Build_LaxTransformation _ _).
     - simple refine (Build_LaxTransformation_d _ _).
       + exact (laxcomponent_of_rd η).
       + intros X Y.
         simple refine (Build_NaturalTransformation _ _ _ _).
         * exact (laxnaturality_of_rd η X Y).
-        * exact (H₁ X Y).
-    - exact (H₂,H₃).
+        * apply Hη.
+    - destruct Hη as [[[[[H₁ H₂] H₃] H₄] H₅] H₆].
+      exact (H₂,H₃).
   Defined.
 
   Global Instance Build_Pseudo_is_pseudo
