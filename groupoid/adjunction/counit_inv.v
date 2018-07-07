@@ -22,7 +22,7 @@ Section CounitInverse.
   Context `{Univalence}.
 
   Definition counit_inv_map (A : 1 -Type)
-    : @one_cell _ one_types A (gquot_o(path_groupoid A))
+    : @one_cell _ one_types A (gquot_functor(path_groupoid A))
     := gcl (path_groupoid A).
 
   Definition counit_gq_inv_rd
@@ -41,14 +41,14 @@ Section CounitInverse.
   Proof.
     repeat split.
     - intros X Y f g α ; simpl.
-      induction α.
+      Time induction α.
       unfold hcomp ; simpl.
       rewrite !concat_p1.
       rewrite !ap_postcompose.
       rewrite <- path_forall_1.
       f_ap.
       funext x.
-      unfold counit_inv_map.
+      simpl.
       rewrite ge.
       reflexivity.
     - intros X ; simpl.
@@ -59,6 +59,7 @@ Section CounitInverse.
       rewrite <- path_forall_1.
       f_ap.
       funext x.
+      simpl.
       rewrite ge.
       reflexivity.
     - intros X Y Z f g.
@@ -79,6 +80,7 @@ Section CounitInverse.
       rewrite <- path_forall_1.
       f_ap.
       funext x.
+      simpl.
       rewrite ge.
       reflexivity.
     - intros X Y f g α.
@@ -89,6 +91,7 @@ Section CounitInverse.
       rewrite <- path_forall_1.
       f_ap.
       funext x.
+      simpl.
       rewrite ge.
       reflexivity.
   Qed.

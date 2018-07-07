@@ -26,6 +26,9 @@ From GR.groupoid Require Import
 From GR.basics Require Import
      general.
 
+Definition todo A : A.
+Admitted.
+
 Definition inverse_assoc_one_type
            `{Univalence}
            (X₁ X₂ X₃ X₄ : 1 -Type)
@@ -78,6 +81,8 @@ Section CounitEquivalence.
         refine ((ge _ _)^ @ (concat_1p _)^).
   Defined.
 
+  Opaque gquot_functor_rd_map.
+
   Definition counit_retr_naturality (A B : 1 -Type) (f : A -> B)
     : (((laxnaturality_of
            (identity_transformation
@@ -88,7 +93,7 @@ Section CounitEquivalence.
            o
            (laxnaturality_of (compose counit_gq counit_inv)) f)%morphism.
   Proof.
-    cbn -[inverse counit_gq counit_inv].
+    cbn -[inverse].
     rewrite !inverse_assoc_one_type.
     rewrite !concat_1p, !concat_p1.
     simpl.
@@ -132,6 +137,7 @@ Section CounitEquivalence.
         exact (concat_p1 _ @ ge _ _).
   Defined.
 
+  
   Definition counit_retr_inv_naturality (A B : 1 -Type) (f : A -> B)
     : (((laxnaturality_of (compose counit_gq counit_inv)) f)
          o hcomp (retr_inv_map A) 1)%morphism
@@ -174,7 +180,7 @@ Section CounitEquivalence.
     funext x ; revert x ; simpl.
     simple refine (gquot_ind_prop _ _ _).
     reflexivity.
-  Defined.
+  Qed.
 
   Definition retr_inv_retr
     : comp_modification counit_retr_inv counit_retr = id_modification _.
@@ -188,7 +194,7 @@ Section CounitEquivalence.
     funext x ; revert x ; simpl.
     simple refine (gquot_ind_prop _ _ _).
     reflexivity.
-  Defined.
+  Qed.
 
   Global Instance counit_retr_isomorphism
     : @IsIsomorphism (transformation_category _ _) _ _ counit_retr.
@@ -206,7 +212,7 @@ Section CounitEquivalence.
   Proof.
     apply path_natural_transformation.
     intros g.
-    cbn -[inverse counit_inv counit_gq].
+    cbn -[inverse counit_inv counit_gq gquot_functor_rd_map].
     rewrite !inverse_assoc_one_type.
     rewrite !inverse_un_l_one_type.
     rewrite !concat_1p, !concat_p1.
@@ -236,7 +242,7 @@ Section CounitEquivalence.
   Proof.
     apply path_natural_transformation.
     intros g.
-    cbn -[inverse counit_inv counit_gq].
+    cbn -[inverse counit_inv counit_gq gquot_functor_rd_map].
     rewrite !inverse_assoc_one_type.
     rewrite !inverse_un_l_one_type.
     rewrite !concat_1p, !concat_p1.

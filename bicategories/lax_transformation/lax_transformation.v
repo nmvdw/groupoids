@@ -75,8 +75,26 @@ Section LaxTransformation.
          {C D : BiCategory}
          {F G : LaxFunctor C D}
          (η : LaxTransformation_d F G)
-    : IsHProp (is_lax_transformation η)
-    := _.
+    : IsHProp (is_lax_transformation η).
+  Proof.
+    exact (@trunc_prod
+             _
+             _
+             trunc_forall
+             _
+             (@trunc_forall
+                _ _ _ _
+                (fun _ =>
+                   @trunc_forall
+                     _ _ _ _
+                     (fun _ =>
+                        @trunc_forall
+                          _ _ _ _
+                          (fun _ =>
+                             @trunc_forall
+                               _ _ _ _
+                               (fun _ => trunc_forall)))))).
+  Qed.
 
   Definition LaxTransformation {C D : BiCategory} (F G : LaxFunctor C D)
     := {η : LaxTransformation_d F G & is_lax_transformation η}.
@@ -246,8 +264,7 @@ Section RawBuilder.
         simple refine (Build_NaturalTransformation _ _ _ _).
         * exact (laxnaturality_of_rd η X Y).
         * apply Hη.
-    - destruct Hη as [[[[[H₁ H₂] H₃] H₄] H₅] H₆].
-      exact (H₂,H₃).
+    - unfold is_lax_transformation ; split ; apply Hη. 
   Defined.
 
   Global Instance Build_Pseudo_is_pseudo
@@ -256,17 +273,16 @@ Section RawBuilder.
          (Hη : is_pseudo_transformation_rd η)
     : is_pseudo_transformation (Build_PseudoTransformation η Hη).
   Proof.
-    destruct Hη as [[[[[H₁ H₂] H₃] H₄] H₅] H₆].
     split.
     intros X Y.
     simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
     - simple refine (Build_NaturalTransformation _ _ _ _).
       + exact (laxnaturality_of_rd_inv η X Y).
-      + exact (H₄ X Y).
+      + apply Hη.
     - apply path_natural_transformation.
-      exact (H₅ X Y).
+      exact ((Datatypes.snd (Datatypes.fst Hη) X Y)).
     - apply path_natural_transformation.
-      exact (H₆ X Y).
+      exact ((Datatypes.snd Hη X Y)).
   Defined.
 End RawBuilder.
 

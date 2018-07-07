@@ -67,4 +67,3 @@ groupoid/adjunction/unit.v
 groupoid/adjunction/unit_inv.v
 groupoid/adjunction/counit.v
 groupoid/adjunction/counit_inv.v
-groupoid/adjunction/counit_equiv.v

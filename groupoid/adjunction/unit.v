@@ -43,17 +43,41 @@ Section Unit.
   Definition unit_map (G : groupoid)
     : @one_cell _ grpd G (path_groupoid(gquot_functor G)).
   Proof.
-    cbn.
     simple refine (Build_Functor _ _ _ _ _ _) ; simpl.
-    - apply gcl.
-    - intros ? ? g ; cbn in *.
-      exact (gcleq _ g).
-    - intros ? ? ? g₁ g₂ ; cbn in *.
-      apply gconcat.
-    - intros x ; cbn in *.
-      apply ge.
+    - exact (gcl G).
+    - exact (@gcleq G).
+    - exact (@gconcat G).
+    - exact (ge G).
   Defined.
 
+  Definition unit_gq_rd_1
+             {G₁ G₂ : groupoid}
+             {x y : G₁}
+             (F : Functor G₁.1 G₂.1)
+             (g : hom G₁ x y)
+    : ap (gquot_functor_rd_map F) (gcleq G₁ g) @ 1
+      =
+      1 @ gcleq G₂ (F _1 g)%morphism.
+  Proof.
+    exact ((concat_p1 _)
+             @ (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)
+             @ (concat_1p _)^).
+  Qed.
+
+  Definition unit_gq_rd_2
+             {G₁ G₂ : groupoid}
+             {x y : G₁}
+             (F : Functor G₁.1 G₂.1)
+             (g : hom G₁ x y)
+    : gcleq G₂ (F _1 g)%morphism @ 1
+      =
+      1 @ ap (gquot_functor_rd_map F) (gcleq G₁ g).
+  Proof.
+    exact ((concat_p1 _)
+             @ (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)^
+             @ (concat_1p _)^).
+  Qed.
+  
   Definition unit_gq_rd
     : PseudoTransformation_d
         (lax_id_functor grpd)
@@ -61,18 +85,16 @@ Section Unit.
   Proof.
     simple refine (Build_PseudoTransformation_d _ _ _).
     - exact unit_map.
-    - intros G₁ G₂ F ; simpl.
+    - intros G₁ G₂ F.
       simple refine (Build_NaturalTransformation _ _ _ _).
       + reflexivity.
-      + intros x y g ; simpl.
-        refine (concat_p1 _ @ _ @ (concat_1p _)^).
-        exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _).
-    - intros G₁ G₂ F ; simpl.
+      + intros x y g.
+        exact (unit_gq_rd_1 F g).
+    - intros G₁ G₂ F.
       simple refine (Build_NaturalTransformation _ _ _ _).
       + reflexivity.
-      + intros x y g ; simpl.
-        refine (concat_p1 _ @ _ @ (concat_1p _)^).
-        exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)^.
+      + intros x y g.
+        exact (unit_gq_rd_2 F g).
   Defined.
 
   Definition unit_gq_rd_is_lax
@@ -82,40 +104,36 @@ Section Unit.
     - intros G₁ G₂ F₁ F₂ α.
       apply path_natural_transformation.
       intros x.
-      refine (concat_p1 _ @ concat_1p _ @ _ @ (concat_1p _ @ concat_p1 _)^).
-      simpl in *.
+      unfold hcomp ; simpl in *.
       rewrite ap10_path_forall.
+      rewrite !concat_1p, !concat_p1.
       reflexivity.
     - intros G.
       apply path_natural_transformation.
-      intros x ; simpl in *.
-      refine (concat_p1 _ @ concat_1p _ @ concat_1p _ @ _).
-      refine (_ @ (concat_1p _ @ concat_1p _ @ concat_p1 _)^).
+      intros x ; simpl.
       rewrite ap10_path_forall.
       rewrite ge.
       reflexivity.
     - intros G₁ G₂ G₃ F₁ F₂.
       apply path_natural_transformation.
       intro x.
-      rewrite !inverse_assoc_grpd ; simpl in *.
-      rewrite !concat_1p, !concat_p1.
+      rewrite !inverse_assoc_grpd.
+      simpl.
       rewrite ap10_path_forall.
-      rewrite !ge ; simpl.
+      rewrite !ge.
       reflexivity.
     - intros G₁ G₂ F₁ F₂ α.
       apply path_natural_transformation.
-      intros x ; simpl in *.
-      refine (concat_p1 _ @ concat_p1 _ @ _ @ (concat_1p _)^ @ (concat_1p _)^).
+      intros x ; simpl.
       rewrite ap10_path_forall.
+      rewrite !concat_1p, !concat_p1.
       reflexivity.
     - intros G₁ G₂ F.
       apply path_natural_transformation.
-      intro x ; simpl.
-      reflexivity.
+      intro ; reflexivity.
     - intros G₁ G₂ F.
       apply path_natural_transformation.
-      intro x ; simpl.
-      reflexivity.
+      intro ; reflexivity.
   Qed.
 
   Definition unit_gq
