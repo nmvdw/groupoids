@@ -47,6 +47,9 @@ Module Export gquot.
   Axiom gtrunc
     : forall (G : groupoid), IsTrunc 1 (gquot G).
 
+  Instance gquot_istrunct G : IsTrunc 1 (gquot G).
+  Proof. apply gtrunc. Defined.
+
   Section gquot_ind.
     Variable (G : groupoid)
              (Y : gquot G -> Type)

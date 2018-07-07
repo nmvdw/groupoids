@@ -1,5 +1,5 @@
 Require Import HoTT.
-From GR Require Export heterogeneous_equality path_over.
+From GR Require Export basics.heterogeneous_equality basics.path_over.
 
 (** Squares represents heterogeneous equalities between paths.
     A square has 4 sides `t`, `l`, `r`, `d` and it represents `l^ @ t @ r = d`.
