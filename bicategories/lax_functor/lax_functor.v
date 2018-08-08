@@ -20,9 +20,9 @@ Record LaxFunctor_d
 Arguments Build_LaxFunctor_d {C D} Fobj_d Fmor_d Fcomp₁_d Fid_d.
 Arguments Fobj_d {C D}.
 Arguments Fmor_d {C D} _ X Y.
-Local Notation "F '₀d' X" := (Fobj_d F X) (at level 60).
-Local Notation "F '₁d' f" := (Fmor_d F _ _ f) (at level 60).
-Local Notation "F '₂d' η" := (morphism_of (Fmor_d F _ _) η) (at level 60).
+Local Notation "F '₀d' X" := (Fobj_d F X)%bicategory (at level 60).
+Local Notation "F '₁d' f" := (Fmor_d F _ _ f)%bicategory (at level 60).
+Local Notation "F '₂d' η" := (morphism_of (Fmor_d F _ _) η)%bicategory (at level 60).
 Arguments Fcomp₁_d {C D} _ {X Y Z} g f.
 Arguments Fid_d {C D} _ X.
 
@@ -39,9 +39,9 @@ Record is_lax
                   (η₁ : g₁ ==> g₂)
                   (η₂ : f₁ ==> f₂),
              (Fcomp₁_d F g₂ f₂)
-               ∘ (hcomp2 (F ₂d η₂) (F ₂d η₁))
+               ∘ ((F ₂d η₁) * (F ₂d η₂))
              =
-             (F ₂d (hcomp2 η₂ η₁))
+             (F ₂d (η₁ * η₂))
                ∘ (Fcomp₁_d F g₁ f₁) ;
          F_left_unit_p :
            forall {X Y : C} (f : C⟦X,Y⟧),
@@ -49,24 +49,24 @@ Record is_lax
              =
              (F ₂d (left_unit f))
                ∘ Fcomp₁_d F (id₁ Y) f
-               ∘ (hcomp2 (id₂ (F ₁d f)) (Fid_d F Y)) ;
+               ∘ (Fid_d F Y * id₂ (F ₁d f)) ;
          F_right_unit_p :
            forall {X Y : C} (f : C⟦X,Y⟧),
              right_unit (F ₁d f)
              =
              (F ₂d (right_unit f))
                ∘ Fcomp₁_d F f (id₁ X)
-               ∘ (hcomp2 (Fid_d F X) (id₂ (F ₁d f))) ;
+               ∘ (id₂ (F ₁d f) * Fid_d F X) ;
          F_assoc_p :
            forall {W X Y Z : C}
                   (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧),
              (Fcomp₁_d F h (g · f))
-               ∘ (hcomp2 (Fcomp₁_d F g f) (id₂ (F ₁d h)))
+               ∘ (id₂ (F ₁d h) * Fcomp₁_d F g f)
                ∘ assoc (F ₁d h) (F ₁d g) (F ₁d f)
              =
              (F ₂d (assoc h g f))
                 ∘ Fcomp₁_d F (h · g) f
-                ∘ (hcomp2 (id₂ (F ₁d f)) (Fcomp₁_d F h g))
+                ∘ (Fcomp₁_d F h g * id₂ (F ₁d f))
        }.
 
 Arguments Build_is_lax {C D F} _ _ _ _.
@@ -142,7 +142,7 @@ Definition Fcomp₂
            {g₁ g₂ : C⟦Y,Z⟧}
            (η₁ : g₁ ==> g₂)
            (η₂ : f₁ ==> f₂)
-  : Fcomp₁ F g₂ f₂ ∘ ((F ₂ η₁) * (F ₂ η₂)) = (F ₂ η₁ * η₂) ∘ Fcomp₁ F g₁ f₁
+  : Fcomp₁ F g₂ f₂ ∘ ((F ₂ η₁) * (F ₂ η₂)) = (F ₂ (η₁ * η₂)) ∘ Fcomp₁ F g₁ f₁
   := Fcomp₂_p F.2 η₁ η₂.
 
 Definition Fcomp
@@ -276,11 +276,12 @@ Arguments Build_PseudoFunctor_d {C D} _ _ _ _ _ _ _.
 Ltac make_pseudo_functor := simple refine (Build_PseudoFunctor_d _ _ _ _ _ _ _).
 Arguments PObj {C D} _ _.
 Arguments POne {C D} _ {X Y} _.
-Arguments PTwo {C D} _ {X Y f g} _.
+Arguments PTwo {C D} _ {X Y f g} _%bicategory.
 Arguments Pcomp_d {C D} _ {X Y Z} g f.
 Arguments Pid_d {C D} _ X.
 Arguments Pcomp_inv_d {C D} _ {X Y Z} g f.
 Arguments Pid_inv_d {C D} _ X.
+Bind Scope bicategory_scope with PseudoFunctor_d.
 
 Record is_pseudo_functor_p
        {C D : BiCategory}
@@ -301,9 +302,9 @@ Record is_pseudo_functor_p
                   {g₁ g₂ : C⟦Y,Z⟧}
                   (η₁ : f₁ ==> f₂)
                   (η₂ : g₁ ==> g₂),
-             Pcomp_d F g₂ f₂ ∘ (hcomp2 (PTwo F η₁) (PTwo F η₂))
+             Pcomp_d F g₂ f₂ ∘ ((PTwo F η₂) * (PTwo F η₁))
              =
-             PTwo F (hcomp2 η₁ η₂) ∘ Pcomp_d F g₁ f₁ ;
+             PTwo F (η₂ * η₁) ∘ Pcomp_d F g₁ f₁ ;
          Pright_unit :
            forall {X Y : C}
                   (f : C⟦X,Y⟧),
@@ -311,7 +312,7 @@ Record is_pseudo_functor_p
              =
              (PTwo F (right_unit f))
                ∘ Pcomp_d F f (id₁ X)
-               ∘ hcomp2 (Pid_d F X) (id₂ (POne F f)) ;
+               ∘ (id₂ (POne F f) * Pid_d F X) ;
          Pleft_unit :
            forall {X Y : C}
                   (f : C⟦X,Y⟧),
@@ -319,17 +320,17 @@ Record is_pseudo_functor_p
              =
              (PTwo F (left_unit f))
                ∘ Pcomp_d F (id₁ Y) f
-               ∘ hcomp2 (id₂ (POne F f)) (Pid_d F Y) ;
+               ∘ ((Pid_d F Y) * (id₂ (POne F f))) ;
          Passoc :
            forall {W X Y Z : C}
                   (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧),
              (Pcomp_d F h (g · f))
-               ∘ hcomp2 (Pcomp_d F g f) (id₂ (POne F h))
+               ∘ ((id₂ (POne F h)) * (Pcomp_d F g f))
                ∘ assoc (POne F h) (POne F g) (POne F f)
              =
              (PTwo F (assoc h g f))
                ∘ Pcomp_d F (h · g) f
-               ∘ hcomp2 (id₂ (POne F f)) (Pcomp_d F h g) ;
+               ∘ ((Pcomp_d F h g) * (id₂ (POne F f))) ;
          Pcomp_left :
            forall {X Y Z : C}
                   (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧),
@@ -350,9 +351,9 @@ Record is_pseudo_functor_p
                   {g₁ g₂ : C⟦Y,Z⟧}
                   (η₂ : g₁ ==> g₂)
                   (η₁ : f₁ ==> f₂),
-             Pcomp_inv_d F g₂ f₂ ∘ PTwo F (hcomp2 η₁ η₂)
+             Pcomp_inv_d F g₂ f₂ ∘ PTwo F (η₂ * η₁)
              =
-             (hcomp2 (PTwo F η₁) (PTwo F η₂)) ∘ Pcomp_inv_d F g₁ f₁
+             ((PTwo F η₂) * (PTwo F η₁)) ∘ Pcomp_inv_d F g₁ f₁
        }.
 
 Ltac make_is_pseudo := simple refine (Build_is_pseudo_functor _ _ _ _ _ _ _ _ _ _ _ _ _ _).

@@ -282,7 +282,8 @@ Definition hcomp1 {C : BiCategory} {X Y Z : C}
   : C⟦Y,Z⟧ -> C⟦X,Y⟧ -> C⟦X,Z⟧
   := fun g f => hcomp_obj C.1 (g,f).
 
-Notation "f '·' g" := (hcomp1 f g) (at level 50).
+Arguments hcomp1 {C X Y Z} g%bicategory f%bicategory.
+Notation "f '·' g" := (hcomp1 f g) (at level 50) : bicategory_scope.
 
 Definition hcomp2
            {C : BiCategory}
@@ -297,6 +298,7 @@ Proof.
   exact (η₂,η₁).
 Defined.
 
+Arguments hcomp2 {C X Y Z f₁ g₁ f₂ g₂} η₁%bicategory η₂%bicategory.
 Notation "η₁ '*' η₂" := (hcomp2 η₂ η₁) : bicategory_scope.
 
 Definition interchange
@@ -778,7 +780,7 @@ Definition bc_whisker_r
   : (g · f₁) ==> (g · f₂)
   := id₂ g * α.
 
-Notation "g '▻' α" := (bc_whisker_r g α) (at level 60).
+Notation "g '▻' α" := (bc_whisker_r g α) (at level 60) : bicategory_scope.
 
 Definition bc_whisker_r_id₂
            {C : BiCategory}
@@ -797,7 +799,7 @@ Definition bc_whisker_l
   : (g₁ · f) ==> (g₂ · f)
   := β * id₂ f.
 
-Notation "β '◅' f" := (bc_whisker_l β f) (at level 60).
+Notation "β '◅' f" := (bc_whisker_l β f) (at level 60) : bicategory_scope.
 
 Definition bc_whisker_l_id₂
            {C : BiCategory}
