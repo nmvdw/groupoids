@@ -8,35 +8,33 @@ From GR.bicategories Require Import
      lax_functor.examples.identity.
 
 Section FactorFullSub.
-  Context `{Univalence}
-          {C D :BiCategory}.
+  Context {C D :BiCategory}.
   Variable (F : LaxFunctor C D)
            (P : D -> hProp)
            (FP : forall (X : C), P (F X)).
   
   Definition lax_factor_d : LaxFunctor_d C (full_sub D P).
   Proof.
-    simple refine (Build_LaxFunctor_d _ _ _ _).
+    make_laxfunctor.
     - exact (fun X => (Fobj F X;FP X)).
     - intros ; apply (Fmor F).
-    - intros ; apply (Fcomp F).
+    - intros X Y Z g f ; simpl in *.
+      exact (Fcomp₁ F g f).
     - intros ; apply (Fid F).
   Defined.
 
   Definition is_lax_factor : is_lax lax_factor_d.
   Proof.
-    repeat split ; intros ; simpl ; apply F.
+    make_is_lax ; intros ; apply F.
   Defined.
 
   Definition lax_factor : LaxFunctor C (full_sub D P)
     := Build_LaxFunctor lax_factor_d is_lax_factor.
 
   Global Instance lax_inclusion_pseudo
-         `{@is_pseudo_functor _ _ _ F}
-    : is_pseudo_functor lax_factor.
+         `{is_pseudo _ _ F}
+    : is_pseudo lax_factor.
   Proof.
-    simple refine {| Fcomp_iso := _ |} ; intros ; cbn in *.
-    - apply Fcomp_iso.
-    - apply Fid_iso.
+    simple refine {| Fcomp_iso := _ |} ; intros ; cbn in * ; apply _.
   Defined.
 End FactorFullSub.

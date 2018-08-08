@@ -5,8 +5,6 @@ From GR.bicategories Require Import
      general_category bicategory.bicategory.
 
 Section TerminalBiCategory.
-  Context `{Univalence}.
-
   Definition terminal_cat : PreCategory.
   Proof.
     simple refine (@Build_PreCategory
@@ -18,126 +16,42 @@ Section TerminalBiCategory.
     ; intros ; apply path_ishprop.
   Defined.
 
-  Definition constant (C : PreCategory) : Functor C terminal_cat.
+  Definition terminal_d : BiCategory_d.
   Proof.
-    simple refine (Build_Functor _ _ _ _ _ _) ; simpl.
-    - exact (fun _ => tt).
-    - exact (fun _ _ _ => tt).
-    - reflexivity.
-    - reflexivity.
+    make_bicategory.
+    - exact Unit.
+    - exact (fun _ _ => terminal_cat).
+    - intros [ ] ; simpl in *.
+      exact tt.
+    - intros [ ] [ ] [ ] [[ ] [ ]] ; simpl in *.
+      exact tt.
+    - intros [ ] [ ] [ ] [[ ] [ ]] [[ ] [ ]] [[ ] [ ]] ; simpl in *.
+      exact tt.
+    - intros [ ] [ ] [ ] ; simpl in *.
+      exact tt.
+    - intros [ ] [ ] [ ] ; simpl in *.
+      exact tt.
+    - intros [ ] [ ] [ ] ; simpl in *.
+      exact tt.
+    - intros [ ] [ ] [ ] ; simpl in *.
+      exact tt.
+    - intros [ ] [ ] [ ] [ ] [ ] [ ] [ ] ; simpl in *.
+      exact tt.
+    - intros [ ] [ ] [ ] [ ] [ ] [ ] [ ] ; simpl in *.
+      exact tt.
   Defined.
 
-  Definition maps (x y : Unit) : PreCategory
-    := terminal_cat.
-        
-  Definition comp_functor (x y z : Unit)
-    : Functor (maps y z * maps x y) (maps x z)
-    := constant (maps y z * maps x y).
-
-  Definition tUnitor_l (x y : Unit)
-    : NaturalTransformation
-        (comp_functor x y y o (@const_functor _ (maps y y) tt * 1))
-        1.
+  Definition terminal_is_bicategory : is_bicategory terminal_d.
   Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _) ; reflexivity.
-  Defined.
-
-  Definition tUnitor_l_inv (x y : Unit)
-    : NaturalTransformation
-        1
-        (comp_functor x y y o (@const_functor (maps x y) (maps y y) tt * 1)).
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _) ; reflexivity.
-  Defined.
-
-  Global Instance tUnitor_l_iso (x y : Unit)
-    : @IsIsomorphism (_ -> _) _ _ (tUnitor_l x y).
-  Proof.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    - apply tUnitor_l_inv.
-    - cbn.
-      apply path_natural_transformation.
-      intros p ; cbn in *.
+    make_is_bicategory ; try reflexivity.
+    - intros [ ] [ ] [ ] [[ ] [ ]] ; simpl in *.
       reflexivity.
-    - cbn.
-      apply path_natural_transformation.
-      intros p ; cbn in *.
+    - intros [ ] [ ] [ ] [[ ] [ ]] [[ ] [ ]] [[ ] [ ]] [[ ] [ ]] [[ ] [ ]] ; simpl in *.
       reflexivity.
-  Defined.
-
-  Definition tUnitor_r (x y : Unit)
-    : NaturalTransformation
-        (comp_functor x x y o (1 * @const_functor (maps x y) (maps x x) tt))
-        1.
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _) ; reflexivity.
-  Defined.
-
-  Definition tUnitor_r_inv (x y : Unit)
-    : NaturalTransformation
-        1
-        (comp_functor x x y o (1 * @const_functor (maps x y) (maps x x) tt)).
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _) ; reflexivity.
-  Defined.
-
-  Global Instance tUnitor_r_iso (x y : Unit)
-    : @IsIsomorphism (_ -> _) _ _ (tUnitor_r x y).
-  Proof.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    - apply tUnitor_r_inv.
-    - cbn.
-      apply path_natural_transformation.
-      intros p ; cbn in *.
+    - intros [ ] [ ] [ ] [ ] [ ] ; simpl in *.
       reflexivity.
-    - cbn.
-      apply path_natural_transformation.
-      intros p ; cbn in *.
-      reflexivity.
-  Defined.
+  Qed.
 
-  Definition tAssociator (a b c d : Unit)
-    : NaturalTransformation
-        (comp_functor a b d o (comp_functor b c d, 1))
-        (comp_functor a c d o (1, comp_functor a b c)
-                        o assoc_prod (maps c d) (maps b c) (maps a b)).
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _) ; reflexivity.
-  Defined.
-
-  Definition tAssociator_inv (a b c d : Unit)
-    : NaturalTransformation
-        (comp_functor a c d o (1, comp_functor a b c)
-                      o assoc_prod (maps c d) (maps b c) (maps a b))
-        (comp_functor a b d o (comp_functor b c d, 1)).
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _) ; reflexivity.
-  Defined.
-
-  Global Instance tAssociator_iso (a b c d : Unit)
-    : @IsIsomorphism (_ -> _) _ _ (tAssociator a b c d).
-  Proof.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    - apply tAssociator_inv.
-    - cbn.
-      apply path_natural_transformation.
-      intro ; reflexivity.
-    - cbn.
-      apply path_natural_transformation.
-      intro ; reflexivity.
-  Defined.
-
-  Definition terminal_bicategory : BiCategory.
-  Proof.
-    simple refine (Build_BiCategory Unit
-                                    maps
-                                    (fun _ => tt)
-                                    comp_functor
-                                    tUnitor_l
-                                    tUnitor_r
-                                    tAssociator
-                                    _
-                                    _)
-    ; reflexivity.
-  Defined.
+  Definition terminal_bicategory : BiCategory
+    := Build_BiCategory terminal_d terminal_is_bicategory.
 End TerminalBiCategory.

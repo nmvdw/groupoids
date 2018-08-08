@@ -7,21 +7,29 @@ From GR.bicategories Require Import
      lax_transformation.lax_transformation
      modification.modification.
 
-Definition comp_modification
-           `{Univalence}
-           {C D : BiCategory}
-           {F G : LaxFunctor C D}
-           {η₁ η₂ η₃ : LaxTransformation F G}
-           (q : modification η₂ η₃) (p : modification η₁ η₂)
-  : modification η₁ η₃.
-Proof.
-  simple refine (Build_Modification _ _).
-  - exact (fun A => mod_component q A o mod_component p A)%morphism.
-  - intros A B f.
+Section CompositionModification.
+  Context `{Univalence}
+          {C D : BiCategory}
+          {F G : LaxFunctor C D}
+          {η₁ η₂ η₃ : LaxTransformation F G}.
+  Variable (σ₂ : modification η₂ η₃)
+           (σ₁ : modification η₁ η₂).
+
+  Definition comp_modification_d : modification_d η₁ η₃
+    := (fun A => mod_component σ₂ A o mod_component σ₁ A)%morphism.
+
+  Definition comp_modification_is_modification
+    : is_modification comp_modification_d.
+  Proof.
+    intros A B f.
     rewrite bc_whisker_r_compose, bc_whisker_l_compose.
     rewrite <- !associativity.
     rewrite !mod_commute.
     rewrite !associativity.
     rewrite mod_commute.
     reflexivity.
-Defined.
+  Qed.
+
+  Definition comp_modification : modification η₁ η₃
+    := Build_Modification comp_modification_d comp_modification_is_modification.
+End CompositionModification.

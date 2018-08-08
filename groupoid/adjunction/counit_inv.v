@@ -40,20 +40,19 @@ Section CounitInverse.
     : is_pseudo_transformation_rd counit_gq_inv_rd.
   Proof.
     repeat split.
-    - intros X Y f g α ; simpl.
-      Time induction α.
+    - intros X Y f g α.
+      induction α.
       unfold hcomp ; simpl.
       rewrite !concat_p1.
       rewrite !ap_postcompose.
       rewrite <- path_forall_1.
       f_ap.
-      funext x.
-      simpl.
+      funext x ; simpl.
       rewrite ge.
       reflexivity.
-    - intros X ; simpl.
-      unfold hcomp ; simpl.
-      rewrite !concat_p1 ; cbn.
+    - intros X.
+      unfold hcomp ; cbn.
+      rewrite !concat_p1.
       rewrite <- path_forall_pp.
       rewrite !ap_postcompose.
       rewrite <- path_forall_1.

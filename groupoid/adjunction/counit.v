@@ -18,6 +18,9 @@ From GR.groupoid Require Import
 From GR.basics Require Import
      general.
 
+Definition test {A} : A.
+Admitted.
+
 Section Counit.
   Context `{Univalence}.
 
@@ -32,7 +35,7 @@ Section Counit.
     - reflexivity.
   Defined.
   
-  Definition naturality_help
+  Definition naturality_help₁
              {X Y : one_types}
              (f : X -> Y)
              {a₁ a₂ : path_groupoid X}
@@ -41,25 +44,41 @@ Section Counit.
         (fun h : gquot (path_groupoid X) =>
            f (counit_map X h)
            =
-           counit_map Y ((Fmor (lax_comp gquot_functor path_groupoid_functor)) f h))
+           counit_map Y ((Fmor (lax_comp gquot_functor path_groupoid_functor)) f h)
+        )
         (gcleq (path_groupoid X) g)
         idpath
         idpath.
   Proof.
+    induction g.
     apply map_path_over.
-    simple refine (whisker_square
-                     idpath
-                     (ap (ap f) (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)^
-                      @ (ap_compose _ _ _)^)
-                     _
-                     idpath
-                     _).
-    - exact (ap f g).
-    - refine (_ @ (ap_compose _ _ _)^).
-      refine ((gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)^ @ _).
-      apply ap.
-      exact ((gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)^).
-    - apply vrefl.
+    apply path_to_square.
+    refine (concat_p1 _ @ _ @ (concat_1p _)^).
+    rewrite ge.
+    reflexivity.
+  Qed.
+
+  Definition naturality_help₂
+             {X Y : one_types}
+             (f : X -> Y)
+             {a₁ a₂ : path_groupoid X}
+             (g : hom (path_groupoid X) a₁ a₂)
+    : path_over
+        (fun h : gquot (path_groupoid X) =>
+           counit_map Y ((Fmor (lax_comp gquot_functor path_groupoid_functor)) f h)
+           =
+           f (counit_map X h)
+        )
+        (gcleq (path_groupoid X) g)
+        idpath
+        idpath.
+  Proof.
+    induction g.
+    apply map_path_over.
+    apply path_to_square.
+    refine (concat_p1 _ @ _ @ (concat_1p _)^).
+    rewrite ge.
+    reflexivity.
   Qed.
 
   Definition counit_gq_rd
@@ -73,21 +92,18 @@ Section Counit.
       funext x ; simpl ; revert x.
       simple refine (gquot_ind_set _ _ _ _).
       + reflexivity.
-      + intros ; simpl.
-        pose (naturality_help f g) as p.
-        cbn in *.
-        apply p.
+      + intros.
+        pose (naturality_help₁ f g) as p.
+        cbn in p.
+        exact p.
     - intros X Y f.
       funext x ; simpl ; revert x.
       simple refine (gquot_ind_set _ _ _ _).
       + reflexivity.
-      + intros a₁ a₂ g .
-        induction g.
-        apply map_path_over.
-        apply path_to_square.
-        refine (concat_p1 _ @ _ @ (concat_1p _)^).
-        rewrite ge.
-        reflexivity.
+      + intros a₁ a₂ g.
+        pose (naturality_help₂ f g) as p.
+        cbn in p.
+        exact p.
   Defined.
 
   Definition counit_gq_rd_is_lax
@@ -122,7 +138,7 @@ Section Counit.
         apply Morphisms.iso_moveR_1V.
         reflexivity.
       }
-      unfold hcomp ; simpl.
+      simpl ; unfold hcomp.
       Opaque gquot_functor_rd_map.
       cbn.
       rewrite !concat_1p, !concat_p1.

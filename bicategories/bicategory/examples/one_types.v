@@ -34,167 +34,64 @@ Section OneTypesBiCategory.
     - intros p ; induction p.
       reflexivity.
   Defined.
-
-  Definition comp_functor (A B C : 1 -Type)
-    : Functor (maps B C * maps A B) (maps A C).
+  
+  Definition one_types_d : BiCategory_d.
   Proof.
-    simple refine (Build_Functor _ _ _ _ _ _).
-    - exact (fun f => (fst f) o (snd f)).
-    - intros [f₁ f₂] [g₁ g₂] [h₁ h₂] ; cbn in *.
-      exact (ap (fun z => z o f₂) h₁ @ ap (fun z => g₁ o z) h₂).
-    - intros [f₁ f₂] [g₁ g₂] [h₁ h₂] [p₁ p₂] [q₁ q₂] ; cbn in *.
-      induction p₁, p₂, q₁, q₂ ; cbn.
+    make_bicategory.
+    - exact (1 -Type).
+    - exact (fun X Y => maps X Y).
+    - exact (fun _ => idmap).
+    - exact (fun _ _ _ p => Datatypes.fst p o Datatypes.snd p)%function.
+    - intros X Y Z [f₁ f₂] [g₁ g₂] [p₁ p₂] ; simpl in *.
+      induction p₁, p₂ ; simpl.
       reflexivity.
-    - intros [f₁ f₂] ; cbn in *.
+    - intros X Y f ; simpl in *.
+      reflexivity.
+    - intros X Y f ; simpl in *.
+      reflexivity.
+    - intros X Y f ; simpl in *.
+      reflexivity.
+    - intros X Y f ; simpl in *.
+      reflexivity.
+    - intros W X Y Z f g h ; simpl in *.
+      reflexivity.
+    - intros W X Y Z f g h ; simpl in *.
       reflexivity.
   Defined.
 
-  Definition cUnitor_l (A B : 1 -Type)
-    : NaturalTransformation
-        (comp_functor A B B o (@const_functor _ (maps B B) idmap * 1))
-        1.
+  Definition one_types_is_bicategory : is_bicategory one_types_d.
   Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    + reflexivity.
-    + cbn ; intros ? ? p.
-      induction p.
+    make_is_bicategory.
+    - intros X Y Z [f₁ f₂] ; simpl in *.
       reflexivity.
-  Defined.
-
-  Definition cUnitor_l_inv (A B : 1 -Type)
-    : NaturalTransformation
-        1
-        (comp_functor A B B o (@const_functor (maps A B) (maps B B) idmap * 1)).
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    + reflexivity.
-    + intros ? ? p ; cbn.
-      induction p.
+    - intros X Y Z [f₁ f₂] [g₁ g₂] [h₁ h₂] [p₁ p₂] [q₁ q₂] ; simpl in *.
+      induction p₁, p₂, q₁, q₂ ; simpl.
       reflexivity.
-  Defined.
-
-  Global Instance cUnitor_l_iso (A B : 1 -Type)
-    : @IsIsomorphism (_ -> _) _ _ (cUnitor_l A B).
-  Proof.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    - apply cUnitor_l_inv.
-    - cbn.
-      apply path_natural_transformation.
-      intros p ; cbn in *.
+    - intros X Y f g p ; simpl in *.
+      induction p ; simpl.
       reflexivity.
-    - cbn.
-      apply path_natural_transformation.
-      intros p ; cbn in *.
+    - intros X Y f g p ; simpl in *.
+      induction p ; simpl.
       reflexivity.
-  Defined.
-
-  Definition cUnitor_r (A B : 1 -Type)
-    : NaturalTransformation
-        (comp_functor A A B o (1 * @const_functor (maps A B) (maps A A) idmap))
-        1.
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    + reflexivity.
-    + intros ? ? p ; induction p ; cbn.
+    - intros X Y f g p ; simpl in *.
+      induction p ; simpl.
       reflexivity.
-  Defined.
-
-  Definition cUnitor_r_inv (A B : 1 -Type)
-    : NaturalTransformation
-        1
-        (comp_functor A A B o (1 * @const_functor (maps A B) (maps A A) idmap)).
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    + reflexivity.
-    + intros ? ? p ; induction p ; cbn.
+    - intros X Y f g p ; simpl in *.
+      induction p ; simpl.
       reflexivity.
-  Defined.
-
-  Global Instance cUnitor_r_iso (A B : 1 -Type)
-    : @IsIsomorphism (_ -> _) _ _ (cUnitor_r A B).
-  Proof.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    - apply cUnitor_r_inv.
-    - cbn.
-      apply path_natural_transformation.
-      intros p ; cbn in *.
+    - reflexivity.
+    - reflexivity.
+    - reflexivity.
+    - reflexivity.
+    - intros W X Y Z h₁ h₂ g₁ g₂ f₁ f₂ ph pg pf ; simpl in *.
+      induction ph, pg, pf ; simpl.
       reflexivity.
-    - cbn.
-      apply path_natural_transformation.
-      intros p ; cbn in *.
+    - intros W X Y Z h₁ h₂ g₁ g₂ f₁ f₂ ph pg pf ; simpl in *.
+      induction ph, pg, pf ; simpl.
       reflexivity.
-  Defined.
-
-  Definition cAssociator (A B C D : 1 -Type)
-    : NaturalTransformation
-        (comp_functor A B D o (comp_functor B C D, 1))
-        (comp_functor A C D o (1, comp_functor A B C)
-                        o assoc_prod (maps C D) (maps B C) (maps A B)).
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    + intros [[f₁ f₂] f₃] ; cbn in *.
-      reflexivity.
-    + intros [[f₁ f₂] f₃] [[g₁ g₂] g₃] [[h₁ h₂] h₃] ; cbn in *.
-      induction h₁, h₂, h₃ ; cbn.
-      reflexivity.
-  Defined.
-
-  Definition cAssociator_inv (A B C D : 1 -Type)
-    : NaturalTransformation
-        (comp_functor A C D o (1, comp_functor A B C)
-                      o assoc_prod (maps C D) (maps B C) (maps A B))
-        (comp_functor A B D o (comp_functor B C D, 1)).
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    + intros [[f₁ f₂] f₃] ; cbn in *.
-      reflexivity.
-    + intros [[f₁ f₂] f₃] [[g₁ g₂] g₃] [[h₁ h₂] h₃] ; cbn in *.
-      induction h₁, h₂, h₃ ; cbn.
-      reflexivity.
-  Defined.
-
-  Global Instance cAssociator_iso (A B C D : 1 -Type)
-    : @IsIsomorphism (_ -> _) _ _ (cAssociator A B C D).
-  Proof.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    - apply cAssociator_inv.
-    - cbn.
-      apply path_natural_transformation.
-      intros [[f₁ f₂] f₃] ; cbn in *.
-      reflexivity.
-    - cbn.
-      apply path_natural_transformation.
-      intros [[f₁ f₂] f₃] ; cbn in *.
-      reflexivity.
-  Defined.
-
-  Definition assoc_inv_one_types
-             (A B C D : 1 -Type)
-             (f : (C -> D) * (B -> C) * (A -> B))
-    : @morphism_inverse (_ -> _) _ _ (cAssociator A B C D) _ f
-      =
-      cAssociator_inv A B C D f.
-  Proof.
-    reflexivity.
-  Defined.
-
-  Definition one_types : BiCategory.
-  Proof.
-    simple refine (Build_BiCategory (1 -Type)
-                                    maps
-                                    (fun _ => idmap)
-                                    comp_functor
-                                    cUnitor_l
-                                    cUnitor_r
-                                    cAssociator
-                                    _
-                                    _)
-    ; reflexivity.
-  Defined.
-
-  Definition one_types_21 : is_21 one_types.
-  Proof.
-    intros X Y ; cbn.
-    apply _.
+    - reflexivity.
+    - reflexivity.
+    - reflexivity.
+    - reflexivity.
   Defined.
 End OneTypesBiCategory.

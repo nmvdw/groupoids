@@ -4,42 +4,46 @@ From HoTT.Categories Require Import
 From GR.bicategories Require Import
      bicategory.bicategory lax_functor.lax_functor lax_transformation.lax_transformation.
 
+Definition modification_d
+           `{Univalence}
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           (η₁ η₂ : LaxTransformation F G)
+  : Type
+  := forall (A : C), two_cell (laxcomponent_of η₁ A) (laxcomponent_of η₂ A).
+
+Definition is_modification
+           `{Univalence}
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           {η₁ η₂ : LaxTransformation F G}
+           (σ : modification_d η₁ η₂)
+  : Type
+  := forall (A B : C) (f : Hom C A B),
+    ((laxnaturality_of η₂ f)
+       o
+       (bc_whisker_r _ (Fmor G f) (σ A))
+     =
+     (bc_whisker_l (Fmor F f) _ (σ B))
+       o
+       (laxnaturality_of η₁ f)
+    )%morphism.
+
 Definition modification
        `{Univalence}
        {C D : BiCategory}
        {F G : LaxFunctor C D}
-       (σ₁ σ₂ : LaxTransformation F G)
-  := {mc : forall (A : C),
-        two_cell (laxcomponent_of σ₁ A) (laxcomponent_of σ₂ A) &
-        forall (A B : C) (f : Hom C A B),
-          ((laxnaturality_of σ₂ f)
-             o
-             (bc_whisker_r _ (Fmor G f) (mc A))
-           =
-           (bc_whisker_l (Fmor F f) _ (mc B))
-             o
-             (laxnaturality_of σ₁ f)
-          )%morphism
-     }.
+       (η₁ η₂ : LaxTransformation F G)
+  := {σ : modification_d η₁ η₂ & is_modification σ}.
 
 Definition Build_Modification
            `{Univalence}
            {C D : BiCategory}
            {F G : LaxFunctor C D}
-           {σ₁ σ₂ : LaxTransformation F G}
-           (mc : forall (A : C), two_cell
-                                   (laxcomponent_of σ₁ A)
-                                   (laxcomponent_of σ₂ A))
-           (mn : forall (A B : C) (f : Hom C A B),
-               ((laxnaturality_of σ₂ f)
-                  o
-                  (bc_whisker_r _ (Fmor G f) (mc A))
-                =
-                (bc_whisker_l (Fmor F f) _ (mc B))
-                  o
-                  (laxnaturality_of σ₁ f)
-               )%morphism)
-  : modification σ₁ σ₂
+           {η₁ η₂ : LaxTransformation F G}
+           (mc : modification_d η₁ η₂)
+           (mn : is_modification mc)
+  : modification η₁ η₂
   := (mc;mn).
 
 Definition mod_component
@@ -48,7 +52,6 @@ Definition mod_component
            {F G : LaxFunctor C D}
            {σ₁ σ₂ : LaxTransformation F G}
            (m : modification σ₁ σ₂)
-  : forall (A : C), two_cell (laxcomponent_of σ₁ A) (laxcomponent_of σ₂ A)
   := m.1.
 
 Definition mod_commute

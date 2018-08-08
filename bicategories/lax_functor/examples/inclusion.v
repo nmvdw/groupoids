@@ -8,47 +8,61 @@ From GR.bicategories Require Import
      lax_functor.examples.identity.
 
 Section InclusionFunctor.
-  Context `{Univalence}.
   Variable (C : BiCategory)
            (P : C -> hProp).
 
-  Definition lax_inclusion_d : LaxFunctor_d (full_sub C P) C.
+  Definition lax_inclusion_d : PseudoFunctor_d (full_sub C P) C.
   Proof.
-    simple refine (Build_LaxFunctor_d _ _ _ _).
-    - intros X.
-      exact X.1.
-    - intros X Y ; simpl.
-      exact 1%functor.
-    - intros X Y Z ; simpl.
-      apply id_functor_c_m.
-    - intros.
-      unfold hcomp ; cbn.
-      exact 1%morphism.
+    make_pseudo_functor.
+    - exact (fun X => X.1).
+    - exact (fun _ _ => idmap).
+    - exact (fun _ _ _ _ => idmap).
+    - intros X Y Z g f ; simpl in *.
+      exact (id₂ (g · f)).
+    - intros X ; simpl in *.
+      exact (id₂ (id₁ X)).
+    - intros X Y Z g f ; simpl in *.
+      exact (id₂ (g · f)).
+    - intros X ; simpl in *.
+      exact (id₂ (id₁ X)).
   Defined.
 
-  Definition is_lax_inclusion : is_lax lax_inclusion_d.
+  Definition inclusion_is_pseudo : is_pseudo_functor_p lax_inclusion_d.
   Proof.
-    repeat split.
-    - intros ; simpl.
-      unfold hcomp.
-      rewrite identity_of, !right_identity.
+    make_is_pseudo.
+    - intros ; simpl in *.
       reflexivity.
-    - intros ; simpl.
-      unfold hcomp.
-      rewrite identity_of, !right_identity.
+    - intros ; simpl in *.
       reflexivity.
-    - intros ; simpl.
-      unfold hcomp.
-      rewrite !identity_of, !right_identity, !left_identity.
+    - intros ; simpl in *.
+      rewrite (@vcomp_left_identity C), (@vcomp_right_identity C).
+      reflexivity.
+    - intros ; simpl in *.
+      rewrite (@hcomp_id₂ C), !(@vcomp_right_identity C).
+      reflexivity.
+    - intros ; simpl in *.
+      rewrite (@hcomp_id₂ C), !(@vcomp_right_identity C).
+      reflexivity.
+    - intros ; simpl in *.
+      rewrite !(@hcomp_id₂ C), !(@vcomp_left_identity C), !(@vcomp_right_identity C).
+      reflexivity.
+    - intros ; simpl in *.
+      apply (@vcomp_left_identity C).
+    - intros ; simpl in *.
+      apply (@vcomp_left_identity C).
+    - intros ; simpl in *.
+      apply (@vcomp_left_identity C).
+    - intros ; simpl in *.
+      apply (@vcomp_left_identity C).
+    - intros ; simpl in *.
+      rewrite (@vcomp_left_identity C), (@vcomp_right_identity C).
       reflexivity.
   Qed.
 
   Definition lax_inclusion : LaxFunctor (full_sub C P) C
-    := Build_LaxFunctor lax_inclusion_d is_lax_inclusion.
+    := Build_PseudoFunctor lax_inclusion_d inclusion_is_pseudo.
 
   Global Instance lax_inclusion_pseudo
-    : is_pseudo_functor lax_inclusion.
-  Proof.
-    simple refine {| Fcomp_iso := _ |}.
-  Defined.
+    : is_pseudo lax_inclusion
+    := _.
 End InclusionFunctor.

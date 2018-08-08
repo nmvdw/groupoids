@@ -4,389 +4,395 @@ From HoTT.Categories Require Import
 From GR.bicategories Require Import
      bicategory.
 
-Local Open Scope bicategory_scope.
-
 Record LaxFunctor_d
-       `{Univalence}
        (C D : BiCategory)
   := Build_LaxFunctor_d
-       { Fobj_d :> Obj C -> Obj D ;
-         Fmor_d : forall {X Y : C}, Functor (Hom C X Y) (Hom D (Fobj_d X) (Fobj_d Y)) ;
-         Fcomp_d : forall {X Y Z : C},
-             NaturalTransformation
-               (c_m o (Functor.pair (@Fmor_d Y Z) (@Fmor_d X Y)))
-               ((@Fmor_d X Z) o c_m);
-         Fid_d : forall (X : C), morphism _ (id_m (Fobj_d X)) (Fmor_d (id_m X))
+       {
+         Fobj_d :> Obj C -> Obj D ;
+         Fmor_d : forall (X Y : C), Functor (C⟦X,Y⟧) (D⟦Fobj_d X,Fobj_d Y⟧) ;
+         Fcomp₁_d :
+           forall {X Y Z : C}
+                  (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧),
+           Fmor_d Y Z g · Fmor_d X Y f ==> Fmor_d X Z (g · f) ;
+         Fid_d : forall (X : C), id₁ (Fobj_d X) ==> Fmor_d _ _ (id₁ X)
        }.
 
-Arguments Build_LaxFunctor_d {_ C D} Fobj_d Fmor_d Fcomp_d Fid_d.
-Arguments Fobj_d {_ C D}.
-Arguments Fmor_d {_ C D} _ {X Y}.
-Arguments Fcomp_d {_ C D} _ {X Y Z}.
-Arguments Fid_d {_ C D}.
+Arguments Build_LaxFunctor_d {C D} Fobj_d Fmor_d Fcomp₁_d Fid_d.
+Arguments Fobj_d {C D}.
+Arguments Fmor_d {C D} _ X Y.
+Local Notation "F '₀d' X" := (Fobj_d F X) (at level 60).
+Local Notation "F '₁d' f" := (Fmor_d F _ _ f) (at level 60).
+Local Notation "F '₂d' η" := (morphism_of (Fmor_d F _ _) η) (at level 60).
+Arguments Fcomp₁_d {C D} _ {X Y Z} g f.
+Arguments Fid_d {C D} _ X.
 
-Definition path_LaxFunctor_d_help
-           `{Univalence}
-           {C D : BiCategory}
-           {F G : LaxFunctor_d C D}
-           (obj_eq : Fobj_d F = Fobj_d G)
-           (mor_eq : forall (X Y : C),
-               transport (fun z => Functor (Hom C X Y) (Hom D z (G Y)))
-                         (ap10 obj_eq X)
-                         (transport (fun z => Functor (Hom C X Y) (Hom D _ z))
-                                    (ap10 obj_eq Y)
-                                    (@Fmor_d _ _ _ F X Y))
-               =
-               @Fmor_d _ _ _ G X Y)
-  : Type.
-Proof.
-  simple refine ((forall (X : C), _ = Fid_d G X) *
-                 (forall (X Y Z : C), _ = @Fcomp_d _ _ _ G X Y Z)).
-  - induction (mor_eq X X).
-    simpl in *.
-    clear mor_eq.
-    induction obj_eq ; simpl.
-    exact (Fid_d F X).
-  - induction (mor_eq X Z), (mor_eq Y Z), (mor_eq X Y) ; cbn in *.
-    clear mor_eq.
-    induction obj_eq ; simpl.
-    exact (Fcomp_d F).
-Defined.
-  
-Definition path_LaxFunctor_d
-           `{Univalence}
-           {C D : BiCategory}
-           {F G : LaxFunctor_d C D}
-           (obj_eq : Fobj_d F = Fobj_d G)
-           (mor_eq : forall (X Y : C),
-              transport (fun z => Functor (Hom C X Y) (Hom D z (G Y)))
-                          (ap10 obj_eq X)
-                          (transport (fun z => Functor (Hom C X Y) (Hom D _ z))
-                                     (ap10 obj_eq Y)
-                                     (@Fmor_d _ _ _ F X Y))
-              =
-              @Fmor_d _ _ _ G X Y)
-           (trans_eq : path_LaxFunctor_d_help obj_eq mor_eq)
-  : F = G.
-Proof.
-  destruct trans_eq as [t1 t2].
-  destruct F, G ; simpl in *.
-  induction obj_eq ; simpl in *.
-  pose (p := path_forall _ _ (fun x => path_forall _ _ (fun y => mor_eq x y))).
-  assert (forall (X Y : C), mor_eq X Y = apD10 (apD10 p X) Y) as q.
-  {
-    intros ; unfold p.
-    rewrite !apD10_path_forall.
-    reflexivity.
-  }
-  induction p ; simpl in *.
-  assert (Fid_d0 = Fid_d1) as X.
-  {
-    funext X.
-    rewrite <- (t1 X), q ; cbn.
-    reflexivity.
-  }
-  induction X.
-  assert (Fcomp_d0 = Fcomp_d1) as X.
-  {
-    funext x y z.
-    rewrite <- (t2 x y z), !q ; cbn.
-    reflexivity.
-  }
-  induction X.
-  reflexivity.
-Defined.
+Ltac make_laxfunctor := simple refine (Build_LaxFunctor_d _ _ _ _).
 
-Definition is_lax
-           `{Univalence}
-           {C D : BiCategory}
-           (F : LaxFunctor_d C D)
-  : hProp
-  := BuildhProp
-       ((forall {X Y : C} (f : Hom C X Y),
-           un_r (Fobj_d F X) (Fobj_d F Y) (Fmor_d F f)
-           =
-           ((morphism_of (Fmor_d F) (un_r _ _ f))
-              o (Fcomp_d F (f,id_m X))
-              o (1 ∗ Fid_d F X))%morphism)
-        *
-        (forall (X Y : C) (f : Hom C X Y),
-           un_l (Fobj_d F X) (Fobj_d F Y) (Fmor_d F f)
-           =
-           ((morphism_of (Fmor_d F) (un_l X Y f))
-              o (Fcomp_d F (id_m Y,f))
-              o (Fid_d F Y ∗ 1))%morphism)
-        *
-        (forall (W X Y Z : C) (h : Hom C Y Z) (g : Hom C X Y) (f : Hom C W X),
-           ((Fcomp_d F (h, (g · f)))
-              o (1 ∗ (Fcomp_d F (g,f)))
-              o (assoc (Fmor_d F h,
-                        Fmor_d F g,
-                        Fmor_d F f))
-           =
-           (morphism_of (Fmor_d F) (assoc (h,g,f)))
-             o Fcomp_d F (h · g,f)
-             o (Fcomp_d F (h,g) ∗ 1))%morphism
-       )).
+Record is_lax
+       {C D : BiCategory}
+       (F : LaxFunctor_d C D)
+  := Build_is_lax
+       {
+         Fcomp₂_p :
+           forall {X Y Z : C}
+                  {g₁ g₂ : C⟦Y,Z⟧} {f₁ f₂ : C⟦X,Y⟧}
+                  (η₁ : g₁ ==> g₂)
+                  (η₂ : f₁ ==> f₂),
+             (Fcomp₁_d F g₂ f₂)
+               ∘ (hcomp2 (F ₂d η₂) (F ₂d η₁))
+             =
+             (F ₂d (hcomp2 η₂ η₁))
+               ∘ (Fcomp₁_d F g₁ f₁) ;
+         F_left_unit_p :
+           forall {X Y : C} (f : C⟦X,Y⟧),
+             left_unit (F ₁d f)
+             =
+             (F ₂d (left_unit f))
+               ∘ Fcomp₁_d F (id₁ Y) f
+               ∘ (hcomp2 (id₂ (F ₁d f)) (Fid_d F Y)) ;
+         F_right_unit_p :
+           forall {X Y : C} (f : C⟦X,Y⟧),
+             right_unit (F ₁d f)
+             =
+             (F ₂d (right_unit f))
+               ∘ Fcomp₁_d F f (id₁ X)
+               ∘ (hcomp2 (Fid_d F X) (id₂ (F ₁d f))) ;
+         F_assoc_p :
+           forall {W X Y Z : C}
+                  (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧),
+             (Fcomp₁_d F h (g · f))
+               ∘ (hcomp2 (Fcomp₁_d F g f) (id₂ (F ₁d h)))
+               ∘ assoc (F ₁d h) (F ₁d g) (F ₁d f)
+             =
+             (F ₂d (assoc h g f))
+                ∘ Fcomp₁_d F (h · g) f
+                ∘ (hcomp2 (id₂ (F ₁d f)) (Fcomp₁_d F h g))
+       }.
 
-Definition LaxFunctor `{Univalence} (C D : BiCategory)
+Arguments Build_is_lax {C D F} _ _ _ _.
+Arguments Fcomp₂_p {C D F} _ {X Y Z g₁ g₂ f₁ f₂} η₁ η₂.
+Arguments F_left_unit_p {C D F} _ {X Y} f.
+Arguments F_right_unit_p {C D F} _ {X Y} f.
+Arguments F_assoc_p {C D F} _ {W X Y Z} h g f.
+
+Ltac make_is_lax := simple refine (Build_is_lax _ _ _ _).
+
+Definition LaxFunctor (C D : BiCategory)
   := {F : LaxFunctor_d C D & is_lax F}.
 
 Definition Build_LaxFunctor
-           `{Univalence}
            {C D : BiCategory}
            (F : LaxFunctor_d C D)
            (F_lax : is_lax F)
   : LaxFunctor C D
   := (F;F_lax).
 
-Definition path_LaxFunctor
-           `{Univalence}
+Definition Fobj
            {C D : BiCategory}
-           (F G : LaxFunctor C D)
-           (Heq : F.1 = G.1)
-  : F = G
-  := path_sigma_hprop _ _ Heq.
-
-Section LaxFunctorData.
-  Context `{Univalence} {C D : BiCategory}.
-  Variable (F : LaxFunctor C D).
-
-  Definition Fobj : Obj C -> Obj D := Fobj_d F.1.
-
-  Definition Fmor {X Y : C} : Functor (Hom C X Y) (Hom D (Fobj X) (Fobj Y))
-    := Fmor_d F.1.
-
-  Definition Fcomp {X Y Z : C}
-    : NaturalTransformation
-        (c_m o (Functor.pair (@Fmor Y Z) (@Fmor X Y)))
-        ((@Fmor X Z) o c_m)
-    := Fcomp_d F.1.
-
-  Definition Fid (X : C)
-    : morphism _ (id_m (Fobj X)) (Fmor (id_m X))
-    := Fid_d F.1 X.
-
-  Definition Fun_r {X Y : C} (f : Hom C X Y)
-    : un_r (Fobj X) (Fobj Y) (Fmor f)
-      =
-      ((morphism_of Fmor (un_r _ _ f))
-         o (Fcomp (f,id_m X))
-         o (1 ∗ Fid X))%morphism.
-  Proof.
-    apply F.2.
-  Defined.
-
-  Definition Fun_l {X Y : C} (f : Hom C X Y)
-    : un_l (Fobj X) (Fobj Y) (Fmor f)
-      =
-      ((morphism_of Fmor (un_l X Y f))
-         o (Fcomp (id_m Y,f))
-         o (Fid Y ∗ 1))%morphism.
-  Proof.
-    apply F.2.
-  Defined.
-
-  Definition Fassoc
-             {W X Y Z : C}
-             (h : Hom C Y Z) (g : Hom C X Y) (f : Hom C W X)
-    : ((Fcomp (h, (g · f)))
-         o (1 ∗ (Fcomp (g,f)))
-         o (assoc (Fmor h,
-                   Fmor g,
-                   Fmor f))
-       =
-       (morphism_of Fmor (assoc (h,g,f)))
-         o Fcomp (h · g,f)
-         o (Fcomp (h,g) ∗ 1))%morphism.
-  Proof.
-    apply F.2.
-  Defined.
-End LaxFunctorData.
+           (F : LaxFunctor C D)
+  : C -> D
+  := Fobj_d F.1.
 
 Coercion Fobj : LaxFunctor >-> Funclass.
 
-Class is_pseudo_functor
-      `{Univalence}
+Definition Fmor
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           (X Y : C)
+  : Functor (C⟦X,Y⟧) (D⟦F X, F Y⟧)
+  := Fmor_d F.1 X Y.
+
+Notation "F '₁' f" := (Fmor F _ _ f) (at level 60) : bicategory_scope.
+Notation "F '₂' η" := (morphism_of (Fmor F _ _) η) (at level 60) : bicategory_scope.
+
+Definition Fmor₂_id₂
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           {X Y : C}
+           (f : C⟦X,Y⟧)
+  : F ₂ (id₂ f) = id₂ (F ₁ f).
+Proof.
+  apply Fmor.
+Defined.
+
+Definition Fmor₂_vcomp
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           {X Y : C}
+           (f g h : C⟦X,Y⟧)
+           (η₁ : f ==> g) (η₂ : g ==> h)
+  : F ₂ (η₂ ∘ η₁) = (F ₂ η₂) ∘ (F ₂ η₁).
+Proof.
+  apply Fmor.
+Defined.
+
+Definition Fcomp₁
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           {X Y Z : C}
+           (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
+  : (F ₁ g) · (F ₁ f) ==> (F ₁ (g · f))
+  := Fcomp₁_d F.1 g f.
+
+Definition Fcomp₂
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           {X Y Z : C}
+           {f₁ f₂ : C⟦X,Y⟧}
+           {g₁ g₂ : C⟦Y,Z⟧}
+           (η₁ : g₁ ==> g₂)
+           (η₂ : f₁ ==> f₂)
+  : Fcomp₁ F g₂ f₂ ∘ ((F ₂ η₁) * (F ₂ η₂)) = (F ₂ η₁ * η₂) ∘ Fcomp₁ F g₁ f₁
+  := Fcomp₂_p F.2 η₁ η₂.
+
+Definition Fcomp
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           (X Y Z : C)
+  : NaturalTransformation
+      ((hcomp (F X) (F Y) (F Z))
+         o (Functor.pair (Fmor F Y Z) (Fmor F X Y)))
+      ((Fmor F X Z) o hcomp X Y Z).
+Proof.
+  simple refine (Build_NaturalTransformation _ _ _ _).
+  - intros [g f] ; simpl in *.
+    apply Fcomp₁.
+  - intros [f₁ f₂] [g₁ g₂] [η₁ η₂] ; simpl in *.
+    apply Fcomp₂.
+Defined.
+
+Definition Fid
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           (X : C)
+  : id₁ (F X) ==> (F ₁ (id₁ X))
+  := Fid_d F.1 X.
+
+Definition F_left_unit
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           {X Y : C}
+           (f : C⟦X,Y⟧)
+  : left_unit (F ₁ f)
+    =
+    (F ₂ (left_unit f))
+      ∘ Fcomp₁ F (id₁ Y) f
+      ∘ ((Fid F Y) * (id₂ (F ₁ f)))
+  := F_left_unit_p F.2 f.
+
+Definition F_right_unit
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           {X Y : C}
+           (f : C⟦X,Y⟧)
+  : right_unit (F ₁ f)
+    =
+    (F ₂ (right_unit f))
+      ∘ Fcomp₁ F f (id₁ X)
+      ∘ ((id₂ (F ₁ f)) * (Fid F X))
+  := F_right_unit_p F.2 f.
+
+Definition F_assoc
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           {W X Y Z : C}
+           (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
+  : (Fcomp₁ F h (g · f))
+      ∘ ((id₂ (F ₁ h)) * (Fcomp₁ F g f))
+      ∘ assoc (F ₁ h) (F ₁ g) (F ₁ f)
+    =
+    (F ₂ (assoc h g f))
+      ∘ Fcomp₁ F (h · g) f
+      ∘ ((Fcomp₁ F h g) * (id₂ (F ₁ f)))
+  := F_assoc_p F.2 h g f.
+
+Class is_pseudo
       {C D : BiCategory}
       (F : LaxFunctor C D)
-  := { Fcomp_iso : forall {X Y Z : C},
-         @IsIsomorphism (_ -> _)
-                        _
-                        _
-                        (@Fcomp _ _ _ F X Y Z) ;
+  := { Fcomp_iso : forall {X Y Z : C}
+                          (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧),
+         IsIsomorphism (Fcomp₁ F g f) ;
        Fid_iso : forall {X : C},
            IsIsomorphism (Fid F X)
      }.
 
-Global Instance Fcomp_is_iso_class
-       `{Univalence}
+Global Instance Fcomp₁_is_iso
        {C D : BiCategory}
        (F : LaxFunctor C D)
-       `{@is_pseudo_functor _ C D F}
+       `{is_pseudo _ _ F}
        {X Y Z : C}
-  : @IsIsomorphism (_ -> _) _ _ (@Fcomp _ _ _ F X Y Z).
+       (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
+  : IsIsomorphism (Fcomp₁ F g f).
 Proof.
   apply Fcomp_iso.
 Defined.
-
-Global Instance Fid_is_iso_class
+       
+Global Instance Fcomp_is_iso
        `{Univalence}
        {C D : BiCategory}
        (F : LaxFunctor C D)
-       `{@is_pseudo_functor _ _ _ F}
+       `{is_pseudo _ _ F}
+       {X Y Z : C}
+  : @IsIsomorphism (_ -> _) _ _ (Fcomp F X Y Z).
+Proof.
+  apply isisomorphism_natural_transformation.
+  apply _.
+Defined.
+
+Global Instance Fid_is_iso
+       {C D : BiCategory}
+       (F : LaxFunctor C D)
+       `{is_pseudo _ _ F}
        {X : C}
   : IsIsomorphism (Fid F X).
 Proof.
   apply Fid_iso.
 Defined.
 
-Local Open Scope bicategory.
+Record PseudoFunctor_d
+       (C D : BiCategory)
+  := Build_PseudoFunctor_d
+       {
+         PObj :> C -> D ;
+         POne : forall {X Y : C},
+             C⟦X,Y⟧ -> D⟦PObj X,PObj Y⟧ ;
+         PTwo : forall {X Y : C} {f g : C⟦X,Y⟧},
+             f ==> g -> (POne f) ==> (POne g) ;
+         Pcomp_d : forall {X Y Z : C}
+                           (g : C⟦Y,Z⟧)
+                           (f : C⟦X,Y⟧),
+             POne g · POne f ==> POne (g · f) ;
+         Pid_d : forall (X : C),
+             id₁ (PObj X) ==> POne (id₁ X) ;
+         Pcomp_inv_d : forall {X Y Z : C}
+                               (g : C⟦Y,Z⟧)
+                               (f : C⟦X,Y⟧),
+             POne (g · f) ==> POne g · POne f ;
+         Pid_inv_d : forall (X : C),
+             POne (id₁ X) ==> id₁ (PObj X)
+       }.
 
-Section RawBuilder.
-  Context `{Univalence}
-          {C D : BiCategory}.
+Arguments Build_PseudoFunctor_d {C D} _ _ _ _ _ _ _.
+Ltac make_pseudo_functor := simple refine (Build_PseudoFunctor_d _ _ _ _ _ _ _).
+Arguments PObj {C D} _ _.
+Arguments POne {C D} _ {X Y} _.
+Arguments PTwo {C D} _ {X Y f g} _.
+Arguments Pcomp_d {C D} _ {X Y Z} g f.
+Arguments Pid_d {C D} _ X.
+Arguments Pcomp_inv_d {C D} _ {X Y Z} g f.
+Arguments Pid_inv_d {C D} _ X.
 
-  Record PseudoFunctor_rd
-    := Build_PseudoFunctor_rd
-         { F₀ : C -> D ;
-           F₁ : forall {X Y : C},
-               one_cell X Y -> one_cell (F₀ X) (F₀ Y) ;
-           F₂ : forall {X Y : C} {f g : one_cell X Y},
-               two_cell f g -> two_cell (F₁ f) (F₁ g) ;
-           Fcomp_rd : forall {X Y Z : C}
-                             (g : one_cell Y Z)
-                             (f : one_cell X Y),
-               two_cell (F₁ g · F₁ f) (F₁ (g · f)) ;
-           Fid_rd : forall (X : C),
-               two_cell (id_m (F₀ X)) (F₁ (id_m X)) ;
-           Fcomp_inv_rd : forall {X Y Z : C}
-                                 (g : one_cell Y Z)
-                                 (f : one_cell X Y),
-               two_cell (F₁ (g · f)) (F₁ g · F₁ f) ;
-           Fid_inv_rd : forall (X : C),
-               two_cell (F₁ (id_m X)) (id_m (F₀ X))
-         }.
-  
-  Definition is_pseudo_functor_d (F : PseudoFunctor_rd) : Type.
-  Proof.
-    refine (_ * _ * _ * _ * _ * _ * _ * _ * _ * _ * _).
-    - exact (forall (X Y : C)
-                    (f : one_cell X Y),
-                F₂ F (1%morphism : two_cell f f)
-                =
-                1%morphism).
-    - exact (forall (X Y : C)
-                    (f g h : one_cell X Y)
-                    (α : two_cell f g)
-                    (β : two_cell g h),
-                F₂ F (β o α)%morphism
-                =
-                (F₂ F β o F₂ F α)%morphism).
-    - exact (forall {X Y Z : C}
-                    (f₁ f₂ : one_cell X Y)
-                    (g₁ g₂ : one_cell Y Z)
-                    (α₁ : two_cell f₁ f₂)
-                    (α₂ : two_cell g₁ g₂),
-                (Fcomp_rd F g₂ f₂ o hcomp (F₂ F α₁) (F₂ F α₂))%morphism
-                =
-                (F₂ F (hcomp α₁ α₂) o Fcomp_rd F g₁ f₁)%morphism).
-    - exact (forall (X Y : C) (f : Hom C X Y),
-                (un_r (F₀ F X) (F₀ F Y)) (F₁ F f)
-                =
-                ((F₂ F ((un_r X Y) f))
-                   o Fcomp_rd F f (id_m X)
-                   o (1 ∗ Fid_rd F X))%morphism).
-    - exact (forall (X Y : C) (f : Hom C X Y),
-                (un_l (F₀ F X) (F₀ F Y)) (F₁ F f)
-                =
-                ((F₂ F ((un_l X Y) f))
-                   o Fcomp_rd F (id_m Y) f
-                   o (Fid_rd F Y ∗ 1))%morphism).
-    - exact (forall (W X Y Z : C)
-                    (h : Hom C Y Z) (g : Hom C X Y) (f : Hom C W X),
-                ((Fcomp_rd F h (g · f))
-                   o (1 ∗ Fcomp_rd F g f)
-                   o assoc (F₁ F h, F₁ F g, F₁ F f))%morphism =
-                ((F₂ F (assoc (h, g, f)))
-                   o Fcomp_rd F (h · g) f
-                   o (Fcomp_rd F h g ∗ 1))%morphism).
-    - exact (forall (X Y Z : C)
-                    (g : one_cell Y Z)
-                    (f : one_cell X Y),
-                (Fcomp_inv_rd F g f o Fcomp_rd F g f)%morphism = 1%morphism).
-    - exact (forall (X Y Z : C)
-                    (g : one_cell Y Z)
-                    (f : one_cell X Y),
-                (Fcomp_rd F g f o Fcomp_inv_rd F g f)%morphism = 1%morphism).
-    - exact (forall (X : C),
-                (Fid_inv_rd F X o Fid_rd F X)%morphism
-                =
-                1%morphism).
-    - exact (forall (X : C),
-                (Fid_rd F X o Fid_inv_rd F X)%morphism
-                =
-                1%morphism).
-    - exact (forall (X Y Z : C)
-                    (f₁ f₂ : one_cell X Y)
-                    (g₁ g₂ : one_cell Y Z)
-                    (α₂ : two_cell g₁ g₂)
-                    (α₁ : two_cell f₁ f₂),
-                (Fcomp_inv_rd F g₂ f₂ o F₂ F (hcomp α₁ α₂))%morphism
-                =
-                ((hcomp (F₂ F α₁) (F₂ F α₂)) o Fcomp_inv_rd F g₁ f₁)%morphism).
-  Defined.
+Record is_pseudo_functor_p
+       {C D : BiCategory}
+       (F : PseudoFunctor_d C D)
+  := Build_is_pseudo_functor {
+         PTwo_id₂ : forall (X Y : C)
+                           (f : C⟦X,Y⟧),
+           PTwo F (id₂ f) = id₂ (POne F f) ;
+         PTwo_comp :
+           forall {X Y : C}
+                  {f g h : C⟦X,Y⟧}
+                  (η : f ==> g)
+                  (ε : g ==> h),
+             PTwo F (ε ∘ η) = PTwo F ε ∘ PTwo F η ;
+         Pcomp_natural :
+           forall {X Y Z : C}
+                  {f₁ f₂ : C⟦X,Y⟧}
+                  {g₁ g₂ : C⟦Y,Z⟧}
+                  (η₁ : f₁ ==> f₂)
+                  (η₂ : g₁ ==> g₂),
+             Pcomp_d F g₂ f₂ ∘ (hcomp2 (PTwo F η₁) (PTwo F η₂))
+             =
+             PTwo F (hcomp2 η₁ η₂) ∘ Pcomp_d F g₁ f₁ ;
+         Pright_unit :
+           forall {X Y : C}
+                  (f : C⟦X,Y⟧),
+             right_unit (POne F f)
+             =
+             (PTwo F (right_unit f))
+               ∘ Pcomp_d F f (id₁ X)
+               ∘ hcomp2 (Pid_d F X) (id₂ (POne F f)) ;
+         Pleft_unit :
+           forall {X Y : C}
+                  (f : C⟦X,Y⟧),
+             left_unit (POne F f)
+             =
+             (PTwo F (left_unit f))
+               ∘ Pcomp_d F (id₁ Y) f
+               ∘ hcomp2 (id₂ (POne F f)) (Pid_d F Y) ;
+         Passoc :
+           forall {W X Y Z : C}
+                  (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧),
+             (Pcomp_d F h (g · f))
+               ∘ hcomp2 (Pcomp_d F g f) (id₂ (POne F h))
+               ∘ assoc (POne F h) (POne F g) (POne F f)
+             =
+             (PTwo F (assoc h g f))
+               ∘ Pcomp_d F (h · g) f
+               ∘ hcomp2 (id₂ (POne F f)) (Pcomp_d F h g) ;
+         Pcomp_left :
+           forall {X Y Z : C}
+                  (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧),
+             Pcomp_inv_d F g f ∘ Pcomp_d F g f = id₂ (POne F g · POne F f) ;
+         Pcomp_right :
+           forall {X Y Z : C}
+                  (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧),
+             Pcomp_d F g f ∘ Pcomp_inv_d F g f = id₂ (POne F (g · f)) ;
+         Pid_left :
+           forall (X : C),
+             Pid_d F X ∘ Pid_inv_d F X = id₂ (POne F (id₁ X)) ;
+         Pid_right :
+           forall (X : C),
+             Pid_inv_d F X ∘ Pid_d F X = id₂ (id₁ (F X)) ;
+         Pcomp_inv_natural :
+           forall {X Y Z : C}
+                  {f₁ f₂ : C⟦X,Y⟧}
+                  {g₁ g₂ : C⟦Y,Z⟧}
+                  (η₂ : g₁ ==> g₂)
+                  (η₁ : f₁ ==> f₂),
+             Pcomp_inv_d F g₂ f₂ ∘ PTwo F (hcomp2 η₁ η₂)
+             =
+             (hcomp2 (PTwo F η₁) (PTwo F η₂)) ∘ Pcomp_inv_d F g₁ f₁
+       }.
 
-  Definition Build_PseudoFunctor
-             (F : PseudoFunctor_rd)
-             (HF : is_pseudo_functor_d F)
+Ltac make_is_pseudo := simple refine (Build_is_pseudo_functor _ _ _ _ _ _ _ _ _ _ _ _ _ _).
+
+Definition Build_PseudoFunctor
+           {C D : BiCategory}
+           (F : PseudoFunctor_d C D)
+           (HF : is_pseudo_functor_p F)
     : LaxFunctor C D.
-  Proof.
-    destruct HF as [[[[[[[[[[H₁ H₂] H₃] H₄] H₅] H₆] H₇] H₈] H₉] H₁₀] H₁₁].
-    simple refine (Build_LaxFunctor _ _).
-    - simple refine (Build_LaxFunctor_d _ _ _ _).
-      + exact (F₀ F).
-      + intros X Y.
-        simple refine (Build_Functor _ _ _ _ _ _).
-        * exact (F₁ F).
-        * exact (@F₂ F X Y).
-        * exact (H₂ X Y).
-        * exact (H₁ X Y).
-      + intros X Y Z.
-        simple refine (Build_NaturalTransformation _ _ _ _).
-        * intros [g f] ; cbn.
-          exact (Fcomp_rd F g f).
-        * intros [g₁ f₁] [g₂ f₂] [α₂ α₁] ; simpl in *.
-          exact (H₃ X Y Z f₁ f₂ g₁ g₂ α₁ α₂).
-      + exact (Fid_rd F).
-    - exact (H₄,H₅,H₆).
-  Defined.
+Proof.
+  simple refine (Build_LaxFunctor _ _).
+  - make_laxfunctor.
+    + exact (PObj F).
+    + intros X Y.
+      simple refine (Build_Functor _ _ _ _ _ _).
+      * exact (POne F).
+      * exact (@PTwo _ _ F X Y).
+      * apply HF.
+      * apply HF.
+    + intros X Y Z g f ; simpl in *.
+      exact (Pcomp_d F g f).
+    + exact (Pid_d F).
+  - make_is_lax ; intros ; simpl in * ; apply HF.
+Defined.
 
-  Global Instance Build_PseudoFunctor_is_pseudo
-         (F : PseudoFunctor_rd)
-         (HF : is_pseudo_functor_d F)
-    : is_pseudo_functor (Build_PseudoFunctor F HF).
-  Proof.
-    split.
-    - intros X Y Z.
-      simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-      + simple refine (Build_NaturalTransformation _ _ _ _).
-        * intros [g f] ; cbn.
-          exact (Fcomp_inv_rd F g f).
-        * intros [g₁ f₁] [g₂ f₂] [α₂ α₁].
-          apply HF.
-      + apply path_natural_transformation.
-        intros [g f] ; cbn.
-        apply HF.
-      + apply path_natural_transformation.
-        intros [g f] ; cbn.
-        apply HF.
-    - intros X.
-      simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-      + exact (Fid_inv_rd F X).
-      + apply HF.
-      + apply HF.
-  Defined.
-End RawBuilder.
-
-Arguments PseudoFunctor_rd {_} C D.
+Global Instance Build_PseudoFunctor_is_pseudo
+       {C D : BiCategory}
+       (F : PseudoFunctor_d C D)
+       (HF : is_pseudo_functor_p F)
+  : is_pseudo (Build_PseudoFunctor F HF).
+Proof.
+  split.
+  - intros X Y Z g f.
+    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+    + exact (Pcomp_inv_d F g f).
+    + apply HF.
+    + apply HF.
+  - intros X.
+    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+    + exact (Pid_inv_d F X).
+    + apply HF.
+    + apply HF.
+Defined.

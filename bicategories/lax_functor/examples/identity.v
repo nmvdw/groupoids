@@ -5,65 +5,60 @@ From GR.bicategories Require Import
      bicategory.bicategory lax_functor.lax_functor.
 
 Section IdentityFunctor.
-  Context `{Univalence}.
   Variable (C : BiCategory).
 
-  Definition id_functor_c_m (a b c : C)
-    : NaturalTransformation (@c_m _ C a b c o (1, 1)) (1 o c_m).
+  Definition id_functor_d : PseudoFunctor_d C C.
   Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    - cbn ; intros [p q].
-      apply identity.
-    - intros [p₁ p₂] [q₁ q₂] [r₁ r₂] ; cbn in *.
-      exact (left_identity _ _ _ _ @ (right_identity _ _ _ _)^).
+    make_pseudo_functor ; simpl in *.
+    - exact idmap.
+    - exact (fun _ _ => idmap).
+    - exact (fun _ _ _ _ => idmap).
+    - intros X Y Z g f ; simpl.
+      exact (id₂ (g · f)).
+    - intros X ; simpl in *.
+      exact (id₂ (id₁ X)).
+    - intros X Y Z g f ; simpl in *.
+      exact (id₂ (g · f)).
+    - intros X ; simpl in *.
+      exact (id₂ (id₁ X)).
   Defined.
 
-  Global Instance id_functor_pp_iso (a b c : C)
-    : @IsIsomorphism (_ -> _) _ _ (id_functor_c_m a b c).
+  Definition id_functor_is_pseudo : is_pseudo_functor_p id_functor_d.
   Proof.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    - simple refine (Build_NaturalTransformation _ _ _ _) ; cbn.
-      + intros [q p].
-        apply identity.
-      + intros [q₁ p₁] [q₂ p₂] [r₁ r₂] ; simpl in *.
-        exact (left_identity _ _ _ _ @ (right_identity _ _ _ _)^).
-    - apply path_natural_transformation.
-      intros [q p] ; simpl in *.
-      apply left_identity.
-    - apply path_natural_transformation.
-      intros [q p] ; simpl in *.
-      apply left_identity.
-  Defined.
-
-  Definition lax_id_functor_d : LaxFunctor_d C C
-    := Build_LaxFunctor_d idmap
-                          (fun _ _ => 1%functor)
-                          id_functor_c_m
-                          (fun _ => 1%morphism).
-
-  Definition is_lax_id : is_lax lax_id_functor_d.
-  Proof.
-    repeat split.
-    - intros ; cbn in *.
-      unfold hcomp.
-      rewrite identity_of, !right_identity.
+    make_is_pseudo.
+    - intros X Y f ; simpl in *.
       reflexivity.
-    - intros ; cbn.
-      unfold hcomp.
-      rewrite identity_of, !right_identity.
+    - intros X Y f g h η₁ η₂ ; simpl in *.
       reflexivity.
-    - intros ; cbn.
-      unfold hcomp.
-      rewrite !identity_of, !right_identity, !left_identity.
+    - intros X Y Z f₁ f₂ g₁ g₂ η₁ η₂ ; simpl in *.
+      rewrite vcomp_left_identity, vcomp_right_identity.
+      reflexivity.
+    - intros X Y f ; simpl in *.
+      rewrite hcomp_id₂, !vcomp_right_identity.
+      reflexivity.
+    - intros X Y f ; simpl in *.
+      rewrite hcomp_id₂, !vcomp_right_identity.
+      reflexivity.
+    - intros W X Y Z h g f ; simpl in *.
+      rewrite !hcomp_id₂, !vcomp_left_identity, !vcomp_right_identity.
+      reflexivity.
+    - intros X Y Z g f ; simpl in *.
+      apply vcomp_left_identity.
+    - intros X Y Z g f ; simpl in *.
+      apply vcomp_left_identity.
+    - intros X ; simpl in *.
+      apply vcomp_left_identity.
+    - intros X ; simpl in *.
+      apply vcomp_left_identity.
+    - intros X Y Z f₁ f₂ g₁ g₂ η₂ η₁ ; simpl in *.
+      rewrite vcomp_left_identity, vcomp_right_identity.
       reflexivity.
   Qed.
 
   Definition lax_id_functor : LaxFunctor C C
-    := Build_LaxFunctor lax_id_functor_d is_lax_id.
+    := Build_PseudoFunctor id_functor_d id_functor_is_pseudo.
 
   Global Instance lax_id_functor_pseudo
-    : is_pseudo_functor lax_id_functor.
-  Proof.
-    simple refine {| Fcomp_iso := _ |}.
-  Defined.
+    : is_pseudo lax_id_functor
+    := _.
 End IdentityFunctor.
