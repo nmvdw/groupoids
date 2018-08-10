@@ -54,9 +54,6 @@ Section InclusionFunctor.
       apply (@vcomp_left_identity C).
     - intros ; simpl in *.
       apply (@vcomp_left_identity C).
-    - intros ; simpl in *.
-      rewrite (@vcomp_left_identity C), (@vcomp_right_identity C).
-      reflexivity.
   Qed.
 
   Definition lax_inclusion : LaxFunctor (full_sub C P) C

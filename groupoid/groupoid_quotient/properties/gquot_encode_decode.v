@@ -10,76 +10,74 @@ Section encode_decode.
   Variable (G : groupoid).
   Context `{Univalence}.
 
-  Local Notation A := (under G).
-
   (** First, we shall lift the hom set of [G] to a set relation of [gquot G].
       For that, we need an equivalence between [hom G a₁ b] and [hom G a₂ b] (given a morphism [hom G a₁ a₂]),
       and another one between [hom G a b₁] and [hom G a b₂] (given a morphism [hom G b₁ b₂]).
       Those are the [left_action] and the [right_action], resp.
    *)
   Definition right_action
-        {a₁ a₂ : A} (b : A)
-        (g : hom G a₁ a₂)
-    : hom G a₁ b -> hom G a₂ b
-    := fun h => (inv g) · h.
+        {a₁ a₂ : G} (b : G)
+        (g : G a₁ a₂)
+    : G a₁ b -> G a₂ b
+    := fun h => (inv g) ● h.
 
   Definition right_action_inv
-             {a₁ a₂ : A} (b : A)
-             (g : hom G a₁ a₂)
-    : hom G a₂ b -> hom G a₁ b
-    := fun h => g · h.
+             {a₁ a₂ : G} (b : G)
+             (g : G a₁ a₂)
+    : G a₂ b -> G a₁ b
+    := fun h => g ● h.
 
-  Global Instance right_action_equiv (a : A) {b₁ b₂ : A} (g : hom G b₁ b₂)
+  Global Instance right_action_equiv (a : G) {b₁ b₂ : G} (g : G b₁ b₂)
     : IsEquiv (right_action a g).
   Proof.
     simple refine (isequiv_adjointify _ (right_action_inv a g) _ _).
     - intros h ; compute.
-      refine (car _ _ _ @ _).
-      exact (ap (fun z => z · h) (ic _) @ ec _).
+      refine (grpd_right_assoc _ _ _ @ _).
+      exact (ap (fun z => z ● h) (grpd_left_inverse _) @ grpd_left_identity _).
     - intros h ; compute.
-      refine (car _ _ _ @ _).
-      exact (ap (fun z => z · h) (ci _) @ ec _).
+      refine (grpd_right_assoc _ _ _ @ _).
+      exact (ap (fun z => z ● h) (grpd_right_inverse _) @ grpd_left_identity _).
   Defined.
 
   Definition left_action
-        (a : A) {b₁ b₂ : A}
-        (g : hom G b₁ b₂)
-    : hom G a b₁ -> hom G a b₂
-    := fun h => h · g.
+        (a : G) {b₁ b₂ : G}
+        (g : G b₁ b₂)
+    : G a b₁ -> G a b₂
+    := fun h => h ● g.
 
   Definition left_action_inv
-             (a : A) {b₁ b₂ : A}
-             (g : hom G b₁ b₂)
-    : hom G a b₂ -> hom G a b₁
-    := fun h => h · (inv g).
+             (a : G) {b₁ b₂ : G}
+             (g : G b₁ b₂)
+    : G a b₂ -> G a b₁
+    := fun h => h ● (inv g).
 
-  Global Instance left_action_equiv (a : A) {b₁ b₂ : A} (g : hom G b₁ b₂)
+  Global Instance left_action_equiv (a : G) {b₁ b₂ : G} (g : G b₁ b₂)
     : IsEquiv (left_action a g).
   Proof.
     simple refine (isequiv_adjointify _ (left_action_inv a g) _ _).
     - intros h ; compute.
-      refine (cal _ _ _ @ _).
-      exact (ap (fun z => h · z) (ic _) @ ce _).
+      refine (grpd_left_assoc _ _ _ @ _).
+      exact (ap (fun z => h ● z) (grpd_left_inverse _) @ grpd_right_identity _).
     - intros h ; compute.
-      refine (cal _ _ _ @ _).
-      exact (ap (fun z => h · z) (ci _) @ ce _).
+      refine (grpd_left_assoc _ _ _ @ _).
+      exact (ap (fun z => h ● z) (grpd_right_inverse _) @ grpd_right_identity _).
   Defined.
 
   (** The action of the unit element is the identity. *)
-  Definition left_action_e (a b : A)
+  Definition left_action_e (a b : G)
     : left_action a (e b) = idmap.
   Proof.
     funext x ; compute.
-    apply ce.
+    apply grpd_right_identity.
   Defined.
 
-  Definition right_action_e (a b : A) :
+  Definition right_action_e (a b : G) :
     right_action b (e a) == idmap.
   Proof.
     intro x.
     unfold right_action.
     rewrite inv_e.
-    apply ec.
+    apply grpd_left_identity.
   Qed.
 
   (** The lift of [hom G] to [gquot G]. *)
@@ -97,28 +95,28 @@ Section encode_decode.
         by rewrite inv_involutive.
     - intros ; intro ; cbn.
       unfold right_action.
-      rewrite inv_prod, car.
+      rewrite inv_prod, grpd_right_assoc.
       reflexivity.
     - intros ; compute.
-      apply ce.
+      apply grpd_right_identity.
     - intros ; compute.
       reflexivity.
     - compute ; intros.
-      apply car.
+      apply grpd_right_assoc.
     - compute ; intros.
-      apply car.
+      apply grpd_right_assoc.
   Defined.
 
   (** The computation rules of [g_fam] for the paths. *)
   Definition gquot_fam_l_gcleq
-             {a₁ a₂ : A} (b : A) (g : hom G a₁ a₂)
+             {a₁ a₂ : G} (b : G) (g : G a₁ a₂)
     : ap (fun z => g_fam z (gcl G b)) (gcleq G g)
       =
       path_hset (BuildEquiv _ _ (right_action b g) _)
     := gquot_relation_beta_l_gcleq G G (hom G) _ _ _ _ _ _ _ _ _ _ g.
 
   Definition gquot_fam_r_gcleq
-             (a : A) {b₁ b₂ : A} (g : hom G b₁ b₂)
+             (a : G) {b₁ b₂ : G} (g : G b₁ b₂)
     : ap (g_fam (gcl G a)) (gcleq G g)
       =
       path_hset (BuildEquiv _ _ (left_action a g) _)
@@ -142,8 +140,8 @@ Section encode_decode.
         exact (ap (fun z => _ @ z) (gquot_fam_l_gcleq a₂ g)).
       + exact (path_trunctype_pp _ _)^.
       + refine (transport_path_hset _ _ @ _) ; compute.
-        refine (ap (fun z => _ · z) (ec _) @ _).
-        apply ic.
+        refine (ap (fun z => _ ● z) (grpd_left_identity _) @ _).
+        apply grpd_left_inverse.
   Defined.
 
   (** Now we can define the encode function. *)
@@ -180,9 +178,9 @@ Section encode_decode.
       + simpl. apply path_to_square.
         refine (concat_1p _ @ _ @ gconcat _ _ _).
         apply ap. unfold left_action_inv.
-        refine ((ce _)^ @ _ @ car _ _ _).
+        refine ((grpd_right_identity _)^ @ _ @ grpd_right_assoc _ _ _).
         refine (ap _ _)^.
-        apply ic. 
+        apply grpd_left_inverse. 
     - intros. simpl.
       simple refine (path_over_arrow _ _ _ _ _ _).
       simpl. intros z.
@@ -217,7 +215,7 @@ Section encode_decode.
     : IsHProp (forall (p : g_fam x y), encode_gquot x y (decode_gquot x y p) = p).
   Proof.
     apply _.
-  Defined.
+  Qed.
   
   Definition encode_gquot_decode_gquot
     : forall {x y : gquot G} (p : g_fam x y), encode_gquot x y (decode_gquot x y p) = p.
@@ -232,7 +230,7 @@ Section encode_decode.
     refine (ap (fun p => transport _ p (e a)) (gquot_fam_r_gcleq a _) @ _).
     refine (transport_path_hset _ _ @ _).
     compute.
-    exact (ec g).
+    exact (grpd_left_identity g).
   Defined.
 
   Global Instance encode_gquot_isequiv

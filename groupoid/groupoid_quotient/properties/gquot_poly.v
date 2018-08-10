@@ -170,7 +170,7 @@ Section gquot_prod.
       reflexivity.
     - intros a b₁ b₂ b₃ g₁ g₂ ; simpl.
       rewrite <- gconcat ; cbn.
-      rewrite ce.
+      rewrite grpd_right_identity.
       reflexivity.
     - intros a₁ a₂ b g ; simpl.
       apply gcleq.
@@ -183,13 +183,13 @@ Section gquot_prod.
       reflexivity.
     - intros a₁ a₂ a₃ b g₁ g₂ ; simpl.
       rewrite <- gconcat ; cbn.
-      rewrite ce.
+      rewrite grpd_right_identity.
       reflexivity.
     - intros a₁ a₂ b₁ b₂ g₁ g₂ ; simpl.
       apply path_to_square.
       rewrite <- !gconcat.
       apply ap ; cbn.
-      rewrite !ce, !ec.
+      rewrite !grpd_right_identity, !grpd_left_identity.
       reflexivity.
   Defined.
 
@@ -231,7 +231,7 @@ Section gquot_prod.
                           (e (fst x₂), snd g))^
                 @ _).
         apply ap.
-        exact (path_prod' (ce _) (ec _)).
+        exact (path_prod' (grpd_right_identity _) (grpd_left_identity _)).
   Qed.
 
   Lemma gquot_prod_in_out_sect : Sect gquot_prod_in gquot_prod_out.

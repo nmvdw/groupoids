@@ -4,10 +4,9 @@ From HoTT.Categories Require Import
 From GR.bicategories Require Import
      general_category.
 From GR.bicategories.bicategory Require Import
-     bicategory bicategory_laws.
+     bicategory bicategory_laws univalent.
 
 Section OpBiCategory.
-  Context `{Univalence}.
   Variable (C : BiCategory).
 
   Definition op_d : BiCategory_d.
@@ -78,6 +77,13 @@ Section OpBiCategory.
       apply associativity.
   Qed.
 
-  Definition op (C : BiCategory) : BiCategory
+  Definition op : BiCategory
     := Build_BiCategory op_d op_is_bicategory.
+
+  Definition op_locally_univalent (HC : locally_univalent C)
+    : locally_univalent op.
+  Proof.
+    intros X Y f g ; cbn in *.
+    apply (HC Y X).
+  Qed.
 End OpBiCategory.

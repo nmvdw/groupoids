@@ -7,6 +7,10 @@ basics/globe_over.v
 basics/polynomial.v
 bicategories/general_category.v
 bicategories/bicategory/bicategory.v
+bicategories/bicategory/bicategory_laws.v
+bicategories/bicategory/equivalence.v
+bicategories/bicategory/adjoint.v
+bicategories/bicategory/univalent.v
 bicategories/bicategory/examples/two_type.v
 bicategories/bicategory/examples/one_types.v
 bicategories/bicategory/examples/full_sub.v
@@ -15,10 +19,7 @@ bicategories/bicategory/examples/cat.v
 bicategories/bicategory/examples/prod.v
 bicategories/bicategory/examples/terminal.v
 bicategories/bicategory/examples/discrete_bicategory.v
-bicategories/bicategory/bicategory_laws.v
 bicategories/bicategory/examples/opposite.v
-bicategories/bicategory/equivalence.v
-bicategories/bicategory/adjoint.v
 bicategories/lax_functor/lax_functor.v
 bicategories/lax_functor/examples/ap_functor.v
 bicategories/lax_functor/examples/identity.v
@@ -28,9 +29,9 @@ bicategories/lax_functor/examples/restriction.v
 bicategories/lax_functor/examples/inclusion.v
 bicategories/lax_functor/examples/factor_full_sub.v
 bicategories/lax_functor/examples/composition.v
+bicategories/lax_functor/examples/representable.v
 bicategories/lax_transformation/lax_transformation.v
 bicategories/lax_transformation/examples/identity.v
-bicategories/lax_transformation/examples/equal_transformation.v
 bicategories/lax_transformation/examples/whisker_L.v
 bicategories/lax_transformation/examples/whisker_R.v
 bicategories/lax_transformation/examples/left_identity.v
@@ -47,7 +48,16 @@ bicategories/modification/examples/identity.v
 bicategories/modification/examples/composition.v
 bicategories/modification/examples/restriction.v
 bicategories/modification/examples/factor_full_sub.v
+bicategories/modification/examples/left_identity.v
+bicategories/modification/examples/left_identity_inv.v
+bicategories/modification/examples/right_identity.v
+bicategories/modification/examples/right_identity_inv.v
+bicategories/modification/examples/associativity.v
+bicategories/modification/examples/associativity_inv.v
+bicategories/modification/examples/whisker_L.v
+bicategories/modification/examples/whisker_R.v
 bicategories/lax_transformation/transformation_category.v
+bicategories/bicategory/examples/lax_functors_bicat.v
 bicategories/biadjunction/biadjunction.v
 setoid/setoid.v
 setoid/squot_properties.v
@@ -71,3 +81,4 @@ groupoid/adjunction/unit.v
 groupoid/adjunction/unit_inv.v
 groupoid/adjunction/counit.v
 groupoid/adjunction/counit_inv.v
+groupoid/adjunction/gquot_biadjunction.v

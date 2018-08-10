@@ -2,7 +2,7 @@ Require Import HoTT.
 From HoTT.Categories Require Import
      Category Functor NaturalTransformation FunctorCategory.
 From GR.bicategories Require Import
-     general_category bicategory.bicategory.
+     general_category bicategory.bicategory bicategory.univalent.
 
 Section TwoTypeBiGroupoid.
   Variable (X : Type).
@@ -78,4 +78,10 @@ Section TwoTypeBiGroupoid.
       
   Definition path_bigroupoid : BiCategory
     := Build_BiCategory path_bigroupoid_d path_bigroupoid_is_bicategory.
+
+  Definition path_bigroupoid_locally_univalent
+    : locally_univalent path_bigroupoid.
+  Proof.
+    intro ; apply _.
+  Qed.
 End TwoTypeBiGroupoid.

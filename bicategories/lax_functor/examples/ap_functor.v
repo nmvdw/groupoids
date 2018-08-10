@@ -48,9 +48,6 @@ Section ApFunctor.
       apply concat_pV.
     - reflexivity.
     - reflexivity.
-    - intros x y z p₁ p₂ q₁ q₂ r s ; simpl.
-      induction r, s ; cbn.
-      exact (concat_1p _ @ (concat_p1 _)^).
   Qed.
 
   Definition lax_ap_functor

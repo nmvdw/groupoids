@@ -12,8 +12,7 @@ From GR.bicategories Require Import
      general_category.
 
 Section Factor.
-  Context `{Univalence}
-          {C D : BiCategory}
+  Context {C D : BiCategory}
           {F G : LaxFunctor C D}
           {η₁ η₂ : LaxTransformation F G}.
   Variable (P : D -> hProp)
@@ -27,5 +26,5 @@ Section Factor.
         (lax_factor_transformation P η₂ FH GH)
     := Build_Modification
          (fun A => mod_component σ A)
-         (fun A B f => mod_commute σ A B f).
+         (fun A B f => mod_commute σ f).
 End Factor.

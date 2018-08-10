@@ -2,7 +2,7 @@ Require Import HoTT.
 From HoTT.Categories Require Import
      Category Functor NaturalTransformation FunctorCategory.
 From GR Require Import
-     bicategory.bicategory.
+     bicategory.bicategory bicategory.univalent.
 
 Section FullSub.
   Variable (C : BiCategory)
@@ -34,4 +34,12 @@ Section FullSub.
     := Build_BiCategory
          full_sub_d
          full_sub_d_is_bicategory.
+
+  Definition full_sub_locally_univalent
+             (HC: locally_univalent C)
+    : locally_univalent full_sub.
+  Proof.
+    intros X Y.
+    apply HC.
+  Defined.
 End FullSub.

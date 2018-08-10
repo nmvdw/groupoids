@@ -50,9 +50,6 @@ Section IdentityFunctor.
       apply vcomp_left_identity.
     - intros X ; simpl in *.
       apply vcomp_left_identity.
-    - intros X Y Z f₁ f₂ g₁ g₂ η₂ η₁ ; simpl in *.
-      rewrite vcomp_left_identity, vcomp_right_identity.
-      reflexivity.
   Qed.
 
   Definition lax_id_functor : LaxFunctor C C

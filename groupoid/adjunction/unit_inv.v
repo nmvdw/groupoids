@@ -95,7 +95,7 @@ Definition univalent_grpd_eq_comp
            `{is_univalent G}
            {x y z : G}
            (g₁ : hom G x y) (g₂ : hom G y z)
-  : univalent_grpd_eq G (g₁ · g₂)
+  : univalent_grpd_eq G (g₁ ● g₂)
     =
     univalent_grpd_eq G g₁ @ univalent_grpd_eq G g₂.
 Proof.
@@ -104,7 +104,7 @@ Proof.
                     _
                     (@Category.Morphisms.idtoiso G.1 x z)
                     (obj_cat x z)
-                    (univalent_grpd_eq G (g₁ · g₂))
+                    (univalent_grpd_eq G (g₁ ● g₂))
           ).
   rewrite <-
           (@eissect _
@@ -211,14 +211,11 @@ Definition univalent_path_groupoid `{Univalence}
        (fun G => BuildhProp (is_univalent G))
        path_groupoid_univalent.
 
-Definition todo A : A.
-Admitted.
-
 Section UnitInv.
   Context `{Univalence}.
 
   Definition unit_inv_map_one (G : groupoid) `{is_univalent G}
-    : gquot G -> under G.
+    : gquot G -> G.
   Proof.
     simple refine (gquot_rec _ _ _ _ _ _ (univalent_one_type G)).
     - exact idmap.
@@ -227,14 +224,13 @@ Section UnitInv.
     - exact (fun _ _ => univalent_grpd_eq_inv G).
     - exact (fun _ _ _ => univalent_grpd_eq_comp G).
   Defined.
-
   
   Definition unit_inv_map_two
              (G : groupoid) 
              `{is_univalent G}
              (x y : gquot G)
              (p : x = y)
-    : hom G (unit_inv_map_one G x) (unit_inv_map_one G y)
+    : G (unit_inv_map_one G x) (unit_inv_map_one G y)
     := transport
          (fun z => morphism G.1 (unit_inv_map_one G x) (unit_inv_map_one G z))
          p
@@ -250,14 +246,11 @@ Section UnitInv.
       (unit_inv_map_two G y z q o unit_inv_map_two G x y p)%morphism.
   Proof.
     induction p, q.
-    exact (ce _)^.
+    exact (grpd_right_identity _)^.
   Qed.
                                                               
   Definition unit_inv_map (G : groupoid) `{UG : is_univalent G}
-    : @one_cell _
-                univalent_grpd
-                (univalent_path_groupoid(univalent_gquot (G;UG)))
-                (G;UG).
+    : univalent_grpd⟦univalent_path_groupoid(univalent_gquot (G;UG)),(G;UG)⟧.
   Proof.
     simple refine (Build_Functor _ _ _ _ _ _).
     - exact (unit_inv_map_one G).
@@ -267,17 +260,17 @@ Section UnitInv.
   Defined.
 
   Definition unit_inv_naturality_map_po
-             {G₁ G₂ : grpd}
+             {G₁ G₂ : groupoid}
              `{is_univalent G₁} `{is_univalent G₂}
              (F : Functor G₁.1 G₂.1)
-             (x y : under G₁)
-             (g : hom G₁ x y)
+             (x y : G₁)
+             (g : G₁ x y)
     : path_over
         (fun h : gquot G₁ =>
            Core.morphism
              G₂.1
              (F (unit_inv_map_one G₁ h))
-             (unit_inv_map_one G₂ (gquot_functor_rd_map F h)))
+             (unit_inv_map_one G₂ (gquot_functor_map F h)))
         (gcleq G₁ g)
         1%morphism
         1%morphism.
@@ -300,7 +293,7 @@ Section UnitInv.
     : forall c : gquot G₁,
       Core.morphism G₂.1
                     (F (unit_inv_map_one G₁ c))
-                    (unit_inv_map_one G₂ (gquot_functor_rd_map F c)).
+                    (unit_inv_map_one G₂ (gquot_functor_map F c)).
   Proof.
     simple refine (gquot_ind_set _ _ _ _).
     - intros a ; simpl.
@@ -316,8 +309,8 @@ Section UnitInv.
              (p : x = y)
     : ((unit_inv_naturality_map F y o F _1 (unit_inv_map_two G₁ x y p))
       =
-      (unit_inv_map_two G₂ (gquot_functor_rd_map F x) (gquot_functor_rd_map F y)
-                        (ap (gquot_functor_rd_map F) p) o unit_inv_naturality_map F x)
+      (unit_inv_map_two G₂ (gquot_functor_map F x) (gquot_functor_map F y)
+                        (ap (gquot_functor_map F) p) o unit_inv_naturality_map F x)
       )%morphism.
   Proof.
     induction p.
@@ -332,10 +325,10 @@ Section UnitInv.
              {G₁ G₂ : univalent_grpd}
              (F : Hom univalent_grpd G₁ G₂)
     : (Core.NaturalTransformation
-         (((Fmor (lax_id_functor univalent_grpd)) F)
+         (((Fmor (lax_id_functor univalent_grpd)) _ _ F)
             o unit_inv_map G₁.1)
          ((unit_inv_map G₂.1)
-            o (Fmor (lax_comp univalent_path_groupoid univalent_gquot)) F))%morphism.
+            o (Fmor (lax_comp univalent_path_groupoid univalent_gquot)) _ _ F))%morphism.
   Proof.
     destruct G₁ as [G₁ UG₁] ; destruct G₂ as [G₂ UG₂].
     simple refine (Build_NaturalTransformation _ _ _ _).
@@ -344,16 +337,16 @@ Section UnitInv.
   Defined.
 
   Definition unit_inv_naturality_map_inv_po
-             {G₁ G₂ : grpd}
+             {G₁ G₂ : groupoid}
              `{is_univalent G₁} `{is_univalent G₂}
              (F : Functor G₁.1 G₂.1)
-             (x y : under G₁)
-             (g : hom G₁ x y)
+             (x y : G₁)
+             (g : G₁ x y)
     : path_over
         (fun h : gquot G₁ =>
            Core.morphism
              G₂.1
-             (unit_inv_map_one G₂ (gquot_functor_rd_map F h))
+             (unit_inv_map_one G₂ (gquot_functor_map F h))
              (F (unit_inv_map_one G₁ h)))
         (gcleq G₁ g)
         1%morphism
@@ -376,7 +369,7 @@ Section UnitInv.
              (F : Functor G₁.1 G₂.1)
     : forall c : gquot G₁,
       Core.morphism G₂.1
-                    (unit_inv_map_one G₂ (gquot_functor_rd_map F c))
+                    (unit_inv_map_one G₂ (gquot_functor_map F c))
                     (F (unit_inv_map_one G₁ c)).
   Proof.
     simple refine (gquot_ind_set _ _ _ _).
@@ -394,9 +387,9 @@ Section UnitInv.
     : ((unit_inv_naturality_map_inv F y)
          o (unit_inv_map_two
               G₂
-              (gquot_functor_rd_map F x)
-              (gquot_functor_rd_map F y)
-              (ap (gquot_functor_rd_map F) p)))%morphism
+              (gquot_functor_map F x)
+              (gquot_functor_map F y)
+              (ap (gquot_functor_map F) p)))%morphism
       =
       (F _1 (unit_inv_map_two G₁ x y p)
          o unit_inv_naturality_map_inv F x)%morphism.
@@ -414,8 +407,8 @@ Section UnitInv.
              (F : Hom univalent_grpd G₁ G₂)
     : (Core.NaturalTransformation
          ((unit_inv_map G₂.1)
-            o (Fmor (lax_comp univalent_path_groupoid univalent_gquot)) F)
-         (((Fmor (lax_id_functor univalent_grpd)) F)
+            o (Fmor (lax_comp univalent_path_groupoid univalent_gquot)) _ _ F)
+         (((Fmor (lax_id_functor univalent_grpd)) _ _ F)
             o unit_inv_map G₁.1))%morphism.
   Proof.
     destruct G₁ as [G₁ UG₁] ; destruct G₂ as [G₂ UG₂].
@@ -424,12 +417,12 @@ Section UnitInv.
     - exact (unit_inv_naturality_inv_commute F).
   Defined.
 
-  Definition unit_gq_inv_rd
+  Definition unit_gq_inv_d
     : PseudoTransformation_d
         (lax_comp univalent_path_groupoid univalent_gquot)
         (lax_id_functor univalent_grpd).
   Proof.
-    simple refine (Build_PseudoTransformation_d _ _ _).
+    make_pseudo_transformation.
     - intros [G UG].
       exact (@unit_inv_map G UG).
     - exact (fun _ _ => unit_inv_naturality).
@@ -437,9 +430,9 @@ Section UnitInv.
   Defined.
 
   Definition unit_inv_is_lax
-    : is_pseudo_transformation_rd unit_gq_inv_rd.
+    : is_pseudo_transformation_p unit_gq_inv_d.
   Proof.
-    repeat split.
+    make_is_pseudo_transformation.
     - intros G₁ G₂ F₁ F₂ α.
       apply path_natural_transformation.
       intro x ; revert x.
@@ -469,26 +462,8 @@ Section UnitInv.
       intro a ; simpl.
       rewrite !right_identity, !left_identity.
       rewrite !identity_of, !concat_1p, ap10_path_forall.
-      rewrite !concat_p1, !right_identity.
       simpl.
-      rewrite left_identity.
-      rewrite iso_component.
-      apply iso_moveL_V1.
-      apply left_identity.
-    - intros G₁ G₂ F₁ F₂ α.
-      apply path_natural_transformation.
-      intros x ; revert x.
-      simple refine (gquot_ind_prop _ _ _).
-      intros a ; simpl.
-      rewrite identity_of, !left_identity, !right_identity.
-      rewrite ap10_path_forall.
-      unfold unit_inv_map_two ; simpl.
-      rewrite transport_morphism_FlFr.
-      rewrite ap_const ; simpl.
       rewrite !right_identity.
-      rewrite gquot_rec_beta_gcleq.
-      unfold univalent_grpd_eq.
-      rewrite eisretr ; simpl.
       reflexivity.
     - intros G₁ G₂ F.
       apply path_natural_transformation.
@@ -508,11 +483,9 @@ Section UnitInv.
     : LaxTransformation
         (lax_comp univalent_path_groupoid univalent_gquot)
         (lax_id_functor univalent_grpd)
-    := Build_PseudoTransformation unit_gq_inv_rd unit_inv_is_lax.
+    := Build_PseudoTransformation unit_gq_inv_d unit_inv_is_lax.
 
   Global Instance unit_inv_pseudo
-    : is_pseudo_transformation unit_inv.
-  Proof.
-    apply _.
-  Defined.
+    : is_pseudo_transformation unit_inv
+    := _.
 End UnitInv.

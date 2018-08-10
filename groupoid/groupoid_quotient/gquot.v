@@ -24,25 +24,25 @@ From GR.groupoid.grpd_bicategory Require Import
 *)
 Module Export gquot.
   Private Inductive gquot (G : groupoid) :=
-  | gcl : under G -> gquot G.
+  | gcl : G -> gquot G.
 
   Axiom gcleq
-    : forall (G : groupoid) {a₁ a₂ : under G} (g : hom G a₁ a₂),
+    : forall (G : groupoid) {a₁ a₂ : G} (g : G a₁ a₂),
       gcl G a₁ = gcl G a₂.
 
   Axiom ge
-    : forall (G : groupoid) (a : under G),
+    : forall (G : groupoid) (a : G),
       gcleq G (e a) = idpath.
 
   Axiom ginv
-    : forall (G : groupoid) {a₁ a₂ : under G} (g : hom G a₁ a₂),
+    : forall (G : groupoid) {a₁ a₂ : G} (g : G a₁ a₂),
       gcleq G (inv g) = (gcleq G g)^.
 
   Axiom gconcat
     : forall (G : groupoid)
-             {a₁ a₂ a₃ : under G}
-             (g₁ : hom G a₁ a₂) (g₂ : hom G a₂ a₃),
-      gcleq G (g₁ · g₂) = gcleq G g₁ @ gcleq G g₂.
+             {a₁ a₂ a₃ : G}
+             (g₁ : G a₁ a₂) (g₂ : G a₂ a₃),
+      gcleq G (g₁ ● g₂) = gcleq G g₁ @ gcleq G g₂.
   
   Axiom gtrunc
     : forall (G : groupoid), IsTrunc 1 (gquot G).
@@ -53,23 +53,23 @@ Module Export gquot.
   Section gquot_ind.
     Variable (G : groupoid)
              (Y : gquot G -> Type)
-             (gclY : forall (a : under G), Y(gcl G a))
-             (gcleqY : forall (a₁ a₂ : under G) (g : hom G a₁ a₂),
+             (gclY : forall (a : G), Y(gcl G a))
+             (gcleqY : forall (a₁ a₂ : G) (g : G a₁ a₂),
                  path_over Y (gcleq G g) (gclY a₁) (gclY a₂))
-             (geY : forall (a : under G), globe_over Y
+             (geY : forall (a : G), globe_over Y
                                                 (path_to_globe (ge G a))
                                                 (gcleqY a a (e a))
                                                 (path_over_id (gclY a)))
-             (ginvY : forall (a₁ a₂ : under G) (g : hom G a₁ a₂),
+             (ginvY : forall (a₁ a₂ : G) (g : G a₁ a₂),
                  globe_over Y
                             (path_to_globe (ginv G g))
                             (gcleqY a₂ a₁ (inv g))
                             (path_over_inv (gcleqY a₁ a₂ g)))
-             (gconcatY : forall (a₁ a₂ a₃ : under G)
-                                (g₁ : hom G a₁ a₂) (g₂ : hom G a₂ a₃),
+             (gconcatY : forall (a₁ a₂ a₃ : G)
+                                (g₁ : G a₁ a₂) (g₂ : G a₂ a₃),
                  globe_over Y
                             (path_to_globe (gconcat G g₁ g₂))
-                            (gcleqY a₁ a₃ (g₁ · g₂))
+                            (gcleqY a₁ a₃ (g₁ ● g₂))
                             (path_over_concat (gcleqY a₁ a₂ g₁)
                                               (gcleqY a₂ a₃ g₂)))
              (truncY : forall (x : gquot G), IsTrunc 1 (Y x)).
@@ -79,7 +79,7 @@ Module Export gquot.
          | gcl a => fun _ _ _ _ _ => gclY a
           end) gcleqY geY ginvY gconcatY truncY.
 
-    Axiom gquot_ind_beta_gcleq : forall (a₁ a₂ : under G) (g : hom G a₁ a₂),
+    Axiom gquot_ind_beta_gcleq : forall (a₁ a₂ : G) (g : G a₁ a₂),
         apd_po gquot_ind (gcleq G g)
         =
         gcleqY a₁ a₂ g.

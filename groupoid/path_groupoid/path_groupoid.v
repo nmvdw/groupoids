@@ -35,17 +35,22 @@ Defined.
 Section PathGroupoidFunctor.
   Context `{Univalence}.
 
+  Definition ap_functor {X Y : 1 -Type}
+    : one_types ⟦ X, Y ⟧ -> grpd ⟦ path_groupoid X, path_groupoid Y ⟧
+    := fun f =>
+         Build_Functor
+           (path_groupoid X).1
+           (path_groupoid Y).1
+           f
+           (fun _ _ => ap f)
+           (fun _ _ _ => ap_pp f)
+           (fun _ => idpath).
+
   Definition path_groupoid_map (X Y : 1 -Type)
-    : Functor (Hom one_types X Y) (Hom grpd (path_groupoid X) (path_groupoid Y)).
+    : Functor (one_types⟦X,Y⟧) (grpd⟦path_groupoid X,path_groupoid Y⟧).
   Proof.
     simple refine (Build_Functor _ _ _ _ _ _).
-    - intros f ; simpl in *.
-      simple refine (Build_Functor _ _ _ _ _ _) ; simpl.
-      + exact f.
-      + exact (fun _ _ => ap f).
-      + intros ; simpl.
-        apply ap_pp.
-      + reflexivity.
+    - exact ap_functor.
     - simpl ; intros f g p.
       simple refine (Build_NaturalTransformation _ _ _ _) ; simpl.
       + exact (ap10 p).
@@ -113,9 +118,9 @@ Section PathGroupoidFunctor.
   Defined.
 
   Definition path_functor_rd
-    : PseudoFunctor_rd one_types grpd.
+    : PseudoFunctor_d one_types grpd.
   Proof.
-    simple refine (Build_PseudoFunctor_rd _ _ _ _ _ _ _).
+    make_pseudo_functor.
     - exact path_groupoid.
     - exact path_groupoid_map.
     - intros X Y f g p ; cbn.
@@ -133,9 +138,9 @@ Section PathGroupoidFunctor.
   Defined.
 
   Definition path_functor_rd_is_pseudo
-    : is_pseudo_functor_d path_functor_rd.
+    : is_pseudo_functor_p path_functor_rd.
   Proof.
-    repeat split.
+    make_is_pseudo.
     - intros X Y f.
       apply path_natural_transformation.
       intro ; reflexivity.
@@ -146,7 +151,9 @@ Section PathGroupoidFunctor.
     - intros X Y Z f₁ f₂ g₁ g₂ p q.
       induction p, q.
       apply path_natural_transformation.
-      intro ; reflexivity.
+      intro x ; cbn in *.
+      rewrite ap10_path_forall.
+      reflexivity.
     - intros X Y f.
       apply path_natural_transformation.
       intro ; reflexivity.
@@ -168,140 +175,13 @@ Section PathGroupoidFunctor.
     - intros X.
       apply path_natural_transformation.
       intro ; reflexivity.
-    - intros X Y Z f₁ f₂ g₁ g₂ p q.
-      induction p, q.
-      apply path_natural_transformation.
-      intro ; reflexivity.
-  Defined.
+  Qed.
 
   Definition path_groupoid_functor
     : LaxFunctor one_types grpd
     := Build_PseudoFunctor path_functor_rd path_functor_rd_is_pseudo.
 
   Global Instance path_groupoid_pseudo
-    : is_pseudo_functor path_groupoid_functor.
-  Proof.
-    apply _.
-  Defined.
+    : is_pseudo path_groupoid_functor
+    := _.
 End PathGroupoidFunctor.
-
-  
-
- 
-(*
-Definition path_groupoid_map_compose `{Univalence} (X Y Z : 1 -Type)
-  : NaturalTransformation
-      (c_m o (path_groupoid_map Y Z, path_groupoid_map X Y))
-      (path_groupoid_map X Z o c_m).
-Proof.
-  simple refine (Build_NaturalTransformation _ _ _ _).
-  - intros [g f] ; simpl.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    + intros x ; simpl in *.
-      reflexivity.
-    + intros x y p ; simpl in *.
-      induction p ; simpl.
-      reflexivity.
-  - intros [g₁ f₁] [g₂ f₂] [p q].
-    apply path_natural_transformation ; simpl in *.
-    intros x.
-    induction p, q ; simpl.
-    reflexivity.
-Defined.
-
-Global Instance path_groupoid_map_compose_iso `{Univalence} (X Y Z : 1 -Type)
-  : @IsIsomorphism (_ -> _) _ _ (path_groupoid_map_compose X Y Z).
-Proof.
-  simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-  - simple refine (Build_NaturalTransformation _ _ _ _).
-    + intros [g f] ; simpl in *.
-      simple refine (Build_NaturalTransformation _ _ _ _).
-      * simpl ; intros x.
-        reflexivity.
-      * simpl ; intros x y p.
-        refine (concat_p1 _ @ _ @ (concat_1p _)^).
-        apply ap_compose.
-    + intros [g₁ f₁] [g₂ f₂] [p₁ p₂].
-      apply path_natural_transformation.
-      intros x ; simpl in *.
-      induction p₁, p₂ ; simpl.
-      reflexivity.
-  - apply path_natural_transformation.
-    intros [g f].
-    apply path_natural_transformation.
-    intros x ; simpl in *.
-    reflexivity.
-  - apply path_natural_transformation.
-    intros [g f].
-    apply path_natural_transformation.
-    intros x ; simpl in *.
-    reflexivity.
-Defined.
-
-Definition path_groupoid_map_id `{Univalence} (X : 1 -Type)
-  : morphism
-      (Hom grpd (path_groupoid X) (path_groupoid X))
-      (@id_m _ grpd (path_groupoid X))
-      ((path_groupoid_map X X) (@id_m _ one_types X)).
-Proof.
-  simple refine (Build_NaturalTransformation _ _ _ _).
-  - intros x ; simpl in *.
-    reflexivity.
-  - intros x y p ; simpl in *.
-    induction p ; simpl.
-    reflexivity.
-Defined.
-
-Global Instance path_groupoid_map_id_iso `{Univalence} (X : 1 -Type)
-  : @IsIsomorphism (_ -> _) _ _ (path_groupoid_map_id X).
-Proof.
-  simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-  - simple refine (Build_NaturalTransformation _ _ _ _).
-    + intros x ; simpl in *.
-      reflexivity.
-    + intros x y p ; simpl in *.
-      refine (concat_p1 _ @ _ @ (concat_1p _)^).
-      apply ap_idmap.
-  - apply path_natural_transformation.
-    intros x ; simpl.
-    reflexivity.
-  - apply path_natural_transformation.
-    intros x ; simpl.
-    reflexivity.
-Defined.
-    
-Definition path_groupoid_functor_d `{Univalence} : LaxFunctor_d one_types grpd.
-Proof.
-  simple refine {| Fobj_d := _ |}.
-  - exact path_groupoid.
-  - exact path_groupoid_map.
-  - exact path_groupoid_map_compose.
-  - exact path_groupoid_map_id.
-Defined.
-
-Definition is_lax_path_groupoid `{Univalence} : is_lax path_groupoid_functor_d.
-Proof.
-  repeat split.
-  - intros X Y f.
-    apply path_natural_transformation ; simpl in *.
-    intros x ; simpl.
-    reflexivity.
-  - intros X Y f.
-    apply path_natural_transformation ; simpl in *.
-    intros x ; simpl.
-    reflexivity.
-  - intros W X Y Z h g f.
-    apply path_natural_transformation ; simpl in *.
-    intros x ; simpl.
-    reflexivity.
-Qed.
-
-Definition path_groupoid_functor `{Univalence} : LaxFunctor one_types grpd
-  := (path_groupoid_functor_d;is_lax_path_groupoid).
-
-Global Instance path_groupoid_pseudo `{Univalence}
-  : is_pseudo_functor path_groupoid_functor.
-Proof.
-  simple refine {| Fcomp_iso := _ |}.
-Defined.
-*)

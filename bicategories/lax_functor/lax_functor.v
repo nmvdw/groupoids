@@ -119,7 +119,7 @@ Definition Fmor₂_vcomp
            {C D : BiCategory}
            (F : LaxFunctor C D)
            {X Y : C}
-           (f g h : C⟦X,Y⟧)
+           {f g h : C⟦X,Y⟧}
            (η₁ : f ==> g) (η₂ : g ==> h)
   : F ₂ (η₂ ∘ η₁) = (F ₂ η₂) ∘ (F ₂ η₁).
 Proof.
@@ -226,6 +226,24 @@ Global Instance Fcomp₁_is_iso
 Proof.
   apply Fcomp_iso.
 Defined.
+
+Definition Fcomp₁_inv
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           `{is_pseudo _ _ F}
+           {X Y Z : C}
+           (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
+  : (F ₁ (g · f)) ==> (F ₁ g) · (F ₁ f)
+  := (Fcomp₁ F g f)^-1.
+
+Global Instance Fcomp₁_inv_is_iso
+       {C D : BiCategory}
+       (F : LaxFunctor C D)
+       `{is_pseudo _ _ F}
+       {X Y Z : C}
+       (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
+  : IsIsomorphism (Fcomp₁_inv F g f)
+  := _.
        
 Global Instance Fcomp_is_iso
        `{Univalence}
@@ -238,6 +256,19 @@ Proof.
   apply isisomorphism_natural_transformation.
   apply _.
 Defined.
+
+Definition Fcomp₁_inv_naturality
+           `{Univalence}
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           `{is_pseudo _ _ F}
+           {X Y Z : C}
+           {g₁ g₂ : C⟦Y,Z⟧} {f₁ f₂ : C⟦X,Y⟧}
+           (ηg : g₁ ==> g₂) (ηf : f₁ ==> f₂)
+  : Fcomp₁_inv F g₂ f₂ ∘ (F ₂ (ηg * ηf))
+    =
+    ((F ₂ ηg) * (F ₂ ηf)) ∘ Fcomp₁_inv F g₁ f₁
+  := commutes (@morphism_inverse (_ -> _) _ _ (Fcomp F X Y Z) _) (g₁,f₁) (g₂,f₂) (ηg,ηf).
 
 Global Instance Fid_is_iso
        {C D : BiCategory}
@@ -344,19 +375,10 @@ Record is_pseudo_functor_p
              Pid_d F X ∘ Pid_inv_d F X = id₂ (POne F (id₁ X)) ;
          Pid_right :
            forall (X : C),
-             Pid_inv_d F X ∘ Pid_d F X = id₂ (id₁ (F X)) ;
-         Pcomp_inv_natural :
-           forall {X Y Z : C}
-                  {f₁ f₂ : C⟦X,Y⟧}
-                  {g₁ g₂ : C⟦Y,Z⟧}
-                  (η₂ : g₁ ==> g₂)
-                  (η₁ : f₁ ==> f₂),
-             Pcomp_inv_d F g₂ f₂ ∘ PTwo F (η₂ * η₁)
-             =
-             ((PTwo F η₂) * (PTwo F η₁)) ∘ Pcomp_inv_d F g₁ f₁
+             Pid_inv_d F X ∘ Pid_d F X = id₂ (id₁ (F X))
        }.
 
-Ltac make_is_pseudo := simple refine (Build_is_pseudo_functor _ _ _ _ _ _ _ _ _ _ _ _ _ _).
+Ltac make_is_pseudo := simple refine (Build_is_pseudo_functor _ _ _ _ _ _ _ _ _ _ _ _ _).
 
 Definition Build_PseudoFunctor
            {C D : BiCategory}

@@ -9,12 +9,33 @@ Section FunctorComposition.
   Context {C D E : BiCategory}.
   Variable (G : LaxFunctor D E) (F : LaxFunctor C D).
 
+  Definition compose_mor (X Y : C)
+    : Functor (C ⟦ X, Y ⟧) (E ⟦ G (F X), G (F Y) ⟧).
+  Proof.
+    simple refine (Build_Functor _ _ _ _ _ _).
+    - exact (fun f => G ₁ (F ₁ f)).
+    - exact (fun _ _ η => G ₂ (F ₂ η)).
+    - intros f g h η₁ η₂ ; simpl in *.
+      exact ((ap (fun z => G ₂ z) (Fmor₂_vcomp _ _ _))
+               @ Fmor₂_vcomp _ _ _).
+    - intros f ; simpl in *.
+      exact ((ap (fun z => G ₂ z) (Fmor₂_id₂ _ _))
+               @ Fmor₂_id₂ _ _).
+  Defined.
+
   Definition lax_comp_d : LaxFunctor_d C E.
   Proof.
     make_laxfunctor.
     - exact (G o F).
-    - intros X Y ; simpl in *.
-      exact (Fmor G (F X) (F Y) o Fmor F X Y)%functor.
+    - simple refine (fun X Y => Build_Functor _ _ _ _ _ _).
+      + exact (fun f => G ₁ (F ₁ f)).
+      + exact (fun _ _ η => G ₂ (F ₂ η)).
+      + intros f g h η₁ η₂ ; simpl in *.
+        exact ((ap (fun z => G ₂ z) (Fmor₂_vcomp _ _ _))
+                 @ Fmor₂_vcomp _ _ _).
+      + intros f ; simpl in *.
+        exact ((ap (fun z => G ₂ z) (Fmor₂_id₂ _ _))
+                 @ Fmor₂_id₂ _ _).
     - intros X Y Z g f ; simpl in *.
       exact (G ₂ (Fcomp₁ F g f) ∘ Fcomp₁ G (Fmor F Y Z g) (Fmor F X Y f)).
     - intros X.

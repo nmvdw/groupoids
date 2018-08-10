@@ -2,7 +2,7 @@ Require Import HoTT.
 From HoTT.Categories Require Import
      Category Functor NaturalTransformation FunctorCategory.
 From GR.bicategories Require Import
-     general_category bicategory.bicategory.
+     general_category bicategory.bicategory bicategory.univalent.
 
 Section TerminalBiCategory.
   Definition terminal_cat : PreCategory.
@@ -54,4 +54,20 @@ Section TerminalBiCategory.
 
   Definition terminal_bicategory : BiCategory
     := Build_BiCategory terminal_d terminal_is_bicategory.
+
+  Definition terminal_locally_univalent
+    : locally_univalent terminal_bicategory.
+  Proof.
+    intros [ ] [ ] [ ] [ ].
+    cbn.
+    apply isequiv_biinv.
+    split.
+    - simple refine (fun _ => idpath;_).
+      intros p ; cbn.
+      apply path_ishprop.
+    - simple refine (fun _ => idpath;_).
+      intros iso ; cbn.
+      apply path_isomorphic ; cbn.
+      apply path_ishprop.
+  Qed.
 End TerminalBiCategory.

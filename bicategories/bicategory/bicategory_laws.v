@@ -39,7 +39,176 @@ Defined.
 Section laws.
   Context {C : BiCategory}.
 
-  Open Scope bicategory_scope.
+  Definition move_assoc_L
+             {W X Y Z : C}
+             (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
+             {k : C⟦W,Z⟧}
+             (α : k ==> (h · g) · f)
+             (β : k ==> h · (g · f))
+    : assoc_inv h g f ∘ β = α -> β = assoc h g f ∘ α.
+  Proof.
+    unfold vcomp ; intros H.
+    refine (Morphisms.iso_moveL_Mp _ _ _).
+    apply H.
+  Defined.
+
+  Definition move_assoc_inv_L
+             {W X Y Z : C}
+             (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
+             {k : C⟦W,Z⟧}
+             (α : k ==> h · (g · f))
+             (β : k ==> (h · g) · f)
+    : assoc h g f ∘ β = α -> β = assoc_inv h g f ∘ α.
+  Proof.
+    unfold vcomp ; intros H.
+    refine (Morphisms.iso_moveL_Mp _ _ _).
+    apply H.
+  Defined.
+
+  Definition move_assoc_hcomp_L
+             {V W X Y Z : C}
+             (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧) (k : C⟦V, W⟧)
+             {l : C⟦V,Z⟧}
+             (α : l ==> ((h · g) · f) · k)
+             (β : l ==> (h · (g · f)) · k)
+    : (assoc_inv h g f * id₂ k) ∘ β = α -> β = (assoc h g f * id₂ k) ∘ α.
+  Proof.
+    unfold vcomp ; intros H.
+    refine (Morphisms.iso_moveL_Mp _ _ _).
+    apply H.
+  Defined.
+
+  Definition move_assoc_inv_hcomp_L
+             {V W X Y Z : C}
+             (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧) (k : C⟦V, W⟧)
+             {l : C⟦V,Z⟧}
+             (α : l ==> (h · (g · f)) · k)
+             (β : l ==> ((h · g) · f) · k)
+    : (assoc h g f * id₂ k) ∘ β = α -> β = (assoc_inv h g f * id₂ k) ∘ α.
+  Proof.
+    unfold vcomp ; intros H.
+    refine (Morphisms.iso_moveL_Mp _ _ _).
+    apply H.
+  Defined.
+
+  Definition inverse_pentagon
+             {V W X Y Z : C}
+             (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
+             (g : C⟦W,X⟧) (f : C⟦V,W⟧)
+    : assoc_inv (k · h) g f ∘ assoc_inv k h (g · f)
+      =
+      assoc_inv k h g * id₂ f ∘ assoc_inv k (h · g) f ∘ id₂ k * assoc_inv h g f.
+  Proof.
+    unfold vcomp, id₂.
+    rewrite <- !inverse_of_assoc.
+    rewrite <- !inverse_id.
+    rewrite <- !hcomp_inverse.
+    rewrite <- !inverse_compose.
+    apply path_inverse.
+    rewrite <- !associativity.
+    apply pentagon.
+  Qed.
+
+  Definition inverse_pentagon_2
+             {V W X Y Z : C}
+             (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
+             (g : C⟦W,X⟧) (f : C⟦V,W⟧)
+    : assoc_inv k h (g · f) ∘ id₂ k * assoc h g f
+      =
+      assoc (k · h) g f ∘ assoc_inv k h g * id₂ f ∘ assoc_inv k (h · g) f.
+  Proof.
+    rewrite <- !inverse_of_assoc.
+    refine (Morphisms.iso_moveR_Mp _ _ _).
+    rewrite <- associativity.
+    refine (Morphisms.iso_moveL_pM _ _ _).
+    rewrite <- associativity.
+    refine (Morphisms.iso_moveL_pM _ _ _).
+    simpl.
+    symmetry ; apply pentagon.
+  Qed.
+
+  Definition inverse_pentagon_3
+             {V W X Y Z : C}
+             (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
+             (g : C⟦W,X⟧) (f : C⟦V,W⟧)
+    : assoc_inv (k · h) g f ∘ assoc_inv k h (g · f) ∘ id₂ k * assoc h g f
+      =
+      assoc_inv k h g * id₂ f ∘ assoc_inv k (h · g) f.
+  Proof.
+    unfold vcomp, id₂.
+    refine (Morphisms.iso_moveR_pM _ _ _).
+    simpl.
+    apply inverse_pentagon.
+  Qed.
+
+  Definition inverse_pentagon_4
+             {V W X Y Z : C}
+             (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
+             (g : C⟦W,X⟧) (f : C⟦V,W⟧)
+    : (assoc k h g * id₂ f) ∘ assoc_inv (k · h) g f
+      =
+      assoc_inv k (h · g) f ∘ id₂ k * assoc_inv h g f ∘ assoc k h (g · f).
+  Proof.
+    rewrite <- !inverse_of_assoc.
+    refine (Morphisms.iso_moveR_pM _ _ _).
+    rewrite !associativity.
+    refine (Morphisms.iso_moveL_Mp _ _ _).
+    refine (Morphisms.iso_moveL_Mp _ _ _).
+    simpl.
+    rewrite <- !associativity.
+    symmetry ; apply pentagon.
+  Qed.
+
+  Definition inverse_pentagon_5
+             {V W X Y Z : C}
+             (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
+             (g : C⟦W,X⟧) (f : C⟦V,W⟧)
+    : assoc (k · h) g f ∘ (assoc_inv k h g * id₂ f)
+      =
+      assoc_inv k h (g · f) ∘ (id₂ k * assoc h g f) ∘ assoc k (h · g) f.
+  Proof.
+    rewrite <- !inverse_of_assoc.
+    refine (Morphisms.iso_moveR_pM _ _ _).
+    rewrite !associativity.
+    refine (Morphisms.iso_moveL_Mp _ _ _).
+    simpl.
+    rewrite <- !associativity.
+    apply pentagon.
+  Qed.
+
+  Definition pentagon_2
+             {V W X Y Z : C}
+             (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
+             (g : C⟦W,X⟧) (f : C⟦V,W⟧)
+    : assoc k (h · g) f ∘ assoc k h g * id₂ f
+      =
+      id₂ k * assoc_inv h g f ∘ assoc k h (g · f) ∘ assoc (k · h) g f.
+  Proof.
+    unfold vcomp.
+    rewrite <- !inverse_of_assoc.
+    rewrite !associativity.
+    refine (Morphisms.iso_moveL_Mp _ _ _).
+    simpl.
+    rewrite <- !associativity.
+    symmetry ; apply pentagon.
+  Qed.
+
+  Definition triangle_r_inv
+             {X Y Z : C}
+             (g : C ⟦ Y, Z ⟧) (f : C ⟦ X, Y ⟧)
+    : right_unit_inv g * id₂ f
+      =
+      assoc_inv g (id₁ Y) f ∘ id₂ g * left_unit_inv f.
+  Proof.
+    unfold vcomp, id₂.
+    rewrite <- inverse_of_right_unit, <- inverse_of_left_unit.
+    rewrite <- inverse_of_assoc.
+    rewrite <- !inverse_id.
+    rewrite <- !hcomp_inverse.
+    rewrite <- inverse_compose.
+    apply path_inverse.
+    apply triangle_r.
+  Qed.
   
   Definition triangle_l
              {X Y Z : C}
@@ -113,6 +282,21 @@ Section laws.
     : (left_unit g) ◅ f = left_unit (g · f) ∘ assoc (id₁ Z) g f.
   Proof.
   Admitted.
+
+  Definition left_unit_inv_assoc
+             {X Y Z : C}
+             (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
+    : (left_unit_inv g) ◅ f = assoc_inv (id₁ Z) g f ∘ left_unit_inv (g · f).
+  Proof.
+    unfold bc_whisker_l, vcomp, id₂.
+    rewrite <- !inverse_of_left_unit.
+    rewrite <- inverse_of_assoc.
+    rewrite <- inverse_compose.
+    rewrite <- inverse_id.
+    rewrite <- hcomp_inverse.
+    apply path_inverse.
+    apply left_unit_assoc.
+  Qed.
   (*apply right_comp.
   refine (cancel_L (assoc (id_m Z,c_m(g,id_m Y),f)) _).
   pose cancel_R.
@@ -177,6 +361,21 @@ Section laws.
     : right_unit (g · f) = g ▻ (right_unit f) ∘ assoc g f (id₁ X).
   Proof.
   Admitted.
+
+  Definition right_unit_inv_assoc
+             {X Y Z : C}
+             (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
+    : right_unit_inv (g · f) = assoc_inv g f (id₁ X) ∘ (g ▻ (right_unit_inv f)).
+  Proof.
+    unfold bc_whisker_r, vcomp, id₂.
+    rewrite <- !inverse_of_right_unit.
+    rewrite <- inverse_of_assoc.
+    rewrite <- inverse_id.
+    rewrite <- hcomp_inverse.
+    rewrite <- inverse_compose.    
+    apply path_inverse.
+    apply right_unit_assoc.
+  Qed.
 
   Definition left_unit_is_right_unit
              `{Univalence}

@@ -9,6 +9,14 @@ From GR.bicategories Require Import
      modification.modification
      modification.examples.identity
      modification.examples.composition
+     modification.examples.left_identity
+     modification.examples.left_identity_inv
+     modification.examples.right_identity
+     modification.examples.right_identity_inv
+     modification.examples.associativity
+     modification.examples.associativity_inv
+     modification.examples.whisker_L
+     modification.examples.whisker_R
      general_category.
 From HoTT.Categories Require Import
      Category Functor NaturalTransformation FunctorCategory.
@@ -17,192 +25,163 @@ Section LaxFunctors.
   Context `{Univalence}.
   Variable (C D : BiCategory).
 
-  Definition lax_func_obj : Type := LaxFunctor C D.
-  
-  Definition lax_func_maps (F G : lax_func_obj) : PreCategory
-    := transformation_category F G.
-
-  Definition todo A : A.
-  Admitted.
-  
-  Definition comp_functor (F₁ F₂ F₃ : lax_func_obj)
-    : Functor (lax_func_maps F₂ F₃ * lax_func_maps F₁ F₂) (lax_func_maps F₁ F₃).
+  Definition lax_functors_d : BiCategory_d.
   Proof.
-    simple refine (Build_Functor _ _ _ _ _ _).
-    - intros [α₁ α₂].
-      exact (composition.compose α₁ α₂).
-    - intros [α₁ α₂] [β₁ β₂] [σ₁ σ₂] ; cbn in *.
-      simple refine (_;_).
-      + intros A ; cbn.
-        unfold compose_component ; cbn.
-        exact (bc_whisker_r _ _ (σ₂.1 A) o bc_whisker_l _ _ (σ₁.1 A))%morphism.
-      + cbn.
-        intros.
-        rewrite !right_identity.
-        unfold bc_whisker_r, bc_whisker_l ; simpl.
-        rewrite <- !composition_of ; simpl.
-        rewrite !left_identity, !right_identity.
-        Search Category.Core.compose.
-        rewrite <- !associativity.
-        apply Morphisms.iso_moveL_pV.
-        rewrite !associativity.
-        apply Morphisms.iso_moveR_Vp.
-        apply todo.
-    - intros [f₁ f₂] [g₁ g₂] [h₁ h₂] [α₁ α₂] [β₁ β₂].
-      refine (path_sigma_hprop _ _ _) ; cbn.
-      funext x ; simpl.
-      unfold bc_whisker_r, bc_whisker_l ; simpl.
-      rewrite <- !composition_of ; simpl.
-      rewrite !left_identity, !right_identity.
-      reflexivity.
-    - intros [f₁ f₂] ; cbn.
-      refine (path_sigma_hprop _ _ _) ; cbn.
-      funext x ; simpl.
-      unfold bc_whisker_r, bc_whisker_l ; simpl.
-      rewrite <- !composition_of ; simpl.
-      rewrite !left_identity, identity_of.
-      reflexivity.
+    make_bicategory.
+    - exact (LaxFunctor C D).
+    - exact transformation_category.
+    - intros F ; cbn.
+      exact (identity_transformation F).
+    - intros F₁ F₂ F₃ [η₂ η₁] ; cbn in *.
+      exact (composition.compose η₁ η₂).
+    - intros F₁ F₂ F₃ [η₁ η₂] [ε₁ ε₂] [m₁ m₂] ; cbn in *.
+      exact (comp_modification (whisker_R_mod m₂ ε₁) (whisker_L_mod η₂ m₁)).
+    - intros F₁ F₂ η ; cbn in *.
+      apply left_identity_mod.
+    - intros F₁ F₂ η ; cbn in *.
+      apply left_identity_inv_mod.
+    - intros F₁ F₂ η ; cbn in *.
+      apply right_identity_mod.
+    - intros F₁ F₂ η ; cbn in *.
+      apply right_identity_inv_mod.
+    - intros F₁ F₂ F₃ F₄ η₁ η₂ η₃ ; cbn in *.
+      apply assoc_mod.
+    - intros F₁ F₂ F₃ F₄ η₁ η₂ η₃ ; cbn in *.
+      apply assoc_inv_mod.
   Defined.
 
-  Definition cUnitor_l (A B : 1 -Type)
-    : NaturalTransformation
-        (comp_functor A B B o (@const_functor _ (maps B B) idmap * 1))
-        1.
+  Definition lax_functors_is_bicategory : is_bicategory lax_functors_d.
   Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    + reflexivity.
-    + cbn ; intros ? ? p.
-      induction p.
+    make_is_bicategory.
+    - intros X Y Z [g f] ; simpl in *.
+      apply path_modification.
+      funext x ; cbn.
+      unfold comp_modification_d, whisker_R_mod, whisker_L_mod, id_modification ; cbn.
+      unfold whisker_R_mod_d, whisker_L_mod_d, id_modification_d ; cbn.
+      unfold bc_whisker_l, bc_whisker_r.
+      rewrite !hcomp_id₂.
+      rewrite vcomp_left_identity.
       reflexivity.
-  Defined.
+    - intros X Y Z [f₁ f₂] [g₁ g₂] [h₁ h₂] [η₁ η₂] [ε₁ ε₂] ; simpl in *.
+      apply path_modification.
+      funext x ; cbn.
+      unfold comp_modification_d, whisker_R_mod, whisker_L_mod, id_modification ; cbn.
+      unfold whisker_R_mod_d, whisker_L_mod_d, id_modification_d, comp_modification_d ; cbn.
+      unfold comp_modification_d, bc_whisker_l, bc_whisker_r.
+      rewrite <- !interchange.
+      rewrite !vcomp_left_identity, !vcomp_right_identity.
+      reflexivity.
+    - intros X Y f g η ; simpl in *.
+      apply path_modification.
+      funext x ; cbn.
+      unfold comp_modification_d ; cbn.
+      unfold left_identity_mod_d, comp_modification_d, id_modification ; cbn.
+      unfold whisker_R_mod_d, whisker_L_mod_d, id_modification_d ; cbn.
+      unfold bc_whisker_l, bc_whisker_r.
+      unfold left_identity_mod_d ; cbn.
+      rewrite hcomp_id₂.
+      rewrite !vcomp_right_identity.
+      apply left_unit_natural.
+    - intros X Y f g η ; simpl in *.
+      apply path_modification.
+      funext x ; cbn.
+      unfold comp_modification_d ; cbn.
+      unfold left_identity_inv_mod_d, comp_modification_d, id_modification ; cbn.
+      unfold whisker_R_mod_d, whisker_L_mod_d, id_modification_d ; cbn.
+      unfold bc_whisker_l, bc_whisker_r.
+      rewrite hcomp_id₂.
+      rewrite !vcomp_right_identity.
+      apply left_unit_inv_natural.
+    - intros X Y f g η ; simpl in *.
+      apply path_modification.
+      funext x ; cbn.
+      unfold comp_modification_d ; cbn.
+      unfold right_identity_mod_d, comp_modification_d, id_modification ; cbn.
+      unfold whisker_R_mod_d, whisker_L_mod_d, id_modification_d ; cbn.
+      unfold bc_whisker_l, bc_whisker_r.
+      rewrite hcomp_id₂.
+      rewrite !vcomp_left_identity.
+      apply right_unit_natural.
+    - intros X Y f g η ; simpl in *.
+      apply path_modification.
+      funext x ; cbn.
+      unfold comp_modification_d ; cbn.
+      unfold right_identity_inv_mod_d, comp_modification_d, id_modification ; cbn.
+      unfold whisker_R_mod_d, whisker_L_mod_d, id_modification_d ; cbn.
+      unfold bc_whisker_l, bc_whisker_r.
+      rewrite hcomp_id₂.
+      rewrite !vcomp_left_identity.
+      apply right_unit_inv_natural.
+    - intros X Y f ; simpl in *.
+      apply path_modification.
+      funext x ; cbn.
+      apply left_unit_left.
+    - intros X Y f ; simpl in *.
+      apply path_modification.
+      funext x ; cbn.
+      apply left_unit_right.
+    - intros X Y f ; simpl in *.
+      apply path_modification.
+      funext x ; cbn.
+      apply right_unit_left.
+    - intros X Y f ; simpl in *.
+      apply path_modification.
+      funext x ; cbn.
+      apply right_unit_right.
+    - intros W X Y Z h₁ h₂ g₁ g₂ f₁ f₂ m₁ m₂ m₃ ; simpl in *.
+      apply path_modification.
+      funext x ; cbn.
+      repeat (unfold comp_modification_d ; cbn).
+      unfold whisker_R_mod_d, whisker_L_mod_d ; cbn.
+      unfold comp_modification_d ; cbn.
+      unfold whisker_R_mod_d, whisker_L_mod_d ; cbn.
+      unfold bc_whisker_l, bc_whisker_r.
+      rewrite <- !interchange.
+      rewrite !vcomp_left_identity, !vcomp_right_identity.
+      apply assoc_natural.
+    - intros W X Y Z h₁ h₂ g₁ g₂ f₁ f₂ m₁ m₂ m₃ ; simpl in *.
+      apply path_modification.
+      funext x ; cbn.
+      repeat (unfold comp_modification_d ; cbn).
+      unfold whisker_R_mod_d, whisker_L_mod_d ; cbn.
+      unfold comp_modification_d ; cbn.
+      unfold whisker_R_mod_d, whisker_L_mod_d ; cbn.
+      unfold bc_whisker_l, bc_whisker_r.
+      rewrite <- !interchange.
+      rewrite !vcomp_left_identity, !vcomp_right_identity.
+      apply assoc_inv_natural.
+    - intros W X Y Z f g h ; simpl in *.
+      apply path_modification.
+      funext x ; cbn.
+      apply assoc_left.
+    - intros W X Y Z f g h ; simpl in *.
+      apply path_modification.
+      funext x ; cbn.
+      apply assoc_right.
+    - intros X Y Z g f ; cbn in *.
+      apply path_modification.
+      funext x ; cbn.
+      unfold comp_modification_d ; cbn.
+      unfold whisker_R_mod_d, whisker_L_mod_d, comp_modification_d ; cbn.
+      unfold id_modification_d, right_identity_mod_d, whisker_R_mod_d, whisker_L_mod_d ; cbn.
+      unfold id_modification_d, left_identity_mod_d, bc_whisker_l, bc_whisker_r ; cbn.
+      rewrite !hcomp_id₂.
+      rewrite !vcomp_left_identity, !vcomp_right_identity.
+      rewrite triangle_r.
+      reflexivity.
+    - intros V W X Y Z k h g f ; cbn in *.
+      apply path_modification.
+      funext x ; cbn.
+      repeat (unfold comp_modification_d ; cbn).
+      unfold whisker_R_mod_d, whisker_L_mod_d ; cbn.
+      unfold id_modification_d, bc_whisker_l, bc_whisker_r ; cbn.
+      rewrite pentagon.
+      rewrite !vcomp_assoc.
+      rewrite hcomp_id₂, !vcomp_left_identity, hcomp_id₂.
+      rewrite vcomp_left_identity.
+      reflexivity.
+  Qed.
 
-  Definition cUnitor_l_inv (A B : 1 -Type)
-    : NaturalTransformation
-        1
-        (comp_functor A B B o (@const_functor (maps A B) (maps B B) idmap * 1)).
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    + reflexivity.
-    + intros ? ? p ; cbn.
-      induction p.
-      reflexivity.
-  Defined.
-
-  Global Instance cUnitor_l_iso (A B : 1 -Type)
-    : @IsIsomorphism (maps A B -> maps A B) _ _ (cUnitor_l A B).
-  Proof.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    - apply cUnitor_l_inv.
-    - cbn.
-      apply path_natural_transformation.
-      intros p ; cbn in *.
-      reflexivity.
-    - cbn.
-      apply path_natural_transformation.
-      intros p ; cbn in *.
-      reflexivity.
-  Defined.
-
-  Definition cUnitor_r (A B : 1 -Type)
-    : NaturalTransformation
-        (comp_functor A A B o (1 * @const_functor (maps A B) (maps A A) idmap))
-        1.
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    + reflexivity.
-    + intros ? ? p ; induction p ; cbn.
-      reflexivity.
-  Defined.
-
-  Definition cUnitor_r_inv (A B : 1 -Type)
-    : NaturalTransformation
-        1
-        (comp_functor A A B o (1 * @const_functor (maps A B) (maps A A) idmap)).
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    + reflexivity.
-    + intros ? ? p ; induction p ; cbn.
-      reflexivity.
-  Defined.
-
-  Global Instance cUnitor_r_iso (A B : 1 -Type)
-    : @IsIsomorphism (maps A B -> maps A B) _ _ (cUnitor_r A B).
-  Proof.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    - apply cUnitor_r_inv.
-    - cbn.
-      apply path_natural_transformation.
-      intros p ; cbn in *.
-      reflexivity.
-    - cbn.
-      apply path_natural_transformation.
-      intros p ; cbn in *.
-      reflexivity.
-  Defined.
-
-  Definition cAssociator (A B C D : 1 -Type)
-    : NaturalTransformation
-        (comp_functor A B D o (comp_functor B C D, 1))
-        (comp_functor A C D o (1, comp_functor A B C)
-                        o assoc_prod (maps C D) (maps B C) (maps A B)).
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    + intros [[f₁ f₂] f₃] ; cbn in *.
-      reflexivity.
-    + intros [[f₁ f₂] f₃] [[g₁ g₂] g₃] [[h₁ h₂] h₃] ; cbn in *.
-      induction h₁, h₂, h₃ ; cbn.
-      reflexivity.
-  Defined.
-
-  Definition cAssociator_inv (A B C D : 1 -Type)
-    : NaturalTransformation
-        (comp_functor A C D o (1, comp_functor A B C)
-                      o assoc_prod (maps C D) (maps B C) (maps A B))
-        (comp_functor A B D o (comp_functor B C D, 1)).
-  Proof.
-    simple refine (Build_NaturalTransformation _ _ _ _).
-    + intros [[f₁ f₂] f₃] ; cbn in *.
-      reflexivity.
-    + intros [[f₁ f₂] f₃] [[g₁ g₂] g₃] [[h₁ h₂] h₃] ; cbn in *.
-      induction h₁, h₂, h₃ ; cbn.
-      reflexivity.
-  Defined.
-
-  Global Instance cAssociator_iso (A B C D : 1 -Type)
-    : @IsIsomorphism ((maps C D * maps B C) * maps A B
-                      -> maps A D)
-                     _ _ (cAssociator A B C D).
-  Proof.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    - apply cAssociator_inv.
-    - cbn.
-      apply path_natural_transformation.
-      intros [[f₁ f₂] f₃] ; cbn in *.
-      reflexivity.
-    - cbn.
-      apply path_natural_transformation.
-      intros [[f₁ f₂] f₃] ; cbn in *.
-      reflexivity.
-  Defined.
-
-  Definition one_types : BiCategory.
-  Proof.
-    simple refine {|Obj := 1 -Type ;
-                    Hom := maps ;
-                    id_m := fun _ => idmap ;
-                    c_m := comp_functor ;
-                    un_l := cUnitor_l ;
-                    un_r := cUnitor_r ;
-                    assoc := cAssociator|}.
-    - intros A B C g f ; cbn.
-      reflexivity.
-    - intros A B C D E k h g f ; cbn.
-      reflexivity.
-  Defined.
-
-  Definition one_types_21 : is_21 one_types.
-  Proof.
-    intros X Y ; cbn.
-    apply _.
-  Defined.
-End OneTypesBiCategory.
+  Definition Lax : BiCategory
+    := Build_BiCategory lax_functors_d lax_functors_is_bicategory.
+End LaxFunctors.

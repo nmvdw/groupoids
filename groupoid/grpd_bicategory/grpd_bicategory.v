@@ -35,68 +35,70 @@ Coercion grpd_to_type := under.
 Definition hom (G : groupoid) : G -> G -> hSet
   := fun x y => BuildhSet (morphism G.1 x y)%morphism.
 
+Coercion hom : groupoid >-> Funclass.
+
 (** The unit element. *)
-Definition e {G : groupoid} (x : G) : hom G x x
+Definition e {G : groupoid} (x : G) : G x x
   := 1%morphism.
 
 (** Composition. *)
 Definition comp {G : groupoid} {x y z : G}
-  : hom G x y -> hom G y z -> hom G x z
+  : G x y -> G y z -> G x z
   := fun g h => (h o g)%morphism.
 
-Notation "p · q" := (comp p q) (at level 40).
+Notation "p ● q" := (comp p q) (at level 40). (* \ci *)
 
 (** Inverses. *)
 Definition inv {G : groupoid} {x y : G}
-  : hom G x y -> hom G y x
+  : G x y -> G y x
   := fun g => @morphism_inverse _ _ _ g (G.2 _ _ g).
 
 (** Left associativity. *)
-Definition cal
+Definition grpd_left_assoc
            {G : groupoid}
            {v x y z : G}
-           (p : hom G v x) (q : hom G x y) (r : hom G y z)
-  : (p · q) · r = p · (q · r)
+           (p : G v x) (q : G x y) (r : G y z)
+  : (p ● q) ● r = p ● (q ● r)
   := (associativity _ v x y z p q r)^.
 
 (** Right associativity. *)
-Definition car
+Definition grpd_right_assoc
            {G : groupoid}
            {v x y z : G}
            (p : hom G v x) (q : hom G x y) (r : hom G y z)
-  : p · (q · r) = (p · q) · r
+  : p ● (q ● r) = (p ● q) ● r
   := associativity _ v x y z p q r.
 
 (** Right neutrality. *)
-Definition ce
+Definition grpd_right_identity
            {G : groupoid}
            {x y : G}
-           (p : hom G x y)
-  : p · e y = p
+           (p : G x y)
+  : p ● e y = p
   := left_identity _ x y p.
 
 (** Left neutrality. *)
-Definition ec
+Definition grpd_left_identity
            {G : groupoid}
            {x y : G}
-           (p : hom G x y)
-  : e x · p = p
+           (p : G x y)
+  : e x ● p = p
   := right_identity _ x y p.
 
 (** Right inverse. *)
-Definition ci
+Definition grpd_right_inverse
            {G : groupoid}
            {x y : G}
-           (p : hom G x y)
-  : p · inv p = e x
+           (p : G x y)
+  : p ● inv p = e x
   := @left_inverse _ x y p (G.2 x y p).
 
 (** Left inverse. *)
-Definition ic
+Definition grpd_left_inverse
            {G : groupoid}
            {x y : G}
-           (p : hom G x y)
-  : inv p · p = e y
+           (p : G x y)
+  : inv p ● p = e y
   := @right_inverse _ x y p (G.2 x y p).
 
 (** A function for building groupoids. *)
@@ -159,7 +161,7 @@ Definition grpd_identity_of `{Univalence} {G₁ G₂ : groupoid} (F : grpd_funct
 (** Functors preserve the multiplication. *)
 Definition grpd_composition_of `{Univalence} {G₁ G₂ : groupoid} (F : grpd_functor G₁ G₂)
   : forall {x y z : under G₁} (p : hom G₁ x y) (q : hom G₁ y z),
-    grpd_morphism_of F (p · q) = grpd_morphism_of F p · grpd_morphism_of F q
+    grpd_morphism_of F (p ● q) = grpd_morphism_of F p ● grpd_morphism_of F q
   := composition_of F.
 
 (** Functors preserve inverses. *)
@@ -171,7 +173,7 @@ Proof.
   apply iso_moveL_1V.
   refine (((grpd_composition_of F p (inv p))^ @ _ @ grpd_identity_of F x)).
   apply (ap (grpd_morphism_of F)).
-  apply ci.
+  apply grpd_right_inverse.
 Defined.
 
 (** We have a bicategory of groupoids. *)

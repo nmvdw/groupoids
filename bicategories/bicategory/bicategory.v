@@ -660,7 +660,6 @@ Proof.
 Defined.
 
 Definition inverse_of_right_unit
-           `{Univalence}
            {C : BiCategory}
            {X Y : C}
            (f : C⟦X,Y⟧)

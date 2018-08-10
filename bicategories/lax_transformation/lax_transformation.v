@@ -4,287 +4,277 @@ From HoTT.Categories Require Import
 From GR.bicategories Require Import
      bicategory.bicategory lax_functor.lax_functor general_category.
 
-Section LaxTransformation.
-  Context `{Univalence}.
+Definition postcomp
+           {C : BiCategory}
+           {Y Z : C}
+           (f : C⟦Y,Z⟧)
+           (X : C)
+  : Functor (C⟦X,Y⟧) (C⟦X,Z⟧)
+  := hcomp X Y Z o Functor.prod (const_functor f) 1.
 
-  Local Open Scope bicategory_scope.
+Definition precomp
+           {C : BiCategory}
+           {Y Z : C}
+           (f : C⟦Y,Z⟧)
+           (X : C)
+  : Functor (C⟦Z,X⟧) (C⟦Y,X⟧)
+  := hcomp Y Z X o Functor.prod 1 (const_functor f).
 
-  (* For f ∈ Hom(Y₁,Y₂):
-     - f_∗ : Hom(X,Y₁) → Hom(X,Y₂)
-     - f^∗ : Hom(Y₂,X) → Hom(Y₁,X)
-   *)
-  Definition postcomp
-             {C : BiCategory}
-             {Y1 Y2 : C}
-             (f : Hom C Y1 Y2)
-             (X : C)
-    : Functor (Hom C X Y1) (Hom C X Y2)
-    := c_m o Functor.prod (const_functor f) 1.
+Record LaxTransformation_d {C D : BiCategory} (F G : LaxFunctor C D) :=
+  Build_LaxTransformation_d
+    {
+      laxcomponent_of_d :> forall (X : C), D⟦F X,G X⟧ ;
+      laxnaturality_of_d :
+        forall {X Y : C} (f : C⟦X,Y⟧),
+          (G ₁ f) · laxcomponent_of_d X ==> laxcomponent_of_d Y · (F ₁ f)
+    }.
 
-  Definition precomp
-             {C : BiCategory}
-             {Y1 Y2 : C}
-             (f : Hom C Y1 Y2)
-             (X : C)
-    : Functor (Hom C Y2 X) (Hom C Y1 X)
-    := c_m o Functor.prod 1 (const_functor f).
+Arguments Build_LaxTransformation_d {C D F G} _ _.
+Arguments laxcomponent_of_d {C D F G} η X : rename.
+Arguments laxnaturality_of_d {C D F G} η {X Y} f : rename.
 
-  Record LaxTransformation_d {C D : BiCategory} (F G : LaxFunctor C D) :=
-    Build_LaxTransformation_d
-      {
-        laxcomponent_of_d : forall X, Hom _ (F X) (G X) ;
-        laxnaturality_of_d : forall {X Y : C},
-            NaturalTransformation
-              (precomp (laxcomponent_of_d X) (G Y) (* (σX)^* *)
-                       o @Fmor _ _ _ G X Y)%functor
-              (postcomp (laxcomponent_of_d Y) (F X) (* (σY)_* *)
-                        o @Fmor _ _ _ F X Y)
-        (* aka a natural family of two-cells
-         (laxmorphism_of G f ⋅ laxcomponent_of X)
-         ==> (laxcomponent_of Y ⋅ laxmorphism_of F f) *)
-      }.
+Ltac make_lax_transformation := simple refine (Build_LaxTransformation_d _ _).
 
-  Arguments Build_LaxTransformation_d {C D F G} _ _.
-  Arguments laxcomponent_of_d {C D F G} η X : rename.
-  Arguments laxnaturality_of_d {C D F G} η {X Y} : rename.
-  
-  Definition is_lax_transformation
-             {C D : BiCategory}
-             {F G : LaxFunctor C D}
-             (η : LaxTransformation_d F G)
-    : Type
-    := (forall {X : C},
-           (laxnaturality_of_d η (id_m X)
-                               o ((Fid G X) ∗ 1))%morphism
-           = ((1 ∗ (Fid F X))
-                o (inverse (un_r (F X) (G X)) (laxcomponent_of_d η X))
-                o (un_l _ _ (laxcomponent_of_d η X)))%morphism)
-       *
-       (forall {X Y Z : C} {f : Hom _ X Y} {g : Hom _ Y Z},
-           (laxnaturality_of_d η (g · f)
-                               o (Fcomp G (g,f) ∗ 1))%morphism
-           = ((1 ∗ Fcomp F (g,f))
-                o (assoc (laxcomponent_of_d η Z, Fmor F g, Fmor F f))
-                o (laxnaturality_of_d η g ∗ 1)
-                o ((inverse assoc)
-                     (Fmor G g, laxcomponent_of_d η Y, Fmor F f))
-                o (1 ∗ laxnaturality_of_d η f)
-                o (assoc (Fmor G g, Fmor G f, laxcomponent_of_d η X))))%morphism.
+Record is_lax_transformation
+       {C D : BiCategory}
+       {F G : LaxFunctor C D}
+       (η : LaxTransformation_d F G)
+  := Build_is_lax_transformation
+       {
+         laxnaturality_natural_p :
+           forall {X Y : C} {f g : C⟦X,Y⟧} (α : f ==> g),
+             (laxnaturality_of_d η) g ∘ ((G ₂ α) * id₂ (η X)) =
+             id₂ (η Y) * (F ₂ α) ∘ (laxnaturality_of_d η) f ;
+         transformation_unit_p : forall (X : C),
+             (laxnaturality_of_d η (id₁ X))
+               ∘ ((Fid G X) * (id₂ (η X)))
+             =
+             (id₂ (η X) * (Fid F X))
+               ∘ (right_unit_inv (η X))
+               ∘ (left_unit (η X)) ;
+         transformation_assoc_p :
+           forall {X Y Z : C}
+                  (f : C⟦X,Y⟧) (g : C⟦Y,Z⟧),
+             (laxnaturality_of_d η (g · f))
+               ∘ (Fcomp₁ G g f * id₂ _)
+             = (id₂ _ * Fcomp₁ F g f)
+                 ∘ (assoc (η Z) (F ₁ g) (F ₁ f))
+                 ∘ (laxnaturality_of_d η g * id₂ _)
+                 ∘ (assoc_inv (G ₁ g) (η Y) (F ₁ f))
+                 ∘ (id₂ _ * laxnaturality_of_d η f)
+                 ∘ (assoc (G ₁ g) (G ₁ f) (η X))
+       }.
 
-  Global Instance is_lax_hprop
-         {C D : BiCategory}
-         {F G : LaxFunctor C D}
-         (η : LaxTransformation_d F G)
-    : IsHProp (is_lax_transformation η).
-  Proof.
-    exact (@trunc_prod
-             _
-             _
-             trunc_forall
-             _
-             (@trunc_forall
-                _ _ _ _
-                (fun _ =>
-                   @trunc_forall
-                     _ _ _ _
-                     (fun _ =>
-                        @trunc_forall
-                          _ _ _ _
-                          (fun _ =>
-                             @trunc_forall
-                               _ _ _ _
-                               (fun _ => trunc_forall)))))).
-  Qed.
+Arguments laxnaturality_natural_p {C D F G η} _ {X Y f g} α.
+Arguments transformation_unit_p {C D F G η} _ X.
+Arguments transformation_assoc_p {C D F G η} _ {X Y Z} f g.
+Arguments Build_is_lax_transformation {C D F G η} _ _ _.
+Ltac make_is_lax_transformation := simple refine (Build_is_lax_transformation _ _ _).
 
-  Definition LaxTransformation {C D : BiCategory} (F G : LaxFunctor C D)
-    := {η : LaxTransformation_d F G & is_lax_transformation η}.
+Definition LaxTransformation {C D : BiCategory} (F G : LaxFunctor C D)
+  := {η : LaxTransformation_d F G & is_lax_transformation η}.
 
-  Definition Build_LaxTransformation
-             {C D : BiCategory}
-             {F G : LaxFunctor C D}
-             (η : LaxTransformation_d F G)
-             (Hη : is_lax_transformation η)
-    : LaxTransformation F G
-    := (η;Hη).
+Definition Build_LaxTransformation
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           (η : LaxTransformation_d F G)
+           (Hη : is_lax_transformation η)
+  : LaxTransformation F G
+  := (η;Hη).
 
-  Definition laxcomponent_of
-             {C D : BiCategory}
-             {F G : LaxFunctor C D}
-             (η : LaxTransformation F G)
-    : forall X, Hom _ (F X) (G X)
-    := laxcomponent_of_d η.1.
+Definition laxcomponent_of
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           (η : LaxTransformation F G)
+  : forall X, D⟦F X,G X⟧
+  := laxcomponent_of_d η.1.
 
-  Definition laxnaturality_of
-             {C D : BiCategory}
-             {F G : LaxFunctor C D}
-             (η : LaxTransformation F G)
-             {X Y : C}
-    : NaturalTransformation
-        (precomp (laxcomponent_of η X) (G Y) (* (σX)^* *)
-                 o @Fmor _ _ _ G X Y)%functor
-        (postcomp (laxcomponent_of η Y) (F X) (* (σY)_* *)
-                  o @Fmor _ _ _ F X Y)
-    := @laxnaturality_of_d _ _ _ _ η.1 X Y.
+Coercion laxcomponent_of : LaxTransformation >-> Funclass.
 
-  Definition naturality_id
-             {C D : BiCategory}
-             {F G : LaxFunctor C D}
-             (η : LaxTransformation F G)
-    : forall {X : C},
-      (laxnaturality_of η (id_m X)
-                        o ((Fid G X) ∗ 1))%morphism
-      = ((1 ∗ (Fid F X))
-           o (inverse (un_r (F X) (G X)) (laxcomponent_of η X))
-           o (un_l _ _ (laxcomponent_of η X)))%morphism
-    := Datatypes.fst η.2.
+Definition laxnaturality_of
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           (η : LaxTransformation F G)
+           {X Y : C}
+           (f : C⟦X,Y⟧)
+  : (G ₁ f) · laxcomponent_of η X ==> laxcomponent_of η Y · (F ₁ f)
+  := laxnaturality_of_d η.1 f.
 
-  Definition naturality_comp
-             {C D : BiCategory}
-             {F G : LaxFunctor C D}
-             (η : LaxTransformation F G)
-    : forall {X Y Z : C} {f : Hom _ X Y} {g : Hom _ Y Z},
-      (laxnaturality_of η (g · f)
-                        o (Fcomp G (g,f) ∗ 1))%morphism
-      = ((1 ∗ Fcomp F (g,f))
-           o (assoc (laxcomponent_of η Z, Fmor F g, Fmor F f))
-           o (laxnaturality_of η g ∗ 1)
-           o ((inverse assoc)
-                (Fmor G g, laxcomponent_of η Y, Fmor F f))
-           o (1 ∗ laxnaturality_of η f)
-           o (assoc (Fmor G g, Fmor G f, laxcomponent_of η X)))%morphism
-    := Datatypes.snd η.2.
-End LaxTransformation.
+Definition laxnaturality_natural
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           (η : LaxTransformation F G)
+           {X Y : C}
+           {f g : C⟦X,Y⟧}
+           (α : f ==> g)
+  : (laxnaturality_of η) g ∘ ((G ₂ α) * id₂ (η X)) =
+    id₂ (η Y) * (F ₂ α) ∘ (laxnaturality_of η) f
+  := laxnaturality_natural_p η.2 α.
 
-Arguments Build_LaxTransformation_d {_ C D F G} _ _.
-Arguments laxcomponent_of_d {_ C D F G} η X : rename.
-Arguments laxnaturality_of_d {_ C D F G} η {X Y} : rename.
+Definition laxnaturality_transformation
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           (η : LaxTransformation F G)
+           (X Y : C)
+  : NaturalTransformation
+      (precomp (laxcomponent_of η X) (G Y) (* (σX)^* *)
+               o Fmor G X Y)%functor
+      (postcomp (laxcomponent_of η Y) (F X) (* (σY)_* *)
+                o Fmor F X Y).
+Proof.
+  simple refine (Build_NaturalTransformation _ _ _ _).
+  - intros f ; simpl in *.
+    exact (laxnaturality_of η f).
+  - intros f g α ; simpl in *.
+    exact (laxnaturality_natural η α).
+Defined.
+
+Definition transformation_unit
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           (η : LaxTransformation F G)
+           (X : C)
+  : (laxnaturality_of η (id₁ X))
+      ∘ ((Fid G X) * (id₂ (η X)))
+    =
+    (id₂ (η X) * (Fid F X))
+      ∘ (right_unit_inv (η X))
+      ∘ (left_unit (η X))
+  := transformation_unit_p η.2 X.
+
+Definition transformation_assoc
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           (η : LaxTransformation F G)
+           {X Y Z : C}
+           (f : C⟦X,Y⟧) (g : C⟦Y,Z⟧)
+  : (laxnaturality_of η (g · f))
+      ∘ (Fcomp₁ G g f * id₂ _)
+    = (id₂ _ * Fcomp₁ F g f)
+        ∘ (assoc (η Z) (F ₁ g) (F ₁ f))
+        ∘ (laxnaturality_of η g * id₂ _)
+        ∘ (assoc_inv (G ₁ g) (η Y) (F ₁ f))
+        ∘ (id₂ _ * laxnaturality_of η f)
+        ∘ (assoc (G ₁ g) (G ₁ f) (η X))
+  := transformation_assoc_p η.2 f g.
 
 Class is_pseudo_transformation
-      `{Univalence}
       {C D : BiCategory}
       {F G : LaxFunctor C D}
       (η : LaxTransformation F G)
-  := { laxnaturality_of_iso : forall {X Y : C},
-         @IsIsomorphism (_ -> _)
-                        _
-                        _
-                        (@laxnaturality_of _ _ _ _ _ η X Y)
+  := { laxnaturality_of_iso : forall {X Y : C} (f : C⟦X,Y⟧),
+         IsIsomorphism (laxnaturality_of η f)
      }.
 
-Global Instance laxnaturality_of_iso_class
+Global Instance laxnaturality_of_is_iso
+       {C D : BiCategory}
+       {F G : LaxFunctor C D}
+       (η : LaxTransformation F G)
+       {X Y : C}
+       (f : C⟦X,Y⟧)
+       `{is_pseudo_transformation _ _ _ _ η}
+  : IsIsomorphism (laxnaturality_of η f)
+  := laxnaturality_of_iso f.
+
+Global Instance laxnaturality_transformationis_iso
        `{Univalence}
        {C D : BiCategory}
        {F G : LaxFunctor C D}
        (η : LaxTransformation F G)
-       `{@is_pseudo_transformation _ _ _ _ _ η}
        (X Y : C)
-  : @IsIsomorphism (_ -> _) _ _ (@laxnaturality_of _ _ _ _ _ η X Y).
+       `{is_pseudo_transformation _ _ _ _ η}
+  : @IsIsomorphism (_ -> _) _ _ (laxnaturality_transformation η X Y).
 Proof.
-  apply laxnaturality_of_iso.
+  apply isisomorphism_natural_transformation.
+  apply _.
 Defined.
 
-Local Open Scope bicategory.
+Record PseudoTransformation_d
+       {C D : BiCategory}
+       (F G : LaxFunctor C D)
+  := Build_PseudoTransformation_d
+       { laxcomponent_of_pd :> forall (X : C), D⟦F X,G X⟧ ;
+         laxnaturality_of_pd : forall {X Y : C} (f : C⟦X,Y⟧),
+             (G ₁ f) · laxcomponent_of_pd X ==> laxcomponent_of_pd Y · (F ₁ f) ;
+         laxnaturality_of_inv_pd : forall {X Y : C} (f : C⟦X,Y⟧),
+             laxcomponent_of_pd Y · (F ₁ f) ==> (G ₁ f) · laxcomponent_of_pd X ;
+       }.
 
-Section RawBuilder.
-  Context `{Univalence}
-          {C D : BiCategory}.  
-  
-  Record PseudoTransformation_d
-         (F G : LaxFunctor C D)
-    := Build_PseudoTransformation_d
-         { laxcomponent_of_rd : forall (X : C), Hom D (F X) (G X) ;
-           laxnaturality_of_rd : forall (X Y : C) (f : Hom C X Y),
-               Core.morphism (Hom D (F X) (G Y))
-                             (Fmor G f · laxcomponent_of_rd X)
-                             (laxcomponent_of_rd Y · Fmor F f) ;
-           laxnaturality_of_rd_inv : forall (X Y : C) (f : Hom C X Y),
-               Core.morphism (Hom D (F X) (G Y))
-                             (laxcomponent_of_rd Y · Fmor F f)
-                             (Fmor G f · laxcomponent_of_rd X)
-         }.
+Arguments Build_PseudoTransformation_d {C D F G} _ _ _.
+Ltac make_pseudo_transformation := simple refine (Build_PseudoTransformation_d _ _ _).
+Arguments laxcomponent_of_pd {C D F G} _ X.
+Arguments laxnaturality_of_pd {C D F G} _ {X Y} f.
+Arguments laxnaturality_of_inv_pd {C D F G} _ {X Y} f.
 
-  Arguments laxcomponent_of_rd {F G} _ X.
-  Arguments laxnaturality_of_rd {F G} _ X Y f.
-  Arguments laxnaturality_of_rd_inv {F G} _ X Y f.
+Record is_pseudo_transformation_p
+       {C D : BiCategory}
+       {F G : LaxFunctor C D}
+       (η : PseudoTransformation_d F G)
+  := Build_is_pseudo_transformation_p
+       {
+         laxnaturality_natural_pp :
+           forall {X Y : C} {f g : C⟦X,Y⟧} (α : f ==> g),
+             (laxnaturality_of_pd η) g ∘ ((G ₂ α) * id₂ (η X)) =
+             id₂ (η Y) * (F ₂ α) ∘ (laxnaturality_of_pd η) f ;
+         transformation_unit_pp : forall (X : C),
+             (laxnaturality_of_pd η (id₁ X))
+               ∘ ((Fid G X) * (id₂ (η X)))
+             =
+             (id₂ (η X) * (Fid F X))
+               ∘ (right_unit_inv (η X))
+               ∘ (left_unit (η X)) ;
+         transformation_assoc_pp :
+           forall {X Y Z : C}
+                  (f : C⟦X,Y⟧) (g : C⟦Y,Z⟧),
+             (laxnaturality_of_pd η (g · f))
+               ∘ (Fcomp₁ G g f * id₂ _)
+             = (id₂ _ * Fcomp₁ F g f)
+                 ∘ (assoc (η Z) (F ₁ g) (F ₁ f))
+                 ∘ (laxnaturality_of_pd η g * id₂ _)
+                 ∘ (assoc_inv (G ₁ g) (η Y) (F ₁ f))
+                 ∘ (id₂ _ * laxnaturality_of_pd η f)
+                 ∘ (assoc (G ₁ g) (G ₁ f) (η X)) ;
+         laxnaturality_left_p :
+           forall {X Y : C} (f : C⟦X,Y⟧),
+             laxnaturality_of_pd η f ∘ laxnaturality_of_inv_pd η f
+             =
+             id₂ (η Y · (F ₁ f)) ;
+         laxnaturality_right_p :
+           forall {X Y : C} (f : C⟦X,Y⟧),
+             laxnaturality_of_inv_pd η f ∘ laxnaturality_of_pd η f
+             =
+             id₂ ((G ₁ f) · η X)
+       }.
 
-  Definition is_pseudo_transformation_rd
-             {F G : LaxFunctor C D}
-             (η : PseudoTransformation_d F G)
-    : Type.
-  Proof.
-    refine (_ * _ * _ * _ * _ * _).
-    - exact (forall (X Y : C)
-                    (f g : Hom C X Y)
-                    (α : morphism (Hom C X Y) f g),
-                (laxnaturality_of_rd η X Y g o hcomp 1 (Fmor G _1 α)) =
-                (hcomp (Fmor F _1 α) 1 o laxnaturality_of_rd η X Y f))%morphism.
-    - exact (forall (X : C),
-                (laxnaturality_of_rd η X X (id_m X) o (Fid G X ∗ 1))
-                =
-                ((1 ∗ Fid F X)
-                   o (inverse (un_r (F X) (G X))) (laxcomponent_of_rd η X)
-                   o (un_l (F X) (G X)) (laxcomponent_of_rd η X)))%morphism.
-    - exact (forall (X Y Z : C) (f : Hom C X Y) (g : Hom C Y Z),
-                ((laxnaturality_of_rd η X Z (g · f))
-                   o ((Fcomp G) (g, f) ∗ 1))
-                =
-                ((1 ∗ (Fcomp F) (g, f))
-                   o assoc (laxcomponent_of_rd η Z, (Fmor F) g, (Fmor F) f)
-                   o (laxnaturality_of_rd η Y Z g ∗ 1)
-                   o (inverse assoc) ((Fmor G) g, laxcomponent_of_rd η Y, (Fmor F) f)
-                   o (1 ∗ laxnaturality_of_rd η X Y f)
-                   o assoc ((Fmor G) g, (Fmor G) f, laxcomponent_of_rd η X)))%morphism.
-    - exact (forall (X Y : C)
-                    (f g : Hom C X Y)
-                    (α : morphism (Hom C X Y) f g),
-                (laxnaturality_of_rd_inv η X Y g o hcomp (Fmor F _1 α) 1) =
-                (hcomp 1 (Fmor G _1 α) o laxnaturality_of_rd_inv η X Y f))%morphism.
-    - exact (forall (X Y : C)
-                    (f : Hom C X Y),
-                (laxnaturality_of_rd_inv η X Y f)
-                  o laxnaturality_of_rd η X Y f
-                = 1)%morphism.
-    - exact (forall (X Y : C)
-                    (f : Hom C X Y),
-                (laxnaturality_of_rd η X Y f)
-                  o laxnaturality_of_rd_inv η X Y f
-                = 1)%morphism.
-  Defined.
+Arguments Build_is_pseudo_transformation_p {C D F G η} _ _ _ _ _.
+Ltac make_is_pseudo_transformation := simple refine (Build_is_pseudo_transformation_p _ _ _ _ _).
 
-  Definition Build_PseudoTransformation
-             {F G : LaxFunctor C D}
-             (η : PseudoTransformation_d F G)
-             (Hη : is_pseudo_transformation_rd η)
-    : LaxTransformation F G.
-  Proof.
-    simple refine (Build_LaxTransformation _ _).
-    - simple refine (Build_LaxTransformation_d _ _).
-      + exact (laxcomponent_of_rd η).
-      + intros X Y.
-        simple refine (Build_NaturalTransformation _ _ _ _).
-        * exact (laxnaturality_of_rd η X Y).
-        * apply Hη.
-    - unfold is_lax_transformation ; split ; apply Hη. 
-  Defined.
+Definition Build_PseudoTransformation
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           (η : PseudoTransformation_d F G)
+           (Hη : is_pseudo_transformation_p η)
+  : LaxTransformation F G.
+Proof.
+  simple refine (Build_LaxTransformation _ _).
+  - make_lax_transformation.
+    + exact (laxcomponent_of_pd η).
+    + intros X Y f.
+      exact (laxnaturality_of_pd η f).
+  - make_is_lax_transformation ; apply Hη. 
+Defined.
 
-  Global Instance Build_Pseudo_is_pseudo
-         {F G : LaxFunctor C D}
-         (η : PseudoTransformation_d F G)
-         (Hη : is_pseudo_transformation_rd η)
-    : is_pseudo_transformation (Build_PseudoTransformation η Hη).
-  Proof.
-    split.
-    intros X Y.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    - simple refine (Build_NaturalTransformation _ _ _ _).
-      + exact (laxnaturality_of_rd_inv η X Y).
-      + apply Hη.
-    - apply path_natural_transformation.
-      exact ((Datatypes.snd (Datatypes.fst Hη) X Y)).
-    - apply path_natural_transformation.
-      exact ((Datatypes.snd Hη X Y)).
-  Defined.
-End RawBuilder.
-
-Arguments Build_PseudoTransformation_d {_ C D F G}.
-Arguments Build_PseudoTransformation {_ C D F G}.
+Global Instance Build_Pseudo_is_pseudo
+       {C D : BiCategory}
+       {F G : LaxFunctor C D}
+       (η : PseudoTransformation_d F G)
+       (Hη : is_pseudo_transformation_p η)
+  : is_pseudo_transformation (Build_PseudoTransformation η Hη).
+Proof.
+  split.
+  intros X Y f.
+  simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+  - exact (laxnaturality_of_inv_pd η f).
+  - apply Hη.
+  - apply Hη.
+Defined.

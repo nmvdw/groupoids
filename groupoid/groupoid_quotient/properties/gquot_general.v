@@ -33,13 +33,15 @@ Section squot_is_gquot.
   Proof.
     simple refine (gquot_double_ind_prop (fun a b => IsHProp (a = b)) _ _).
     simpl; intros a b.
-    rewrite (path_universe (encode_gquot _
-                                         (gcl (setoid_to_groupoid R) a)
-                                         (gcl (setoid_to_groupoid R) b))).
-    (* TODO : this is very slow *)
-    simpl.
+    rewrite (path_universe (encode_gquot
+                              _
+                              (gcl (setoid_to_groupoid R) a)
+                              (gcl (setoid_to_groupoid R) b))).
+    unfold g_fam.
+    rewrite gquot_relation_gcl_gcl.
+    cbn.
     apply _.
-  Defined.
+  Qed.
 
   (** Now we can show the two quotients coincide. *)
   Definition squot_to_gquot : squot R -> gquot (setoid_to_groupoid R).

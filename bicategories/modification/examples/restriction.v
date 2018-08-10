@@ -12,8 +12,7 @@ From GR.bicategories Require Import
      general_category.
 
 Section Restriction.
-  Context `{Univalence}
-          {C D : BiCategory}
+  Context {C D : BiCategory}
           {F G : LaxFunctor C D}
           {η₁ η₂ : LaxTransformation F G}.
   Variable (P : C -> hProp)
@@ -26,6 +25,6 @@ Section Restriction.
   Proof.
     simple refine (Build_Modification _ _).
     - exact (fun X => mod_component σ X.1).
-    - exact (fun X Y f => mod_commute σ X.1 Y.1 f). 
+    - exact (fun X Y f => mod_commute σ f). 
   Defined.
 End Restriction.

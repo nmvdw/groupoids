@@ -10,8 +10,7 @@ From GR.bicategories Require Import
      general_category.
 
 Section Restriction.
-  Context `{Univalence}
-          {C D : BiCategory}
+  Context {C D : BiCategory}
           {F G : LaxFunctor C D}.
   Variable (P : C -> hProp)
            (η : LaxTransformation F G).
@@ -19,15 +18,16 @@ Section Restriction.
   Definition lax_restriction_transformation_d
     : LaxTransformation_d (lax_restriction F P) (lax_restriction G P).
   Proof.
-    simple refine (Build_LaxTransformation_d _ _).
-    - exact (fun X => laxcomponent_of η X.1).
-    - exact (fun X Y => @laxnaturality_of _ _ _ _ _ η X.1 Y.1).
+    make_lax_transformation.
+    - exact (fun X => η X.1).
+    - exact (fun X Y f => laxnaturality_of η f).
   Defined.
 
   Definition lax_restriction_transformation_is_lax
-    : is_lax_transformation lax_restriction_transformation_d
-    := ((fun X => Datatypes.fst η.2 X.1),
-        (fun X Y Z f g => Datatypes.snd η.2 X.1 Y.1 Z.1 f g)).
+    : is_lax_transformation lax_restriction_transformation_d.
+  Proof.
+    make_is_lax_transformation ; intros ; apply η.
+  Qed.
  
   Definition lax_restriction_transformation
     : LaxTransformation (lax_restriction F P) (lax_restriction G P)
@@ -35,7 +35,7 @@ Section Restriction.
                                lax_restriction_transformation_is_lax.
 
   Definition lax_restriction_is_pseudo
-             `{@is_pseudo_transformation _ _ _ _ _ η}
+             `{is_pseudo_transformation _ _ _ _ η}
     : is_pseudo_transformation lax_restriction_transformation.
   Proof.
     split ; intros ; cbn.

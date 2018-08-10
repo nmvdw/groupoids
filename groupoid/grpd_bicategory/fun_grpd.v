@@ -14,11 +14,13 @@ Section fun_groupoid.
     := grpd_functor G₁ G₂.
 
   Definition f_morph : f_object -> f_object -> hSet
-    := fun f g => BuildhSet {p : forall (a : under G₁),
-                                 hom G₂ (grpd_object_of f a) (grpd_object_of g a) &
-                                 forall (x y : under G₁) (h : hom G₁ x y),
+    := fun f g => BuildhSet {p :
+                               forall (a : G₁),
+                                 G₂ (grpd_object_of f a) (grpd_object_of g a) &
+                                 forall (x y : G₁) (h : G₁ x y),
                                    grpd_morphism_of f h
-                                   = p x · grpd_morphism_of g h · inv (p y)
+                                   =
+                                   p x ● grpd_morphism_of g h ● inv (p y)
                             }.
 
   Definition f_morph_eq
@@ -32,8 +34,8 @@ Section fun_groupoid.
   Proof.
     simple refine (fun a => e (grpd_object_of x a);_) ; simpl.
     intros a b g.
-    refine (ap (fun z => _ · z) (inv_e _) @ _)^.
-    refine (ce _ @ ec _).
+    refine (ap (fun z => _ ● z) (inv_e _) @ _)^.
+    exact (grpd_right_identity _ @ grpd_left_identity _).
   Defined.
 
   Definition f_invo (x y : f_object) (g : f_morph x y)
@@ -41,27 +43,27 @@ Section fun_groupoid.
   Proof.
     simple refine (fun a => inv (g.1 a);_) ; simpl.
     intros a b h.
-    refine (ap (fun z => (_ · z) · _) (g.2 a b h) @ _)^.
-    refine (ap (fun z => z · _) (car _ _ _) @ _).
-    refine (ap (fun z => (z · _) · _) (car _ _ _) @ _).
-    refine (ap (fun z => ((z · _) · _) · _) (ic _) @ _).
-    refine (ap (fun z => (z · _) · _) (ec _) @ _).
-    refine ((car _ _ _)^ @ _).
-    refine (ap (fun z => _ · z) (ci _) @ ce _).
+    refine (ap (fun z => (_ ● z) ● _) (g.2 a b h) @ _)^.
+    refine (ap (fun z => z ● _) (grpd_right_assoc _ _ _) @ _).
+    refine (ap (fun z => (z ● _) ● _) (grpd_right_assoc _ _ _) @ _).
+    refine (ap (fun z => ((z ● _) ● _) ● _) (grpd_left_inverse _) @ _).
+    refine (ap (fun z => (z ● _) ● _) (grpd_left_identity _) @ _).
+    refine ((grpd_right_assoc _ _ _)^ @ _).
+    refine (ap (fun z => _ ● z) (grpd_right_inverse _) @ grpd_right_identity _).
   Defined.
 
   Definition f_concat (x y z : f_object) (g : f_morph x y) (h : f_morph y z)
     : f_morph x z.
   Proof.
-    simple refine (fun a => g.1 a · h.1 a;_) ; simpl.
+    simple refine (fun a => g.1 a ● h.1 a;_) ; simpl.
     intros a b p.
-    refine (_ @ ap (fun z => _ · z) (inv_prod _ _)^).
-    refine (_ @ cal _ _ _).
+    refine (_ @ ap (fun z => _ ● z) (inv_prod _ _)^).
+    refine (_ @ grpd_left_assoc _ _ _).
     refine (g.2 a b p @ _).
-    refine (ap (fun z => z · inv (g.1 b)) _).
-    refine (_ @ car _ _ _ @ car _ _ _).
-    refine (ap (fun z => g.1 a · z) _).
-    refine (_ @ cal _ _ _).
+    refine (ap (fun z => z ● inv (g.1 b)) _).
+    refine (_ @ grpd_right_assoc _ _ _ @ grpd_right_assoc _ _ _).
+    refine (ap (fun z => g.1 a ● z) _).
+    refine (_ @ grpd_left_assoc _ _ _).
     exact (h.2 a b p).
   Defined.
 
@@ -75,10 +77,10 @@ Section fun_groupoid.
                      f_concat
                      _ _ _ _ _)
     ; intros ; apply f_morph_eq ; funext ? ; cbn.
-    - apply car.
-    - apply ec.
-    - apply ce.
-    - apply ic.
-    - apply ci.
+    - apply grpd_right_assoc.
+    - apply grpd_left_identity.
+    - apply grpd_right_identity.
+    - apply grpd_left_inverse.
+    - apply grpd_right_inverse.
   Defined.
 End fun_groupoid.
