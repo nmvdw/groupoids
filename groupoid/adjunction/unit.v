@@ -5,8 +5,6 @@ From GR.bicategories Require Import
      bicategory.examples.one_types
      bicategory.examples.full_sub
      bicategory.examples.precat
-     bicategory.equivalence
-     bicategory.adjoint
      lax_functor.lax_functor
      lax_functor.examples.identity
      lax_functor.examples.composition

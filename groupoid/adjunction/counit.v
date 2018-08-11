@@ -3,8 +3,6 @@ From GR.bicategories Require Import
      general_category
      bicategory.bicategory
      bicategory.examples.one_types
-     bicategory.equivalence
-     bicategory.adjoint
      lax_functor.lax_functor
      lax_functor.examples.identity
      lax_functor.examples.composition

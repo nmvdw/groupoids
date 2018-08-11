@@ -133,6 +133,21 @@ Global Instance is_adjoint_equivalence_is_hprop
   : IsHProp (is_adjoint_equivalence A)
   := _.
 
+Definition adjoint_equivalence
+           {C : BiCategory}
+           {X Y : C}
+           (l : C⟦X,Y⟧)
+  : Type
+  := {A : adjunction l & is_adjoint_equivalence A}.
+
+Definition adjoint_equivalent
+           {C : BiCategory}
+           (X Y : C)
+  : Type
+  := {l : C⟦X,Y⟧ & adjoint_equivalence l}.
+
+Notation "X '≃' Y" := (adjoint_equivalent X Y) (at level 30) : bicategory_scope.
+
 Definition id_adjunction_d
            {C : BiCategory}
            (X : C)
@@ -183,3 +198,23 @@ Definition id_adjunction
            (X : C)
   : adjunction (id₁ X)
   := Build_Adjunction (id_adjunction_d X) (id_is_adjunction X).
+
+Definition id_adjoint_equivalence
+           `{Univalence}
+           {C : BiCategory}
+           (X : C)
+  : adjoint_equivalence (id₁ X).
+Proof.
+  simple refine (id_adjunction X;_).
+  split ; apply _.
+Defined.
+
+Definition id_to_adjequiv
+           `{Univalence}
+           {C : BiCategory}
+           (X Y : C)
+  : X = Y -> X ≃ Y
+  := fun p =>
+       match p with
+       | idpath => (id₁ X;id_adjoint_equivalence X)
+       end.
