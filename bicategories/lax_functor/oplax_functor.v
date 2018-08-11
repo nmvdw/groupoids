@@ -128,7 +128,7 @@ Definition opF_right_unit
       ∘ ((id₂ (F o₁ f)) * (Fid F X))
   := F_right_unit F f.
 
-Definition F_assoc
+Definition opF_assoc
            {C D : BiCategory}
            (F : OpLaxFunctor C D)
            {W X Y Z : C}
