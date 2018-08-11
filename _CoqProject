@@ -62,6 +62,7 @@ bicategories/lax_transformation/transformation_category.v
 bicategories/bicategory/examples/lax_functors_bicat.v
 bicategories/bicategory/examples/oplax_functors_bicat.v
 bicategories/bicategory/examples/monad.v
+bicategories/bicategory/examples/comonad.v
 bicategories/biadjunction/biadjunction.v
 setoid/setoid.v
 setoid/squot_properties.v
