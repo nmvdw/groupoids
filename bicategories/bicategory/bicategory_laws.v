@@ -47,10 +47,13 @@ Section laws.
              (β : k ==> h · (g · f))
     : assoc_inv h g f ∘ β = α -> β = assoc h g f ∘ α.
   Proof.
-    unfold vcomp ; intros H.
-    refine (Morphisms.iso_moveL_Mp _ _ _).
-    apply H.
-  Defined.
+    intros H.
+    rewrite <- (vcomp_left_identity β).
+    rewrite <- assoc_left.
+    rewrite vcomp_assoc.
+    apply ap.
+    exact H.
+  Qed.
 
   Definition move_assoc_inv_L
              {W X Y Z : C}
@@ -60,10 +63,33 @@ Section laws.
              (β : k ==> (h · g) · f)
     : assoc h g f ∘ β = α -> β = assoc_inv h g f ∘ α.
   Proof.
-    unfold vcomp ; intros H.
-    refine (Morphisms.iso_moveL_Mp _ _ _).
-    apply H.
-  Defined.
+    intros H.
+    rewrite <- (vcomp_left_identity β).
+    rewrite <- assoc_right.
+    rewrite vcomp_assoc.
+    apply ap.
+    exact H.
+  Qed.
+
+  Definition assoc_hcomp_left
+             {V W X Y Z : C}
+             (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧) (k : C⟦V, W⟧)
+    : assoc h g f * id₂ k ∘ assoc_inv h g f * id₂ k = id₂ ((h · (g · f)) · k).
+  Proof.
+    rewrite <- interchange.
+    rewrite assoc_left, vcomp_left_identity.
+    apply hcomp_id₂.
+  Qed.
+
+  Definition assoc_hcomp_right
+             {V W X Y Z : C}
+             (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧) (k : C⟦V, W⟧)
+    : assoc_inv h g f * id₂ k ∘ assoc h g f * id₂ k = id₂ (((h · g) · f) · k).
+  Proof.
+    rewrite <- interchange.
+    rewrite assoc_right, vcomp_left_identity.
+    apply hcomp_id₂.
+  Qed.
 
   Definition move_assoc_hcomp_L
              {V W X Y Z : C}
@@ -73,10 +99,13 @@ Section laws.
              (β : l ==> (h · (g · f)) · k)
     : (assoc_inv h g f * id₂ k) ∘ β = α -> β = (assoc h g f * id₂ k) ∘ α.
   Proof.
-    unfold vcomp ; intros H.
-    refine (Morphisms.iso_moveL_Mp _ _ _).
-    apply H.
-  Defined.
+    intros H.
+    rewrite <- (vcomp_left_identity β).
+    rewrite <- assoc_hcomp_left.
+    rewrite vcomp_assoc.
+    apply ap.
+    exact H.
+  Qed.
 
   Definition move_assoc_inv_hcomp_L
              {V W X Y Z : C}
@@ -86,10 +115,13 @@ Section laws.
              (β : l ==> ((h · g) · f) · k)
     : (assoc h g f * id₂ k) ∘ β = α -> β = (assoc_inv h g f * id₂ k) ∘ α.
   Proof.
-    unfold vcomp ; intros H.
-    refine (Morphisms.iso_moveL_Mp _ _ _).
-    apply H.
-  Defined.
+    intros H.
+    rewrite <- (vcomp_left_identity β).
+    rewrite <- assoc_hcomp_right.
+    rewrite vcomp_assoc.
+    apply ap.
+    exact H.
+  Qed.
 
   Definition inverse_pentagon
              {V W X Y Z : C}
@@ -281,6 +313,8 @@ Section laws.
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
     : (left_unit g) ◅ f = left_unit (g · f) ∘ assoc (id₁ Z) g f.
   Proof.
+    unfold bc_whisker_l.
+    
   Admitted.
 
   Definition left_unit_inv_assoc
@@ -297,63 +331,6 @@ Section laws.
     apply path_inverse.
     apply left_unit_assoc.
   Qed.
-  (*apply right_comp.
-  refine (cancel_L (assoc (id_m Z,c_m(g,id_m Y),f)) _).
-  pose cancel_R.
-  refine (cancel_R _ _ _ _).
-  Search Category.Core.compose.
-  pose (@right_inverse _ _ _ (assoc (id_m Z,c_m(g,id_m Y),f)) _).
-  
-  refine ((left_identity _ _ _ _)^ @ _).
-  
-  etransitivity.
-  {
-    Set Printing All.
-  refine (_ @ ap (fun z => z o _)%morphism
-            (@right_inverse _ _ _ (assoc (id_m Z,c_m(g,id_m Y),f)) _)).
-
-  apply right_comp.
-  
-  pose (assoc (id_m Z,c_m(g,id_m Y),f)).
-  refine ((left_identity _ _ _ _)^ @ _).
-  pose (@right_inverse (_ -> _) _ _ (@assoc _ C X Y Z Z) _) as p.
-  rewrite <- p.
-  
-  pose (@assoc _ C Y Z Z Z (id_m Z,id_m Z,g)).
-  
-  
-  
-  pose (triangle_r C Y Z Z (id_m Z) g).
-  pose (1 : morphism (Hom C Y Z) g g)%morphism.
-  pose (ap (fun z => hcomp m z) p).
-  pose (@hcomp _ C).
-  unfold two_cell, one_cell in t.
-  cbn in t.
-  Print hcomp.
-  
-  pose (pentagon C _ _ _ _ _ (id_m Z) (id_m Z) g f) as pent.    
-  pose (@assoc _ C X Y Z Z (id_m Z,c_m(g,id_m Y),f))%morphism.
-  pose (@assoc _ C Y Z Z Z (id_m Z,id_m Z,g)).
-  cbn in m, m0.
-
-  refine ((right_identity _ _ _ _)^ @ _).
-
-  pose (commutes (@assoc _ C X Y Z Z)
-                 (id_m Z,c_m (g,id_m Y),f)
-                 (id_m Z,g,f)
-                 (1,un_r _ _ g,1)%morphism) as assoc_com.
-  pose (@right_inverse (_ -> _) _ _ (@assoc _ C X Y Z Z) _) as p.
-  pose (equiv_path_natural_transformation _ _ p (id_m Z,c_m (g,id_m Y),f)) as q.
-  simpl in q.
-  Set Printing All.
-  rewrite <- q.
-  simpl in q.
-  rewrite <- q.
-  cbn in p0.
-  (id_m Z,c_m (g,id_m Y),f)).
-  ).
-  pose pentagon.
-  cbn.*)
   
   Definition right_unit_assoc
              {X Y Z : C}
@@ -382,29 +359,22 @@ Section laws.
              (X : C)
     : right_unit (id₁ X) = left_unit (id₁ X).
   Proof.
-    assert (((id₂ (id₁ X) * left_unit (id₁ X)) ∘ assoc (id₁ X) (id₁ X) (id₁ X))
-            = (id₂ (id₁ X) * right_unit (id₁ X)) ∘ assoc (id₁ X) (id₁ X) (id₁ X))
-      as H0.
-    {
-      rewrite <- triangle_r.
-      rewrite <- right_unit_assoc.
-      refine ((vcomp_left_identity _)^ @ _ @ vcomp_left_identity _).
-      rewrite <- right_unit_right.
-      rewrite !vcomp_assoc.
-      apply ap.
-      apply (right_unit_natural (right_unit (id₁ X))).
-    }
-    assert (id₂ (id₁ X) * left_unit (id₁ X) = id₂ (id₁ X) * right_unit (id₁ X)) as H1.
-    {
-      refine (_ @ vcomp_right_identity _).
-      rewrite <- assoc_left.
-      rewrite <- vcomp_assoc.
-      rewrite <- inverse_of_assoc.
-      apply Morphisms.iso_moveL_pV.
-      apply H0.
-    }
     apply left_comp.
-    apply H1^.
+    refine (_ @ vcomp_right_identity _).
+    rewrite <- assoc_left.
+    rewrite <- vcomp_assoc.
+    rewrite <- inverse_of_assoc.
+    apply Morphisms.iso_moveL_pV.
+    rewrite <- triangle_r.
+    refine ((vcomp_left_identity _)^ @ _ @ vcomp_left_identity _).
+    rewrite <- right_unit_right.
+    rewrite !vcomp_assoc.
+    apply ap.
+    pose @right_unit_assoc as p.
+    unfold bc_whisker_r, vcomp in p.
+    rewrite <- p ; clear p.
+    rewrite (right_unit_natural (right_unit (id₁ X))).
+    reflexivity.
   Qed.
 
   Definition left_unit_inv_is_right_unit_inv
@@ -412,10 +382,11 @@ Section laws.
              (X : C)
     : left_unit_inv (id₁ X) = right_unit_inv (id₁ X).
   Proof.
-    rewrite <- inverse_of_left_unit, <- inverse_of_right_unit.
-    apply Morphisms.iso_moveR_V1 ; simpl
-    rewrite <- left_unit_is_right_unit.
-    symmetry.
-    apply right_unit_left.
+    refine ((vcomp_right_identity _)^ @ _ @ vcomp_left_identity _).
+    rewrite <- right_unit_left.
+    rewrite <- vcomp_assoc.
+    f_ap.
+    rewrite left_unit_is_right_unit.
+    apply left_unit_right.
   Qed.
 End laws.
