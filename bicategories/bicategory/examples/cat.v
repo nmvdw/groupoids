@@ -6,5 +6,5 @@ From GR.bicategories Require Import
 From GR.bicategories.bicategory.examples Require Import
      precat full_sub.
 
-Definition Cat `{Univalence} : BiCategory
+Definition Cat `{Funext} : BiCategory
   := full_sub PreCat (fun C => BuildhProp (IsCategory C)).

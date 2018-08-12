@@ -5,7 +5,7 @@ From GR.bicategories Require Import
      general_category bicategory.bicategory.
 
 Section CatBiCategory.
-  Context `{Univalence}.
+  Context `{Funext}.
 
   Definition precat_d : BiCategory_d.
   Proof.
