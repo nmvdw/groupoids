@@ -78,7 +78,7 @@ Arguments gquot_rec {G}.
 (** * Derived recursion/induction principles *)
 (** The recursion principle of the HIT. *)
 Section gquot_rec_functor.
-  Context `{Univalence}.
+  Context `{Funext}.
   Variable (G : groupoid)
            (Y : 1 -Type)
            (F : grpd_functor G (path_groupoid Y)).
@@ -281,7 +281,7 @@ Arguments gquot_double_rec_beta_gcleq {G₁ G₂} Y {_ _}.
     We use [gquot_rec], [gquot_ind_set] and [gquot_ind_prop] to define it.
  *)
 Section gquot_double_rec_functor.
-  Context `{Univalence}.
+  Context `{Funext}.
   Variable (G₁ G₂ : groupoid)
            (Y : 1 -Type)
            (F : grpd_functor (prod_groupoid G₁ G₂) (path_groupoid Y)).

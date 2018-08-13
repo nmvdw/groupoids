@@ -22,7 +22,7 @@ From HoTT.Categories Require Import
      Category Functor NaturalTransformation FunctorCategory.
 
 Section LaxFunctors.
-  Context `{Univalence}.
+  Context `{Funext}.
   Variable (C D : BiCategory).
 
   Definition lax_functors_d : BiCategory_d.

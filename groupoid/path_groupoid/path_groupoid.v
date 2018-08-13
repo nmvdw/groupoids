@@ -33,8 +33,8 @@ Proof.
 Defined.
 
 Section PathGroupoidFunctor.
-  Context `{Univalence}.
-
+  Context `{Funext}.
+  
   Definition ap_functor {X Y : 1 -Type}
     : one_types ⟦ X, Y ⟧ -> grpd ⟦ path_groupoid X, path_groupoid Y ⟧
     := fun f =>

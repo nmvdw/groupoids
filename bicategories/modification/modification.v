@@ -59,7 +59,7 @@ Definition mod_commute
   := m.2.
 
 Definition path_modification
-           `{Univalence}
+           `{Funext}
            {C D : BiCategory}
            {F G : LaxFunctor C D}
            {σ₁ σ₂ : LaxTransformation F G}
@@ -69,7 +69,7 @@ Definition path_modification
   := path_sigma_hprop _ _ r.
 
 Global Instance modification_hset
-       `{Univalence}
+       `{Funext}
        {C D : BiCategory}
        {F G : LaxFunctor C D}
        {σ₁ σ₂ : LaxTransformation F G}

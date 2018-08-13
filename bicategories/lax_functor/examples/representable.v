@@ -11,7 +11,7 @@ From GR.bicategories.bicategory.examples Require Import
      opposite.
 
 Definition representable_d
-           `{Univalence}
+           `{Funext}
            {C : BiCategory}
            (X : C)
   : PseudoFunctor_d (op C) PreCat.

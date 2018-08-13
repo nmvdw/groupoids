@@ -160,7 +160,7 @@ Proof.
 Defined.
 
 Definition id_is_adjunction
-           `{Univalence}
+           `{Funext}
            {C : BiCategory}
            (X : C)
   : is_adjunction (id_adjunction_d X).
@@ -193,14 +193,14 @@ Proof.
 Qed.    
 
 Definition id_adjunction
-           `{Univalence}
+           `{Funext}
            {C : BiCategory}
            (X : C)
   : adjunction (id₁ X)
   := Build_Adjunction (id_adjunction_d X) (id_is_adjunction X).
 
 Definition id_adjoint_equivalence
-           `{Univalence}
+           `{Funext}
            {C : BiCategory}
            (X : C)
   : adjoint_equivalence (id₁ X).
@@ -210,7 +210,7 @@ Proof.
 Defined.
 
 Definition id_to_adjequiv
-           `{Univalence}
+           `{Funext}
            {C : BiCategory}
            (X Y : C)
   : X = Y -> X ≃ Y

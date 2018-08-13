@@ -17,7 +17,7 @@ From GR.basics Require Import
      general.
 
 Section CounitInverse.
-  Context `{Univalence}.
+  Context `{Funext}.
 
   Definition counit_inv_map (A : 1 -Type)
     : one_types⟦A,gquot_functor(path_groupoid A)⟧

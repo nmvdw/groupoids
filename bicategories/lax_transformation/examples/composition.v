@@ -8,7 +8,7 @@ From GR.bicategories Require Import
      general_category.
 
 Section Composition.
-  Context `{Univalence}
+  Context `{Funext}
           {C D : BiCategory}
           {F₁ F₂ F₃ : LaxFunctor C D}.
   Variable (σ₁ : LaxTransformation F₁ F₂) (σ₂ : LaxTransformation F₂ F₃).

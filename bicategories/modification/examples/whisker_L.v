@@ -11,7 +11,7 @@ From HoTT.Categories Require Import
      Category Functor NaturalTransformation FunctorCategory.
 
 Section WhiskerL.
-  Context `{Univalence}
+  Context `{Funext}
           {C D : BiCategory}
           {F₁ F₂ F₃ : LaxFunctor C D}
           {η₁ η₂ : LaxTransformation F₂ F₃}.

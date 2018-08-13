@@ -808,6 +808,6 @@ Definition bc_whisker_l_id₂
   : (id₂ g) ◅ f = id₂ (g · f)
   := hcomp_id₂ g f.
 
-Definition is_21 `{Univalence} (C : BiCategory)
+Definition is_21 `{Funext} (C : BiCategory)
   : hProp
   := BuildhProp (forall (X Y : C), IsGroupoid (C⟦X,Y⟧)).

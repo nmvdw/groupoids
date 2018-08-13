@@ -9,7 +9,7 @@ Definition groupoid := {C : PreCategory & IsGroupoid C}.
 Class is_univalent (G : groupoid)
   := obj_cat : IsCategory G.1.
 
-Global Instance is_univalent_ishprop `{Univalence} (G : groupoid)
+Global Instance is_univalent_ishprop `{Funext} (G : groupoid)
   : IsHProp (is_univalent G).
 Proof.
   unfold is_univalent.
@@ -139,33 +139,33 @@ Proof.
 Defined.
 
 (** Groupoid functors *)
-Definition grpd_functor `{Univalence} (G₁ G₂ : groupoid) : PreCategory
+Definition grpd_functor `{Funext} (G₁ G₂ : groupoid) : PreCategory
   := functor_category G₁.1 G₂.1.
 
 (** The object part of a functor. *)
-Definition grpd_object_of `{Univalence} {G₁ G₂ : groupoid} (F : grpd_functor G₁ G₂)
+Definition grpd_object_of `{Funext} {G₁ G₂ : groupoid} (F : grpd_functor G₁ G₂)
   : under G₁ -> under G₂
   := object_of F.
 
 (** The morphism part of a functor. *)
-Definition grpd_morphism_of `{Univalence} {G₁ G₂ : groupoid} (F : grpd_functor G₁ G₂)
+Definition grpd_morphism_of `{Funext} {G₁ G₂ : groupoid} (F : grpd_functor G₁ G₂)
   : forall {x y : under G₁},
     hom G₁ x y -> hom G₂ (grpd_object_of F x) (grpd_object_of F y)
   := morphism_of F.
 
 (** Functors preserve the unit. *)
-Definition grpd_identity_of `{Univalence} {G₁ G₂ : groupoid} (F : grpd_functor G₁ G₂)
+Definition grpd_identity_of `{Funext} {G₁ G₂ : groupoid} (F : grpd_functor G₁ G₂)
   : forall (x : under G₁), grpd_morphism_of F (e x) = e (grpd_object_of F x)
   := identity_of F.
 
 (** Functors preserve the multiplication. *)
-Definition grpd_composition_of `{Univalence} {G₁ G₂ : groupoid} (F : grpd_functor G₁ G₂)
+Definition grpd_composition_of `{Funext} {G₁ G₂ : groupoid} (F : grpd_functor G₁ G₂)
   : forall {x y z : under G₁} (p : hom G₁ x y) (q : hom G₁ y z),
     grpd_morphism_of F (p ● q) = grpd_morphism_of F p ● grpd_morphism_of F q
   := composition_of F.
 
 (** Functors preserve inverses. *)
-Definition grpd_inverse_of `{Univalence} {G₁ G₂ : groupoid} (F : grpd_functor G₁ G₂)
+Definition grpd_inverse_of `{Funext} {G₁ G₂ : groupoid} (F : grpd_functor G₁ G₂)
   : forall {x y : under G₁} (p : hom G₁ x y),
     grpd_morphism_of F (inv p) = inv (grpd_morphism_of F p).
 Proof.
@@ -177,21 +177,21 @@ Proof.
 Defined.
 
 (** We have a bicategory of groupoids. *)
-Definition grpd `{Univalence} : BiCategory
+Definition grpd `{Funext} : BiCategory
   := full_sub PreCat (fun C => BuildhProp (IsGroupoid C)).
 
 (** We have a bicategory of univalent groupoids. *)
-Definition univalent_grpd `{Univalence} : BiCategory
+Definition univalent_grpd `{Funext} : BiCategory
   := full_sub grpd (fun G => BuildhProp (is_univalent G)).
 
 (** Note: it has the expected objects and morphisms. *)
-Definition grpd_obj `{Univalence} : Obj grpd = groupoid
+Definition grpd_obj `{Funext} : Obj grpd = groupoid
   := idpath.
 
-Definition grpd_hom `{Univalence} : Hom grpd = grpd_functor
+Definition grpd_hom `{Funext} : Hom grpd = grpd_functor
   := idpath.
 
-Definition grpd_21 `{Univalence} : is_21 grpd.
+Definition grpd_21 `{Funext} : is_21 grpd.
 Proof.
   intros G₁ G₂ F₁ F₂ α ; simpl in *.
   simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).

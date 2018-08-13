@@ -19,7 +19,7 @@ From GR.basics Require Import
      general.
 
 Section Unit.
-  Context `{Univalence}.
+  Context `{Funext}.
 
   Definition unit_map (G : groupoid)
     : grpd⟦G,path_groupoid(gquot_functor G)⟧.
@@ -120,69 +120,3 @@ Section Unit.
     : is_pseudo_transformation unit_gq
     := _.
 End Unit.
-
-(*
-  Definition unit_retr
-    : @two_cell _ one_types _ _ (counit ⋅ counit_inv)%bicategory (id_m _)
-    := idpath.
-
-  Definition counit_sect
-    : @two_cell _ one_types _ _ (counit_inv ⋅ counit)%bicategory (id_m _).
-  Proof.
-    funext x ; revert x.
-    simple refine (gquot_ind_set _ _ _ _).
-    - reflexivity.
-    - intros ? ? g.
-      apply map_path_over.
-      apply path_to_square.
-      refine (concat_p1 _ @ _ @ (concat_1p _)^) ; cbn in *.
-      refine (_ @ (ap_idmap _)^).
-      refine (ap_compose counit _ _ @ _).
-      refine (ap _ (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _) @ _).
-      induction g ; simpl.
-      exact (ge _ _)^.
-  Defined.
-
-  Global Instance counit_sect_iso
-    : IsIsomorphism counit_sect.
-  Proof.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    - symmetry.
-      apply counit_sect.
-    - apply concat_pV.
-    - apply concat_Vp.
-  Defined.
-
-  Definition counit_equivalence
-    : is_equivalence counit.
-  Proof.
-    simple refine {| f_inv := counit_inv ;
-                     retr := counit_retr ;
-                     sect := counit_sect |}.
-  Defined.
-
-  Definition counit_adjunction
-    : is_adjunction counit counit_inv.
-  Proof.
-    simple refine {| unit := _ |}.
-    - cbn ; symmetry.
-      apply counit_sect.
-    - apply counit_retr.
-    - unfold bc_whisker_r, bc_whisker_l ; cbn.
-      hott_simpl.
-      rewrite ap_V.
-      rewrite ap_postcompose.
-      rewrite <- path_forall_V, <- path_forall_1.
-      reflexivity.
-    - unfold bc_whisker_r, bc_whisker_l.
-      simpl ; hott_simpl.
-      rewrite ap_V.
-      rewrite ap_precompose.
-      rewrite <- !path_forall_V, <- path_forall_1.
-      (* apply ap.
-      funext x ; revert x.
-      simple refine (gquot_ind_prop _ _ _).
-      reflexivity. *)
-  Admitted.
-End counit.
- *)

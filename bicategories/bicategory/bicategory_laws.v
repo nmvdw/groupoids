@@ -355,7 +355,7 @@ Section laws.
   Qed.
 
   Definition left_unit_is_right_unit
-             `{Univalence}
+             `{Funext}
              (X : C)
     : right_unit (id₁ X) = left_unit (id₁ X).
   Proof.
@@ -378,7 +378,7 @@ Section laws.
   Qed.
 
   Definition left_unit_inv_is_right_unit_inv
-             `{Univalence}
+             `{Funext}
              (X : C)
     : left_unit_inv (id₁ X) = right_unit_inv (id₁ X).
   Proof.

@@ -10,7 +10,7 @@ From GR.bicategories Require Import
      modification.examples.composition.
 
 Definition transformation_category
-           `{Univalence}
+           `{Funext}
            {C D : BiCategory}
            (F G : LaxFunctor C D)
   : PreCategory.

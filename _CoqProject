@@ -89,3 +89,4 @@ groupoid/adjunction/unit_inv.v
 groupoid/adjunction/counit.v
 groupoid/adjunction/counit_inv.v
 groupoid/adjunction/gquot_biadjunction.v
+groupoid/adjunction/univalent_gquot_biadjunction.v

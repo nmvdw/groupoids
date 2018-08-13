@@ -10,7 +10,7 @@ From GR.bicategories Require Import
 
 Section IdentityTransformation.
   Context {C D : BiCategory}
-          `{Univalence}.
+          `{Funext}.
   Variable (F : LaxFunctor C D).
 
   Definition identity_transformation_d : PseudoTransformation_d F F.

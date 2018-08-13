@@ -177,7 +177,7 @@ Global Instance laxnaturality_of_is_iso
   := laxnaturality_of_iso f.
 
 Global Instance laxnaturality_transformationis_iso
-       `{Univalence}
+       `{Funext}
        {C D : BiCategory}
        {F G : LaxFunctor C D}
        (η : LaxTransformation F G)

@@ -58,11 +58,11 @@ Proof.
 Qed.
 
 Definition univalent_grpd_eq
-           `{Univalence}
+           `{Funext}
            (G : groupoid)
            `{is_univalent G}
            {x y : G}
-           (g : hom G x y)
+           (g : G x y)
   : x = y
   := @equiv_inv _
                 _
@@ -71,7 +71,7 @@ Definition univalent_grpd_eq
                 (Build_Isomorphic (G.2 _ _ g)).
 
 Definition univalent_grpd_eq_e
-           `{Univalence}
+           `{Funext}
            (G : groupoid)
            `{is_univalent G}
            (x : G)
@@ -88,11 +88,11 @@ Proof.
 Qed.
 
 Definition univalent_grpd_eq_comp
-           `{Univalence}
+           `{Funext}
            (G : groupoid)
            `{is_univalent G}
            {x y z : G}
-           (g₁ : hom G x y) (g₂ : hom G y z)
+           (g₁ : G x y) (g₂ : G y z)
   : univalent_grpd_eq G (g₁ ● g₂)
     =
     univalent_grpd_eq G g₁ @ univalent_grpd_eq G g₂.
@@ -121,7 +121,7 @@ Proof.
 Qed.
 
 Definition univalent_grpd_eq_inv
-           `{Univalence}
+           `{Funext}
            (G : groupoid)
            `{is_univalent G}
            {x y : G}
@@ -150,12 +150,12 @@ Proof.
 Qed.
 
 Definition univalent_grpd_eq_functor
-           `{Univalence}
+           `{Funext}
            {G₁ G₂ : groupoid}
            (F : Functor G₁.1 G₂.1)
            `{is_univalent G₁} `{is_univalent G₂}
            {x y : G₁}
-           (g : hom G₁ x y)
+           (g : G₁ x y)
   : univalent_grpd_eq G₂ (F _1 g)%morphism
     =
     ap (Core.object_of F) (univalent_grpd_eq G₁ g).
@@ -184,11 +184,11 @@ Proof.
 Qed.
 
 Definition idtoiso_univalent_grpd_eq
-           `{Univalence}
+           `{Funext}
            {G : groupoid}
            `{is_univalent G}
            {x y : G}
-           (f : hom G x y)
+           (f : G x y)
   : idtoiso_map (univalent_grpd_eq G f) = f.
 Proof.
   unfold idtoiso_map, univalent_grpd_eq.
@@ -196,13 +196,13 @@ Proof.
   reflexivity.
 Qed.
 
-Definition univalent_gquot `{Univalence}
+Definition univalent_gquot `{Funext}
   : LaxFunctor univalent_grpd one_types
   := lax_restriction
        gquot_functor
        (fun G => BuildhProp (is_univalent G)).
 
-Definition univalent_path_groupoid `{Univalence}
+Definition univalent_path_groupoid `{Funext}
   : LaxFunctor one_types univalent_grpd
   := lax_factor
        path_groupoid_functor
@@ -210,7 +210,7 @@ Definition univalent_path_groupoid `{Univalence}
        path_groupoid_univalent.
 
 Section UnitInv.
-  Context `{Univalence}.
+  Context `{Funext}.
 
   Definition unit_inv_map_one (G : groupoid) `{is_univalent G}
     : gquot G -> G.

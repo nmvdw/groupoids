@@ -12,7 +12,7 @@ From HoTT.Categories Require Import
      Category Functor NaturalTransformation FunctorCategory.
 
 Section RightIdentityInv.
-  Context `{Univalence}
+  Context `{Funext}
           {C D : BiCategory}
           {F₁ F₂ : LaxFunctor C D}.
   Variable (η : LaxTransformation F₁ F₂).

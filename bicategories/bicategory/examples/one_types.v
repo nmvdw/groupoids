@@ -5,8 +5,8 @@ From GR.bicategories Require Import
      general_category bicategory.bicategory univalent.
 
 Section OneTypesBiCategory.
-  Context `{Univalence}.
-
+  Context `{Funext}.
+  
   Definition maps (A B : 1 -Type) : PreCategory.
   Proof.
     simple refine (@Build_PreCategory (A -> B) (fun f g => f = g) _ _ _ _ _ _).
@@ -117,6 +117,7 @@ Section OneTypesBiCategory.
   Qed.
 
   Definition one_types_is_21
+             `{Funext}
     : is_21 one_types.
   Proof.
     intros X Y f g p ; simpl in *.

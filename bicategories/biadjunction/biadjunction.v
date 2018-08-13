@@ -3,6 +3,8 @@ From HoTT.Categories Require Import
      Category Functor NaturalTransformation FunctorCategory.
 From GR.bicategories.bicategory Require Import
      bicategory
+     examples.lax_functors_bicat
+     adjoint
      equivalence
      examples.full_sub.
 Require Import GR.bicategories.lax_functor.lax_functor.
@@ -24,10 +26,11 @@ Require Import GR.bicategories.lax_transformation.examples.restriction.
 Require Import GR.bicategories.lax_transformation.examples.identity.
 Require Import GR.bicategories.lax_transformation.examples.composition.
 From GR.bicategories Require Import
-     modification.modification.
+     modification.modification
+     examples.composition.
 
 Record BiAdjunction_d
-       `{Univalence}
+       `{Funext}
        (C D : BiCategory)
   := Build_BiAdjunction_d
        { left_adjoint_d : LaxFunctor C D ;
@@ -38,8 +41,8 @@ Record BiAdjunction_d
                     (lax_id_functor C)
                     (lax_comp right_adjoint_d left_adjoint_d) ;
          counit_d : LaxTransformation
-                    (lax_comp left_adjoint_d right_adjoint_d)
-                    (lax_id_functor D) ;
+                      (lax_comp left_adjoint_d right_adjoint_d)
+                      (lax_id_functor D) ;
        }.
 
 Arguments Build_BiAdjunction_d {_ C D} _ _ _ _ _ _.
@@ -50,7 +53,7 @@ Arguments unit_d {_ C D}.
 Arguments counit_d {_ C D}.
 
 Global Instance left_adjoint_pseudo_functor
-       `{Univalence}
+       `{Funext}
        {C D : BiCategory}
        (F : BiAdjunction_d C D)
   : is_pseudo (left_adjoint_d F).
@@ -59,7 +62,7 @@ Proof.
 Defined.
 
 Global Instance right_adjoint_pseudo_functor
-       `{Univalence}
+       `{Funext}
        {C D : BiCategory}
        (F : BiAdjunction_d C D)
   : is_pseudo (right_adjoint_d F).
@@ -68,7 +71,7 @@ Proof.
 Defined.
 
 Definition triangle_l_lhs
-           `{Univalence}
+           `{Funext}
            {C D : BiCategory}
            (F : BiAdjunction_d C D)
   : LaxTransformation (left_adjoint_d F) (left_adjoint_d F)
@@ -80,13 +83,13 @@ Definition triangle_l_lhs
              (lax_associativity_inv _ _ _)
              (compose
                 (whisker_L (left_adjoint_d F) (counit_d F))
-                 (lax_left_identity (left_adjoint_d F))
+                (lax_left_identity (left_adjoint_d F))
              )
           )
        ).
 
 Definition triangle_r_lhs
-           `{Univalence}
+           `{Funext}
            {C D : BiCategory}
            (F : BiAdjunction_d C D)
   : LaxTransformation (right_adjoint_d F) (right_adjoint_d F)
@@ -104,7 +107,7 @@ Definition triangle_r_lhs
        ).
 
 Record is_biadjunction
-       `{Univalence}
+       `{Funext}
        {C D : BiCategory}
        (F : BiAdjunction_d C D)
   := Build_is_biadjunction
@@ -133,13 +136,13 @@ Arguments adj_triangle_r_p {_ C D F} _.
 Arguments adj_triangle_r_p_pseudo {_ C D F} _.
 
 Definition BiAdjunction
-           `{Univalence}
+           `{Funext}
            (C D : BiCategory)
   : Type
   := {F : BiAdjunction_d C D & is_biadjunction F}.
 
 Definition Build_BiAdjunction
-           `{Univalence}
+           `{Funext}
            {C D : BiCategory}
            (F : BiAdjunction_d C D)
            (HF : is_biadjunction F)
@@ -147,59 +150,59 @@ Definition Build_BiAdjunction
   := (F;HF).
 
 Definition left_adjoint
-           `{Univalence}
+           `{Funext}
            {C D : BiCategory}
            (F : BiAdjunction C D)
   := left_adjoint_d F.1.
 
 Global Instance left_adjoint_pseudo
-       `{Univalence}
+       `{Funext}
        {C D : BiCategory}
        (F : BiAdjunction C D)
   : is_pseudo (left_adjoint F)
   := left_adjoint_pseudo_d _ _ F.1.
 
 Definition right_adjoint
-           `{Univalence}
+           `{Funext}
            {C D : BiCategory}
            (F : BiAdjunction C D)
   := right_adjoint_d F.1.
 
 Global Instance right_adjoint_pseudo
-       `{Univalence}
+       `{Funext}
        {C D : BiCategory}
        (F : BiAdjunction C D)
   : is_pseudo (right_adjoint F)
   := right_adjoint_pseudo_d _ _ F.1.
 
 Definition unit
-           `{Univalence}
+           `{Funext}
            {C D : BiCategory}
            (F : BiAdjunction C D)
   := unit_d F.1.
 
 Global Instance unit_pseudo
-       `{Univalence}
+       `{Funext}
        {C D : BiCategory}
        (F : BiAdjunction C D)
   : is_pseudo_transformation (unit F)
   := unit_pseudo_p F.2.
 
 Definition counit
-           `{Univalence}
+           `{Funext}
            {C D : BiCategory}
            (F : BiAdjunction C D)
   := counit_d F.1.
 
 Global Instance counit_pseudo
-       `{Univalence}
+       `{Funext}
        {C D : BiCategory}
        (F : BiAdjunction C D)
   : is_pseudo_transformation (counit F)
   := counit_pseudo_p F.2.
 
 Definition adj_triangle_l
-           `{Univalence}
+           `{Funext}
            {C D : BiCategory}
            (F : BiAdjunction C D)
   : modification
@@ -208,14 +211,14 @@ Definition adj_triangle_l
   := adj_triangle_l_p F.2.
 
 Global Instance adj_triangle_l_pseudo
-       `{Univalence}
+       `{Funext}
        {C D : BiCategory}
        (F : BiAdjunction C D)
   : is_pseudo_modification (adj_triangle_l F)
   := adj_triangle_l_p_pseudo F.2.
 
 Definition adj_triangle_r
-           `{Univalence}
+           `{Funext}
            {C D : BiCategory}
            (F : BiAdjunction C D)
   : modification
@@ -224,14 +227,14 @@ Definition adj_triangle_r
   := adj_triangle_r_p F.2.
 
 Global Instance adj_triangle_r_pseudo
-       `{Univalence}
+       `{Funext}
        {C D : BiCategory}
        (F : BiAdjunction C D)
   : is_pseudo_modification (adj_triangle_r F)
   := adj_triangle_r_p_pseudo F.2.
 
 Section Restriction.
-  Context `{Univalence}
+  Context `{Funext}
           {C D : BiCategory}.
   Variable (adj : BiAdjunction C D)
            (P : C -> hProp)

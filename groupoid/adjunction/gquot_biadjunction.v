@@ -19,7 +19,8 @@ From GR.bicategories Require Import
      lax_transformation.examples.left_identity_inv
      lax_transformation.examples.associativity_inv
      lax_transformation.examples.whisker_R
-     lax_transformation.examples.whisker_L
+     lax_transformation.examples.whisker_L.
+From GR.bicategories Require Import
      modification.modification
      modification.examples.identity
      modification.examples.composition.
@@ -36,7 +37,7 @@ From GR.basics Require Import
      general.
 
 Section BiAdjunction.
-  Context `{Univalence}.
+  Context `{Funext}.
 
   Definition gquot_biadjunction_d
     : BiAdjunction_d grpd one_types

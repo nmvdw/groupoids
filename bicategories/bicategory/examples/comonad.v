@@ -15,7 +15,7 @@ From GR.bicategories.modification Require Import
      modification.
 
 Section CoMonad.
-  Context `{Univalence}.
+  Context `{Funext}.
   Variable (C : BiCategory).
 
   Definition comonad := OpLax terminal_bicategory C.

@@ -14,7 +14,7 @@ From GR.bicategories.modification Require Import
      modification.
 
 Section Monad.
-  Context `{Univalence}.
+  Context `{Funext}.
   Variable (C : BiCategory).
 
   Definition monad := Lax terminal_bicategory C.

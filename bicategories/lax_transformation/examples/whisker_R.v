@@ -9,7 +9,7 @@ From GR.bicategories Require Import
      general_category.
 
 Section WhiskerR.
-  Context `{Univalence}
+  Context `{Funext}
           {C D E : BiCategory}
           {F₁ F₂ : LaxFunctor C D}.
   Variable (G : LaxFunctor D E)

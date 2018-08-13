@@ -8,7 +8,6 @@ Local Notation "x ₁" := (Datatypes.fst x) (at level 80).
 Local Notation "x ₂" := (Datatypes.snd x) (at level 80).
 
 Section ProductBicategory.
-  Context `{Univalence}.
   Variable (C D : BiCategory).
 
   Definition prod_d : BiCategory_d.

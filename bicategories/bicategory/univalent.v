@@ -8,13 +8,13 @@ Definition locally_univalent (C : BiCategory)
   : Type
   := forall (X Y : C), IsCategory (C⟦X,Y⟧).
 
-Definition univalent_0 `{Univalence} (C : BiCategory)
+Definition univalent_0 `{Funext} (C : BiCategory)
   : Type
   := forall (X Y : C), IsEquiv(id_to_adjequiv X Y).
 
-Definition univalent `{Univalence} (C : BiCategory)
+Definition univalent `{Funext} (C : BiCategory)
   := (locally_univalent C * univalent_0 C)%type.
 
-Global Instance univalent_hprop `{Univalence} (C : BiCategory)
+Global Instance univalent_hprop `{Funext} (C : BiCategory)
   : IsHProp (univalent C)
   := _.

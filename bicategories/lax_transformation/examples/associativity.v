@@ -12,7 +12,7 @@ From HoTT.Categories Require Import
      Category Functor NaturalTransformation FunctorCategory.
 
 Section LaxAssociativity.
-  Context `{Univalence}
+  Context `{Funext}
           {C₁ C₂ C₃ C₄ : BiCategory}.
   Variable (F₃ : LaxFunctor C₃ C₄)
            (F₂ : LaxFunctor C₂ C₃)

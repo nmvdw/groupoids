@@ -4,4 +4,4 @@ From GR Require Import
      bicategories.bicategory.examples.lax_functors_bicat
      bicategories.bicategory.examples.opposite_2.
 
-Definition OpLax `{Univalence} (C D : BiCategory) := Lax (op2 C) (op2 D).
+Definition OpLax `{Funext} (C D : BiCategory) := Lax (op2 C) (op2 D).

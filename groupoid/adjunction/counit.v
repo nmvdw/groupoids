@@ -17,7 +17,7 @@ From GR.basics Require Import
      general.
 
 Section Counit.
-  Context `{Univalence}.
+  Context `{Funext}.
 
   Definition counit_map (X : 1 -Type)
     : one_types⟦gquot_functor(path_groupoid X),X⟧.

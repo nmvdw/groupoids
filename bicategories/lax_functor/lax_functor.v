@@ -246,7 +246,7 @@ Global Instance Fcomp₁_inv_is_iso
   := _.
        
 Global Instance Fcomp_is_iso
-       `{Univalence}
+       `{Funext}
        {C D : BiCategory}
        (F : LaxFunctor C D)
        `{is_pseudo _ _ F}
@@ -258,7 +258,7 @@ Proof.
 Defined.
 
 Definition Fcomp₁_inv_naturality
-           `{Univalence}
+           `{Funext}
            {C D : BiCategory}
            (F : LaxFunctor C D)
            `{is_pseudo _ _ F}

@@ -16,7 +16,7 @@ From GR.groupoid Require Import
      groupoid_quotient.gquot_principles.
 
 Section GQuotFunctor.
-  Context `{Univalence}.
+  Context `{Funext}.
   
   Definition gquot_functor_obj (G : groupoid)
     : 1 -Type
