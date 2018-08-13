@@ -23,6 +23,7 @@ bicategories/bicategory/examples/opposite.v
 bicategories/bicategory/examples/opposite_2.v
 bicategories/lax_functor/lax_functor.v
 bicategories/lax_functor/examples/ap_functor.v
+bicategories/lax_functor/examples/constant.v
 bicategories/lax_functor/examples/identity.v
 bicategories/lax_functor/examples/pair.v
 bicategories/lax_functor/examples/prod.v
@@ -66,6 +67,7 @@ bicategories/bicategory/examples/comonad.v
 bicategories/bicategory/examples/image.v
 bicategories/lax_functor/examples/image_restriction.v
 bicategories/biadjunction/biadjunction.v
+bicategories/limit/pseudo_limit.v
 setoid/setoid.v
 setoid/squot_properties.v
 setoid/setoid_adjunction.v
