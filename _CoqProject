@@ -80,6 +80,9 @@ groupoid/grpd_bicategory/setoid_grpd.v
 groupoid/path_groupoid/path_groupoid.v
 groupoid/path_groupoid/path_space.v
 groupoid/grpd_bicategory/poly_grpd.v
+groupoid/rezk_completion/rezk.v
+groupoid/rezk_completion/rezk_principles.v
+groupoid/rezk_completion/rezk_encode_decode.v
 groupoid/groupoid_quotient/gquot.v
 groupoid/groupoid_quotient/gquot_principles.v
 groupoid/groupoid_quotient/gquot_functor.v
