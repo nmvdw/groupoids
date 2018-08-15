@@ -34,21 +34,29 @@ Module Export gquot.
     : forall (G : groupoid) (a : G),
       gcleq G (e a) = idpath.
 
-  Axiom ginv
-    : forall (G : groupoid) {a₁ a₂ : G} (g : G a₁ a₂),
-      gcleq G (inv g) = (gcleq G g)^.
-
   Axiom gconcat
     : forall (G : groupoid)
              {a₁ a₂ a₃ : G}
              (g₁ : G a₁ a₂) (g₂ : G a₂ a₃),
       gcleq G (g₁ ● g₂) = gcleq G g₁ @ gcleq G g₂.
+
+  Definition ginv
+    : forall (G : groupoid) {a₁ a₂ : G} (g : G a₁ a₂),
+      gcleq G (inv g) = (gcleq G g)^.
+  Proof.
+    intros G a₁ a₂ g.
+    apply moveL_V1.
+    rewrite <- gconcat, grpd_right_inverse, ge.
+    reflexivity.
+  Qed.
   
   Axiom gtrunc
     : forall (G : groupoid), IsTrunc 1 (gquot G).
 
   Instance gquot_istrunct G : IsTrunc 1 (gquot G).
-  Proof. apply gtrunc. Defined.
+  Proof.
+    apply gtrunc.
+  Defined.
 
   Section gquot_ind.
     Variable (G : groupoid)
@@ -60,11 +68,6 @@ Module Export gquot.
                                                 (path_to_globe (ge G a))
                                                 (gcleqY a a (e a))
                                                 (path_over_id (gclY a)))
-             (ginvY : forall (a₁ a₂ : G) (g : G a₁ a₂),
-                 globe_over Y
-                            (path_to_globe (ginv G g))
-                            (gcleqY a₂ a₁ (inv g))
-                            (path_over_inv (gcleqY a₁ a₂ g)))
              (gconcatY : forall (a₁ a₂ a₃ : G)
                                 (g₁ : G a₁ a₂) (g₂ : G a₂ a₃),
                  globe_over Y
@@ -76,8 +79,8 @@ Module Export gquot.
 
     Fixpoint gquot_ind (g : gquot G) : Y g
       := (match g with
-         | gcl a => fun _ _ _ _ _ => gclY a
-          end) gcleqY geY ginvY gconcatY truncY.
+         | gcl a => fun _ _ _ _ => gclY a
+          end) gcleqY geY gconcatY truncY.
 
     Axiom gquot_ind_beta_gcleq : forall (a₁ a₂ : G) (g : G a₁ a₂),
         apd_po gquot_ind (gcleq G g)
@@ -86,4 +89,4 @@ Module Export gquot.
   End gquot_ind.
 End gquot.
 
-Arguments gquot_ind {G} Y gclY gcleqY geY ginvY gconcatY truncY.
+Arguments gquot_ind {G} Y gclY gcleqY geY gconcatY truncY.

@@ -126,7 +126,7 @@ Section BiAdjunction.
     - reflexivity.
     - intros F G α ; cbn in *.
       refine (concat_p1 _ @ _ @ (concat_1p _)^).
-      exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _).
+      exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _).
   Defined.
 
   Definition gquot_triangle_r_is_modification

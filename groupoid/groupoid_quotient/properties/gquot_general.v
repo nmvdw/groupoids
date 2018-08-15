@@ -18,11 +18,10 @@ Section squot_is_gquot.
 
   Definition gquot_to_squot : gquot (setoid_to_groupoid R) -> squot R.
   Proof.
-    simple refine (gquot_rec (squot R) _ _ _ _ _ _).
+    simple refine (gquot_rec (squot R) _ _ _ _).
     - cbn.
       exact (class_of (rel R)).
     - exact (fun _ _ p => related_classes_eq _ p).
-    - intros ; apply path_ishprop.
     - intros ; apply path_ishprop.
     - intros ; apply path_ishprop.
   Defined.

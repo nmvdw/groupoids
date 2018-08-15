@@ -27,11 +27,10 @@ Section GQuotFunctor.
              (F : Functor G₁.1 G₂.1)
     : gquot_functor_obj G₁ -> gquot_functor_obj G₂.
   Proof.
-    simple refine (gquot_rec _ _ _ _ _ _ _).
+    simple refine (gquot_rec _ _ _ _ _).
     - exact (fun g => gcl G₂ (F g)).
     - exact (fun _ _ g => gcleq G₂ (morphism_of F g)).
     - exact (fun a => ap (gcleq G₂) (identity_of F _) @ ge _ _).
-    - exact (fun _ _ g => ap (gcleq G₂) (grpd_inverse_of F _) @ ginv _ _).
     - exact (fun _ _ _ g₁ g₂ => ap (gcleq G₂) (composition_of F _ _ _ g₁ g₂)
                                    @ gconcat _ _ _).
   Defined.
@@ -54,8 +53,8 @@ Section GQuotFunctor.
                            _
                            idpath
                            _).
-    - exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)^.
-    - exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)^.
+    - exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _)^.
+    - exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _)^.
     - apply path_to_square.
       refine ((gconcat _ _ _)^ @ ap (gcleq G₂) _ @ gconcat _ _ _).
       exact (commutes α _ _ g).
@@ -96,9 +95,9 @@ Section GQuotFunctor.
                            _).
     - unfold gquot_functor_map.
       refine (_ @ (ap_compose _ _ _)^).
-      refine (_ @ ap (ap _) (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)^).
-      exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)^.
-    - exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)^.
+      refine (_ @ ap (ap _) (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _)^).
+      exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _)^.
+    - exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _)^.
     - apply vrefl.
   Qed.
   
@@ -132,7 +131,7 @@ Section GQuotFunctor.
                            _
                            idpath
                            (vrefl _)).
-    exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)^.
+    exact (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _)^.
   Qed.
 
   Definition gquot_functor_map_id (G : grpd)

@@ -27,7 +27,6 @@ Section gquot_sum.
                (fun a => gcl (sum_groupoid G₁ G₂) (inl a))
                (fun a₁ a₂ g => @gcleq (sum_groupoid G₁ G₂) (inl a₁) (inl a₂) g)
                (fun a => ge (sum_groupoid G₁ G₂) (inl a))
-               (fun a₁ a₂ g => @ginv (sum_groupoid G₁ G₂) (inl a₁) (inl a₂) g)
                (fun a₁ a₂ a₃ g₁ g₂ =>
                   @gconcat (sum_groupoid G₁ G₂)
                            (inl a₁)
@@ -35,14 +34,12 @@ Section gquot_sum.
                            (inl a₃)
                            g₁
                            g₂)
-               _
                x).
     - exact (gquot_rec
                _
                (fun b => gcl (sum_groupoid G₁ G₂) (inr b))
                (fun b₁ b₂ g => @gcleq (sum_groupoid G₁ G₂) (inr b₁) (inr b₂) g)
                (fun b => ge (sum_groupoid G₁ G₂) (inr b))
-               (fun b₁ b₂ g => @ginv (sum_groupoid G₁ G₂) (inr b₁) (inr b₂) g)
                (fun b₁ b₂ b₃ g₁ g₂ =>
                   @gconcat (sum_groupoid G₁ G₂)
                            (inr b₁)
@@ -50,13 +47,12 @@ Section gquot_sum.
                            (inr b₃)
                            g₁
                            g₂)
-               _
                y).
   Defined.
 
   Definition gquot_sum_out : gquot (sum_groupoid G₁ G₂) -> gquot G₁ + gquot G₂.
   Proof.
-    simple refine (gquot_rec _ _ _ _ _ _ _) ; cbn.
+    simple refine (gquot_rec _ _ _ _ _) ; cbn.
     - intros [a | b].
       + exact (inl (gcl _ a)).
       + exact (inr (gcl _ b)).
@@ -66,9 +62,6 @@ Section gquot_sum.
     - intros [a | b].
       + exact (ap _ (ge _ a)).
       + exact (ap _ (ge _ b)).
-    - intros [a₁ | b₁] [a₂ | b₂] g ; try refine (Empty_rec g).
-      + exact (ap (ap inl) (ginv G₁ g) @ ap_V _ _).
-      + exact (ap (ap inr) (ginv G₂ g) @ ap_V _ _).
     - intros [a₁ | b₁] [a₂ | b₂] [a₃ | b₃] g₁ g₂;
         try (exact (Empty_rec g₁) || exact (Empty_rec g₂)).
       + exact (ap (ap inl) (gconcat G₁ g₁ g₂) @ ap_pp _ _ _).
@@ -157,17 +150,13 @@ Section gquot_prod.
   Definition gquot_prod_in
     : gquot G₁ * gquot G₂ -> gquot (prod_groupoid G₁ G₂).
   Proof.
-    simple refine (gquot_double_rec _ _ _ _ _ _ _ _ _ _ _).
+    simple refine (gquot_double_rec _ _ _ _ _ _ _ _ _).
     - exact (fun a b => gcl (prod_groupoid G₁ G₂) (a, b)).
     - intros a b₁ b₂ g ; simpl.
       apply gcleq.
       exact (e a, g).
     - intros a b ; simpl.
       apply ge.
-    - intros a b₁ b₂ g ; simpl.
-      rewrite <- ginv ; cbn.
-      rewrite inv_e.
-      reflexivity.
     - intros a b₁ b₂ b₃ g₁ g₂ ; simpl.
       rewrite <- gconcat ; cbn.
       rewrite grpd_right_identity.
@@ -177,10 +166,6 @@ Section gquot_prod.
       exact (g, e b).
     - intros a b ; simpl.
       apply ge.
-    - intros a₁ a₂ b g ; simpl.
-      rewrite <- ginv ; cbn.
-      rewrite inv_e.
-      reflexivity.
     - intros a₁ a₂ a₃ b g₁ g₂ ; simpl.
       rewrite <- gconcat ; cbn.
       rewrite grpd_right_identity.
@@ -195,17 +180,13 @@ Section gquot_prod.
 
   Definition gquot_prod_out : gquot (prod_groupoid G₁ G₂) -> gquot G₁ * gquot G₂.
   Proof.
-    simple refine (gquot_rec _ _ _ _ _ _ _) ; cbn.
+    simple refine (gquot_rec _ _ _ _ _) ; cbn.
     - exact (fun x => (gcl _ (fst x), gcl _ (snd x))).
     - intros a₁ a₂ g ; simpl.
       exact (path_prod' (gcleq _ (fst g)) (gcleq _ (snd g))).
     - intros ; simpl.
       refine (ap (fun p => path_prod' p _) (ge _ _) @ _).
       exact (ap (fun p => path_prod' _ p) (ge _ _)).
-    - intros ; simpl.
-      refine (ap (fun p => path_prod' p _) (ginv _ _) @ _).
-      refine (ap (fun p => path_prod' _ p) (ginv _ _) @ _).
-      apply path_prod_V.
     - intros ; simpl.
       refine (ap (fun p => path_prod' p _) (gconcat _ _ _) @ _).
       refine (ap (fun p => path_prod' _ p) (gconcat _ _ _) @ _).
@@ -249,7 +230,7 @@ Section gquot_prod.
         refine (ap_compose _ _ _ @ _).
         apply gquot_double_rec_beta_r_gcleq.
       * exact (gquot_rec_beta_gcleq (prod_groupoid G₁ G₂)
-                                    _ _ _ _ _ _ _
+                                    _ _ _ _ _ _
                                     (a, b₁) (a, b₂) (e a, g)).
       * exact (ap (fun z => path_prod' z (gcleq G₂ g)) (ge G₁ a)).
     - intros a₁ a₂ b g.
@@ -261,7 +242,7 @@ Section gquot_prod.
         refine (ap_compose _ _ _ @ _).
         apply gquot_double_rec_beta_l_gcleq.
       * exact (gquot_rec_beta_gcleq (prod_groupoid G₁ G₂)
-                                    _ _ _ _ _ _ _
+                                    _ _ _ _ _ _
                                     (a₁, b) (a₂, b) (g, e b)).
       * exact (ap (path_prod' (gcleq G₁ g)) (ge G₂ b)).
   Qed.

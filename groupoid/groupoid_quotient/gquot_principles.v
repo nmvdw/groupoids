@@ -19,8 +19,6 @@ Section gquot_rec.
            (gcleqY : forall {a₁ a₂ : G},
                G a₁ a₂ -> gclY a₁ = gclY a₂)
            (geY : forall (a : G), gcleqY (e a) = idpath)
-           (ginvY : forall (a₁ a₂ : G) (g : G a₁ a₂),
-               gcleqY (inv g) = (gcleqY g)^)
            (gconcatY : forall (a₁ a₂ a₃: G) (g₁: G a₁ a₂) (g₂: G a₂ a₃),
                gcleqY (g₁ ● g₂) = gcleqY g₁ @ gcleqY g₂)
            (truncY : IsTrunc 1 Y).
@@ -35,33 +33,20 @@ Section gquot_rec.
                                          (gcleqY a a (e a))
                                          idpath
                                          (path_to_globe (geY a)))
-                             _ _ _) ; cbn.
-    - intros a₁ a₂ g.
-      simple refine (globe_over_whisker
-                       (fun _ => Y)
-                       _
-                       idpath
-                       (const_path_over_inv _)
-                       (const_globe_over
-                          (path_to_globe (ginv G g))
-                          (gcleqY a₂ a₁ (inv g))
-                          ((gcleqY a₁ a₂ g)^)
-                          (path_to_globe (ginvY a₁ a₂ g))
-                       )
-                    ).
-    - intros a₁ a₂ a₃ g₁ g₂.
-      simple refine (globe_over_whisker
-                       (fun _ => Y)
-                       _
-                       idpath
-                       (const_path_over_concat _ _)
-                       (const_globe_over
-                          (path_to_globe (gconcat G g₁ g₂))
-                          (gcleqY a₁ a₃ (g₁ ● g₂))
-                          (gcleqY a₁ a₂ g₁ @ gcleqY a₂ a₃ g₂)
-                          (path_to_globe (gconcatY a₁ a₂ a₃ g₁ g₂))
-                       )
-                    ).
+                             _ _) ; cbn.
+    intros a₁ a₂ a₃ g₁ g₂.
+    simple refine (globe_over_whisker
+                     (fun _ => Y)
+                     _
+                     idpath
+                     (const_path_over_concat _ _)
+                     (const_globe_over
+                        (path_to_globe (gconcat G g₁ g₂))
+                        (gcleqY a₁ a₃ (g₁ ● g₂))
+                        (gcleqY a₁ a₂ g₁ @ gcleqY a₂ a₃ g₂)
+                        (path_to_globe (gconcatY a₁ a₂ a₃ g₁ g₂))
+                     )
+                  ).
   Defined.
 
   Definition gquot_rec_beta_gcleq (a₁ a₂ : G) (g : G a₁ a₂)
@@ -70,36 +55,10 @@ Section gquot_rec.
     apply (const_path_over_inj (gcleq G g)).
     refine ((apd_po_const _ _)^ @ _).
     apply gquot_ind_beta_gcleq.
-  Defined.
+  Qed.
 End gquot_rec.
 
-Arguments gquot_rec {G}.
-
-(** * Derived recursion/induction principles *)
-(** The recursion principle of the HIT. *)
-Section gquot_rec_functor.
-  Context `{Funext}.
-  Variable (G : groupoid)
-           (Y : 1 -Type)
-           (F : grpd_functor G (path_groupoid Y)).
-
-  Definition gquot_rec_functor : gquot G -> Y
-    := gquot_rec Y
-                 (grpd_object_of F)
-                 (fun a₁ a₂ g => grpd_morphism_of F g)
-                 (grpd_identity_of F)
-                 (@grpd_inverse_of _ _ _ F)
-                 (@grpd_composition_of _ _ _ F)
-                 _.
-
-  Definition gquot_rec_functor_beta_gcleq (a₁ a₂ : G) (g : hom G a₁ a₂)
-    : ap gquot_rec_functor (gcleq G g) = grpd_morphism_of F g.
-  Proof.
-    apply gquot_rec_beta_gcleq.
-  Defined.
-End gquot_rec_functor.
-
-Arguments gquot_rec_functor {_ G}.
+Arguments gquot_rec {G} Y gclY gcleqY geY gconcatY {truncY}.
 
 (** If the we have a family of sets, then we can simplify the induction principle. *)
 Section gquot_ind_set.
@@ -112,7 +71,7 @@ Section gquot_ind_set.
 
   Definition gquot_ind_set : forall (g : gquot G), Y g.
   Proof.
-    simple refine (gquot_ind Y gclY gcleqY _ _ _ _)
+    simple refine (gquot_ind Y gclY gcleqY _ _ _)
     ; intros ; apply path_globe_over_hset ; apply _.
   Defined.
 
@@ -126,7 +85,7 @@ Section gquot_ind_set.
       gcleqY a₁ a₂ g.
   Proof.
     apply gquot_ind_beta_gcleq.
-  Defined.
+  Qed.
 End gquot_ind_set.
 
 Arguments gquot_ind_set {G} Y gclY gcleqY truncY.
@@ -161,8 +120,6 @@ Section gquot_double_rec.
                G₂ b₁ b₂ -> f a b₁ = f a b₂)
            (fre : forall (a : G₁) (b : G₂),
                fr a b b (e b) = idpath)
-           (fri : forall (a : G₁) (b₁ b₂ : G₂) (g : G₂ b₁ b₂),
-               fr a b₂ b₁ (inv g) = (fr a b₁ b₂ g)^)
            (frc : forall (a : G₁) (b₁ b₂ b₃ : G₂)
                          (g₁ : G₂ b₁ b₂) (g₂ : G₂ b₂ b₃),
                fr a b₁ b₃ (g₁ ● g₂)
@@ -172,8 +129,6 @@ Section gquot_double_rec.
                hom G₁ a₁ a₂ -> f a₁ b = f a₂ b)
            (fle : forall (a : G₁) (b : G₂),
                fl a a b (e a) = idpath)
-           (fli : forall (a₁ a₂ : G₁) (b : G₂) (g : G₁ a₁ a₂),
-               fl a₂ a₁ b (inv g) = (fl a₁ a₂ b g)^)
            (flc : forall (a₁ a₂ a₃ : G₁) (b : G₂)
                          (g₁ : G₁ a₁ a₂) (g₂ : G₁ a₂ a₃),
                fl a₁ a₃ b (g₁ ● g₂)
@@ -189,8 +144,8 @@ Section gquot_double_rec.
   Definition gquot_double_rec' : gquot G₁ -> gquot G₂ -> Y.
   Proof.
     intros x y.
-    simple refine (gquot_rec _ _ _ _ _ _ _ x).
-    - exact (fun a => gquot_rec Y (f a) (fr a) (fre a) (fri a) (frc a) _ y).
+    simple refine (gquot_rec _ _ _ _ _ x).
+    - exact (fun a => gquot_rec Y (f a) (fr a) (fre a) (frc a) y).
     - intros a₁ a₂ g₁ ; simpl.
       simple refine (gquot_ind_set (fun z => _) _ _ _ y).
       + exact (fun b => fl a₁ a₂ b g₁).
@@ -205,9 +160,6 @@ Section gquot_double_rec.
     - intros a.
       simple refine (gquot_ind_prop (fun z => _) _ _ y).
       exact (fun b => fle a b).
-    - intros a₁ a₂ g.
-      simple refine (gquot_ind_prop (fun z => _) _ _ y).
-      exact (fun b => fli a₁ a₂ b g).
     - intros a₁ a₂ a₃ g.
       simple refine (gquot_ind_prop (fun z => _) _ _ y).
       exact (fun b => flc a₁ a₂ a₃ b g).
@@ -220,7 +172,7 @@ Section gquot_double_rec.
       fl a₁ a₂ b g.
   Proof.
     apply gquot_rec_beta_gcleq.
-  Defined.
+  Qed.
 
   Definition gquot_double_rec'_beta_r_gcleq
              (a : G₁) {b₁ b₂ : G₂} (g : G₂ b₁ b₂)
@@ -229,7 +181,7 @@ Section gquot_double_rec.
       fr a b₁ b₂ g.
   Proof.
     apply (gquot_rec_beta_gcleq G₂).
-  Defined.
+  Qed.
 
   Definition gquot_double_rec : gquot G₁ * gquot G₂ -> Y
     := uncurry gquot_double_rec'.
@@ -246,8 +198,8 @@ Section gquot_double_rec.
       fl a₁ a₂ b₁ g₁ @ fr a₂ b₁ b₂ g₂.
   Proof.
     refine (uncurry_ap _ _ _ @ _).
-    refine (ap (fun p => p @ _) (gquot_rec_beta_gcleq G₁ _ _ _ _ _ _ _ _ _ _) @ _).
-    exact (ap (fun p => _ @ p) (gquot_rec_beta_gcleq G₂ _ _ _ _ _ _ _ _ _ _)).
+    refine (ap (fun p => p @ _) (gquot_rec_beta_gcleq G₁ _ _ _ _ _ _ _ _ _) @ _).
+    exact (ap (fun p => _ @ p) (gquot_rec_beta_gcleq G₂ _ _ _ _ _ _ _ _ _)).
   Qed.
 
   Definition gquot_double_rec_beta_l_gcleq
@@ -257,7 +209,7 @@ Section gquot_double_rec.
       fl a₁ a₂ b g.
   Proof.
     refine (uncurry_ap _ _ _ @ _).
-    refine (ap (fun p => p @ _) (gquot_rec_beta_gcleq G₁ _ _ _ _ _ _ _ _ _ _) @ _).
+    refine (ap (fun p => p @ _) (gquot_rec_beta_gcleq G₁ _ _ _ _ _ _ _ _ _) @ _).
     apply concat_p1.
   Qed.
   
@@ -268,7 +220,7 @@ Section gquot_double_rec.
       fr a b₁ b₂ g.
   Proof.
     refine (uncurry_ap _ _ _ @ _).
-    refine (ap (fun p => _ @ p) (gquot_rec_beta_gcleq G₂ _ _ _ _ _ _ _ _ _ _) @ _).
+    refine (ap (fun p => _ @ p) (gquot_rec_beta_gcleq G₂ _ _ _ _ _ _ _ _ _) @ _).
     apply concat_1p.
   Qed.
 End gquot_double_rec.
@@ -276,114 +228,6 @@ End gquot_double_rec.
 Arguments gquot_double_rec {G₁ G₂} Y {_ _}.
 Arguments gquot_double_rec' {G₁ G₂} Y {_ _}.
 Arguments gquot_double_rec_beta_gcleq {G₁ G₂} Y {_ _}.
-
-(** The double recursion principle.
-    We use [gquot_rec], [gquot_ind_set] and [gquot_ind_prop] to define it.
- *)
-Section gquot_double_rec_functor.
-  Context `{Funext}.
-  Variable (G₁ G₂ : groupoid)
-           (Y : 1 -Type)
-           (F : grpd_functor (prod_groupoid G₁ G₂) (path_groupoid Y)).
-
-  Definition gquot_double_rec'_functor : gquot G₁ -> gquot G₂ -> Y.
-  Proof.
-    simple refine (gquot_double_rec' Y
-                                     (fun x y => F(x,y))
-                                     _ _ _ _ _ _ _ _ _).
-    - intros a b₁ b₂ g ; cbn.
-      apply (morphism_of F).
-      exact (e a,g).
-    - intros a b ; cbn.
-      apply (identity_of F).
-    - intros a b₁ b₂ g ; cbn.
-      refine (_ @ grpd_inverse_of F _) ; cbn.
-      apply ap.
-      exact  (path_prod' (inv_e a)^ idpath).
-    - intros a b₁ b₂ b₃ g₁ g₂ ; cbn.
-      refine (_ @ composition_of F _ _ _ _ _).
-      apply ap ; cbn.
-      exact (path_prod' (grpd_right_identity (e a))^ idpath).
-    - intros a₁ a₂ b g ; cbn.
-      apply (morphism_of F).
-      exact (g,e b).
-    - intros a b ; cbn.
-      apply (identity_of F).
-    - intros a₁ a₂ b g ; cbn.
-      refine (_ @ grpd_inverse_of F _) ; cbn.
-      apply ap.
-      exact  (path_prod' idpath (inv_e b)^).
-    - intros a₁ a₂ a₃ b g₁ g₂ ; cbn.
-      refine (_ @ composition_of F _ _ _ _ _).
-      apply ap ; cbn.
-      exact (path_prod' idpath (grpd_right_identity (e b))^).
-    - intros a₁ a₂ b₁ b₂ g h ; cbn.
-      apply path_to_square.
-      refine (((composition_of F (a₁,b₁) (a₁,b₂) (a₂,b₂) (e a₁, h) (g, e b₂))^)
-                @ _
-                @ composition_of F (a₁,b₁) (a₂,b₁) (a₂,b₂) (g, e b₁) (e a₂, h)).
-      apply ap ; simpl.
-      exact (path_prod'
-               (grpd_left_identity g @ (grpd_right_identity g)^)
-               (grpd_right_identity h @ (grpd_left_identity h)^)).
-  Defined.
-
-  Definition gquot_double_rec'_functor_beta_r_gcleq
-             (a : G₁) {b₁ b₂ : G₂} (g : G₂ b₁ b₂)
-    : ap (gquot_double_rec'_functor (gcl G₁ a)) (gcleq G₂ g)
-      =
-      @grpd_morphism_of _
-                        (prod_groupoid G₁ G₂)
-                        (path_groupoid Y)
-                        F
-                        (a,b₁)
-                        (a,b₂)
-                        (e a,g).
-  Proof.
-    apply (gquot_double_rec'_beta_r_gcleq).
-  Defined.
-
-  Definition gquot_double_rec'_functor_beta_l_gcleq
-             {a₁ a₂ : G₁} (b : G₂) (g : G₁ a₁ a₂)
-    : ap (fun z => gquot_double_rec'_functor z (gcl G₂ b)) (gcleq G₁ g)
-      =
-      @grpd_morphism_of _
-                        (prod_groupoid G₁ G₂)
-                        (path_groupoid Y)
-                        F
-                        (a₁,b)
-                        (a₂,b)
-                        (g, e b).
-  Proof.
-    apply (gquot_double_rec'_beta_l_gcleq).
-  Defined.
-
-  Definition gquot_double_rec_functor : gquot G₁ * gquot G₂ -> Y
-    := uncurry gquot_double_rec'_functor.
-
-  Definition gquot_double_rec_functor_point (a : G₁) (b : G₂)
-    : gquot_double_rec_functor (gcl G₁ a, gcl G₂ b) = grpd_object_of F (a,b)
-    := idpath.
-
-  Definition gquot_double_rec_functor_beta_gcleq
-             {a₁ a₂ : G₁} {b₁ b₂ : G₂}
-             (g₁ : G₁ a₁ a₂) (g₂ : G₂ b₁ b₂)
-    : ap gquot_double_rec_functor (path_prod' (gcleq G₁ g₁) (gcleq G₂ g₂))
-      =
-      (@grpd_morphism_of _ _ _ F (a₁,b₁) (a₂,b₁) (g₁,e b₁))
-        @ @grpd_morphism_of _ _ _ F (a₂,b₁) (a₂,b₂) (e a₂,g₂).
-  Proof.
-    unfold gquot_double_rec_functor.
-    pose @gquot_double_rec_beta_gcleq as p.
-    unfold gquot_double_rec in p.
-    rewrite p.
-    reflexivity.
-  Qed.
-End gquot_double_rec_functor.
-
-Arguments gquot_double_rec_functor {_ G₁ G₂} Y.
-Arguments gquot_double_rec'_functor {_ G₁ G₂} Y.
-Arguments gquot_double_rec_functor_beta_gcleq {_ G₁ G₂} Y.
 
 (** Double induction over a family of sets.
     We use the same trick as for double recursion.
@@ -453,15 +297,10 @@ Section gquot_relation.
   Context `{Univalence}.
 
   Variable (fl_id : forall (a : G₁) (b : G₂), fl a a b (e a) == idmap)
-           (fl_inv : forall (a₁ a₂ : G₁) (b : G₂) (g : G₁ a₁ a₂),
-               fl a₂ a₁ b (inv g) == (fl a₁ a₂ b g)^-1)
            (fl_comp : forall (a₁ a₂ a₃ : G₁) (b : G₂)
                              (g₁ : G₁ a₁ a₂) (g₂ : G₁ a₂ a₃),
                fl a₁ a₃ b (g₁ ● g₂) == fl a₂ a₃ b g₂ o (fl a₁ a₂ b g₁))
            (fr_id : forall (a : G₁) (b : G₂), fr a b b (e b) == idmap)
-           (fr_inv : forall (a : G₁) (b₁ b₂ : G₂)
-                            (g : G₂ b₁ b₂),
-               fr a b₂ b₁ (inv g) == (fr a b₁ b₂ g)^-1)
            (fr_comp : forall (a : G₁) (b₁ b₂ b₃ : G₂)
                              (g₁ : G₂ b₁ b₂) (g₂ : G₂ b₂ b₃),
                fr a b₁ b₃ (g₁ ● g₂) == fr a b₂ b₃ g₂ o (fr a b₁ b₂ g₁))
@@ -472,41 +311,84 @@ Section gquot_relation.
                fr a₂ b₁ b₂ g₂ o fl a₁ a₂ b₁ g₁
            ).
 
+  Definition path_hset_fr_refl
+             (a : G₁) (b : G₂)
+    : path_hset (BuildEquiv _ _ (fr a b b (e b)) _) = idpath.
+  Proof.
+    refine (_ @ path_trunctype_1).
+    apply path_trunctype_eq ; cbn.
+    apply fr_id.
+  Qed.
+
+  Definition path_hset_fr_trans
+             (a : G₁) (b₁ b₂ b₃ : G₂)
+             (g₁ : G₂ b₂ b₃) (g₂ : G₂ b₁ b₂)
+    : path_hset (BuildEquiv _ _ (fr a b₁ b₃ (g₂ ● g₁)) _)
+      =
+      (path_hset (BuildEquiv _ _ (fr a b₁ b₂ g₂) _))
+        @
+        path_hset (BuildEquiv _ _ (fr a b₂ b₃ g₁) _).
+  Proof.
+    refine (_ @ path_trunctype_pp _ _).
+    apply path_trunctype_eq ; cbn.
+    apply fr_comp.
+  Qed.
+
+  Definition path_hset_fl_refl
+             (a : G₁) (b : G₂)
+    : path_hset (BuildEquiv _ _ (fl a a b (e a)) _) = idpath.
+  Proof.
+    refine (_ @ path_trunctype_1).
+    apply path_trunctype_eq ; cbn.
+    apply fl_id.
+  Qed.
+  
+  Definition path_hset_fl_trans
+             (a₁ a₂ a₃ : G₁) (b : G₂)
+             (g₁ : G₁ a₂ a₃) (g₂ : G₁ a₁ a₂)
+    : path_hset (BuildEquiv _ _ (fl a₁ a₃ b (g₂ ● g₁)) _)
+      =
+      (path_hset (BuildEquiv _ _ (fl a₁ a₂ b g₂) _))
+        @
+        path_hset (BuildEquiv _ _ (fl a₂ a₃ b g₁) _).
+  Proof.
+    refine (_ @ path_trunctype_pp _ _).
+    apply path_trunctype_eq ; cbn.
+    apply fl_comp.
+  Qed.
+
+  Definition path_hset_fl_fr
+             (a₁ a₂ : G₁) (b₁ b₂ : G₂)
+             (g₁ : G₁ a₁ a₂)
+             (g₂ : G₂ b₁ b₂)
+    : (path_hset (BuildEquiv _ _ (fr a₁ b₁ b₂ g₂) _))
+        @
+        path_hset (BuildEquiv _ _ (fl a₁ a₂ b₂ g₁) _)
+      =
+      (path_hset (BuildEquiv _ _ (fl a₁ a₂ b₁ g₁) _))
+        @
+        path_hset (BuildEquiv _ _ (fr a₂ b₁ b₂ g₂) _).
+  Proof.
+    refine ((path_trunctype_pp _ _)^ @ _ @ path_trunctype_pp _ _).
+    apply path_trunctype_eq ; cbn.
+    apply fc.
+  Qed.
+
   Definition gquot_relation : gquot G₁ -> gquot G₂ -> hSet.
   Proof.
-    simple refine (gquot_double_rec' _ _ _ _ _ _ _ _ _ _ _).
+    simple refine (gquot_double_rec' _ _ _ _ _ _ _ _ _).
     - exact R.
     - exact (fun a b₁ b₂ g => path_hset (BuildEquiv _ _ (fr a b₁ b₂ g) _)).
-    - intros a b ; simpl.
-      refine (_ @ path_trunctype_1).
-      apply path_trunctype_eq ; cbn.
-      apply fr_id.
-    - intros a b₁ b₂ g ; simpl.
-      refine (_ @ path_trunctype_V _).
-      apply path_trunctype_eq ; cbn.
-      apply fr_inv.
-    - intros a b₁ b₂ b₃ g₁ g₂ ; simpl.
-      refine (_ @ path_trunctype_pp _ _).
-      apply path_trunctype_eq ; cbn.
-      apply fr_comp.
+    - exact path_hset_fr_refl.
+    - intros.
+      apply path_hset_fr_trans.
     - exact (fun a₁ a₂ b g => path_hset (BuildEquiv _ _ (fl a₁ a₂ b g) _)).
-    - intros a b ; simpl.
-      refine (_ @ path_trunctype_1).
-      apply path_trunctype_eq ; cbn.
-      apply fl_id.
-    - intros a₁ a₂ b g ; simpl.
-      refine (_ @ path_trunctype_V _).
-      apply path_trunctype_eq ; cbn.
-      apply fl_inv.
-    - intros a₁ a₂ a₃ b g₁ g₂ ; simpl.
-      refine (_ @ path_trunctype_pp _ _).
-      apply path_trunctype_eq ; cbn.
-      apply fl_comp.
+    - exact path_hset_fl_refl.
+    - intros.
+      apply path_hset_fl_trans.
     - intros a₁ a₂ b₁ b₂ g₁ g₂.
       apply path_to_square.
-      refine ((path_trunctype_pp _ _)^ @ _ @ path_trunctype_pp _ _).
-      apply path_trunctype_eq ; cbn.
-      apply fc.
+      apply path_hset_fl_fr.
   Defined.
 
   Definition gquot_relation_gcl_gcl (a : G₁) (b : G₂)
@@ -519,8 +401,8 @@ Section gquot_relation.
       =
       path_hset (BuildEquiv _ _ (fl a₁ a₂ b g) _).
   Proof.
-    exact (gquot_double_rec'_beta_l_gcleq G₁ G₂ hSet R _ _ _ _ _ _ _ _ _ b g).
-  Defined.
+    exact (gquot_double_rec'_beta_l_gcleq G₁ G₂ hSet R _ _ _ _ _ _ _ b g).
+  Qed.
 
   Definition gquot_relation_beta_r_gcleq
              (a : G₁) {b₁ b₂ : G₂} (g : G₂ b₁ b₂)
@@ -528,6 +410,6 @@ Section gquot_relation.
       =
       path_hset (BuildEquiv _ _ (fr a b₁ b₂ g) _).
   Proof.
-    exact (gquot_double_rec'_beta_r_gcleq G₁ G₂ hSet R _ _ _ _ _ _ _ _ _ a g).
-  Defined.
+    exact (gquot_double_rec'_beta_r_gcleq G₁ G₂ hSet R _ _ _ _ _ _ _ a g).
+  Qed.
 End gquot_relation.

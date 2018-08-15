@@ -22,10 +22,9 @@ Section Counit.
   Definition counit_map (X : 1 -Type)
     : one_types⟦gquot_functor(path_groupoid X),X⟧.
   Proof.
-    simple refine (gquot_rec X _ _ _ _ _ _) ; cbn.
+    simple refine (gquot_rec X _ _ _ _) ; cbn.
     - exact idmap.
     - exact (fun _ _ => idmap).
-    - reflexivity.
     - reflexivity.
     - reflexivity.
   Defined.
@@ -163,48 +162,3 @@ Section Counit.
     : is_pseudo_transformation counit_gq
     := _.
 End Counit.
-
-
-
-
-
-
-
-
-(*
-Definition counit_adjunction_d
-  : adjunction_d counit_map counit_inv_map.
-Proof.
-  simple refine {| unit_d := _ |}.
-  - cbn ; symmetry.
-    apply counit_sect.
-  - apply counit_retr.
-Defined.
-
-Definition counit_is_adjunction
-  : is_adjunction counit_adjunction_d.
-Proof.
-  split.
-  - unfold bc_whisker_r, bc_whisker_l ; simpl.
-    rewrite concat_1p, !concat_p1, ap_V.
-    rewrite ap_postcompose.
-    rewrite <- path_forall_V, <- path_forall_1.
-    reflexivity.
-  - apply Morphisms.iso_moveR_pV.
-    unfold bc_whisker_r, bc_whisker_l.
-    rewrite !left_identity.
-    apply Morphisms.iso_moveR_Vp.
-    simpl.      
-    rewrite !concat_1p, ap_V.
-    rewrite ap_precompose.
-    rewrite <- path_forall_V, <- path_forall_1.
-    f_ap.
-    funext x ; revert x.
-    simple refine (gquot_ind_prop _ _ _).
-    reflexivity.
-Qed.
-
-Definition counit_adjunction
-  : adjunction counit_map counit_inv_map
-  := (counit_adjunction_d;counit_is_adjunction).
-*)

@@ -215,11 +215,10 @@ Section UnitInv.
   Definition unit_inv_map_one (G : groupoid) `{is_univalent G}
     : gquot G -> G.
   Proof.
-    simple refine (gquot_rec _ _ _ _ _ _ (univalent_one_type G)).
+    simple refine (gquot_rec _ _ _ _ _).
     - exact idmap.
     - exact (fun _ _ => univalent_grpd_eq G).
     - exact (univalent_grpd_eq_e G).
-    - exact (fun _ _ => univalent_grpd_eq_inv G).
     - exact (fun _ _ _ => univalent_grpd_eq_comp G).
   Defined.
   

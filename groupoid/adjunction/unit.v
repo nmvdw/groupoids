@@ -41,7 +41,7 @@ Section Unit.
       1 @ gcleq G₂ (F _1 g)%morphism.
   Proof.
     exact ((concat_p1 _)
-             @ (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)
+             @ (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _)
              @ (concat_1p _)^).
   Qed.
 
@@ -55,7 +55,7 @@ Section Unit.
       1 @ ap (gquot_functor_map F) (gcleq G₁ g).
   Proof.
     exact ((concat_p1 _)
-             @ (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)^
+             @ (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _)^
              @ (concat_1p _)^).
   Qed.
   

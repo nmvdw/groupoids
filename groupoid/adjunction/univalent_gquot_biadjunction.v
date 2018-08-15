@@ -98,7 +98,7 @@ Section UnivalentGQuotAdjunction.
       apply map_path_over.
       refine (whisker_square
                 idpath
-                (ap (ap (gcl A)) (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)^
+                (ap (ap (gcl A)) (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _)^
                  @ (ap_compose _ _ _)^)
                 ((ap_idmap _)^)
                 idpath
@@ -248,7 +248,7 @@ Section UnivalentGQuotAdjunction.
       refine (whisker_square
                 idpath
                 ((ap_idmap _)^)
-                (ap (ap (gcl A)) (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)^
+                (ap (ap (gcl A)) (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _)^
                  @ (ap_compose _ _ _)^)
                 idpath
                 _).
@@ -538,7 +538,7 @@ Section UnivalentGQuotAdjunction.
                 idpath
                 _).
       - refine (_ @ (ap_compose _ _ _)^).
-        exact (ap (ap (counit_inv_map A)) (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _ _)^).
+        exact (ap (ap (counit_inv_map A)) (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _)^).
       - apply path_to_square ; simpl.
         refine (concat_p1 _ @ _ @ (concat_1p _)^).
         induction g ; simpl.

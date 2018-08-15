@@ -87,20 +87,16 @@ Section encode_decode.
                           (hom G)
                           (fun _ _ b g => right_action b g)
                           (fun a _ _ g => left_action a g)
-                          _ _ _ _ _ _ _
+                          _ _ _ _ _
           ).
     - intros a b ; simpl.
       apply right_action_e.
-    - intros a b₁ b₂ g x ; unfold right_action ; simpl.
-        by rewrite inv_involutive.
     - intros ; intro ; cbn.
       unfold right_action.
       rewrite inv_prod, grpd_right_assoc.
       reflexivity.
     - intros ; compute.
       apply grpd_right_identity.
-    - intros ; compute.
-      reflexivity.
     - compute ; intros.
       apply grpd_right_assoc.
     - compute ; intros.
@@ -113,14 +109,14 @@ Section encode_decode.
     : ap (fun z => g_fam z (gcl G b)) (gcleq G g)
       =
       path_hset (BuildEquiv _ _ (right_action b g) _)
-    := gquot_relation_beta_l_gcleq G G (hom G) _ _ _ _ _ _ _ _ _ _ g.
+    := gquot_relation_beta_l_gcleq G G (hom G) _ _ _ _ _ _ _ _ g.
 
   Definition gquot_fam_r_gcleq
              (a : G) {b₁ b₂ : G} (g : G b₁ b₂)
     : ap (g_fam (gcl G a)) (gcleq G g)
       =
       path_hset (BuildEquiv _ _ (left_action a g) _)
-    := gquot_relation_beta_r_gcleq G G (hom G) _ _ _ _ _ _ _ _ _ _ g.
+    := gquot_relation_beta_r_gcleq G G (hom G) _ _ _ _ _ _ _ _ g.
 
   Local Instance g_fam_hset x y : IsHSet (g_fam x y)
     := istrunc_trunctype_type _.
