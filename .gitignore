@@ -20,6 +20,7 @@ Makefile.conf
 *.v.d
 *.vio
 *.vo
+*.log
 .coq-native/
 .csdp.cache
 .lia.cache
