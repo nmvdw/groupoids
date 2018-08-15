@@ -52,7 +52,7 @@ Section rezk_rec.
     apply (const_path_over_inj (rcleq C f)).
     refine ((apd_po_const _ _)^ @ _).
     apply rezk_ind_beta_rcleq.
-  Defined.
+  Qed.
 End rezk_rec.
 
 Arguments rezk_rec {C}.
@@ -82,7 +82,7 @@ Section rezk_ind_set.
       rcleqY x y f.
   Proof.
     apply rezk_ind_beta_rcleq.
-  Defined.
+  Qed.
 End rezk_ind_set.
 
 Arguments rezk_ind_set {C} Y rclY rcleqY truncY.
@@ -169,7 +169,7 @@ Section rezk_double_rec.
       fl x₁ x₂ y g.
   Proof.
     apply rezk_rec_beta_rcleq.
-  Defined.
+  Qed.
 
   Definition rezk_double_rec'_beta_r_rcleq
              (x : C₁) {y₁ y₂ : C₂} (g : y₁ <~=~> y₂)
@@ -178,7 +178,7 @@ Section rezk_double_rec.
       fr x y₁ y₂ g.
   Proof.
     apply (rezk_rec_beta_rcleq C₂).
-  Defined.
+  Qed.
 
   Definition rezk_double_rec : rezk C₁ * rezk C₂ -> Y
     := uncurry rezk_double_rec'.
@@ -308,33 +308,82 @@ Section rezk_relation.
                fr x₂ y₁ y₂ g₂ o fl x₁ x₂ y₁ g₁
            ).
 
+  Definition path_hset_fr_refl
+             (a : C₁) (b : C₂)
+    : path_hset (BuildEquiv _ _ (fr a b b (isomorphic_refl C₂ b)) _) = idpath.
+  Proof.
+    refine (_ @ path_trunctype_1).
+    apply path_trunctype_eq ; cbn.
+    apply fr_id.
+  Qed.
+
+  Definition path_hset_fr_trans
+             (a : C₁) (b₁ b₂ b₃ : C₂)
+             (g₁ : b₂ <~=~> b₃) (g₂ : b₁ <~=~> b₂)
+    : path_hset (BuildEquiv _ _ (fr a b₁ b₃ (isomorphic_trans g₂ g₁)) _)
+      =
+      (path_hset (BuildEquiv _ _ (fr a b₁ b₂ g₂) _))
+        @
+        path_hset (BuildEquiv _ _ (fr a b₂ b₃ g₁) _).
+  Proof.
+    refine (_ @ path_trunctype_pp _ _).
+    apply path_trunctype_eq ; cbn.
+    apply fr_comp.
+  Qed.
+
+  Definition path_hset_fl_refl
+             (a : C₁) (b : C₂)
+    : path_hset (BuildEquiv _ _ (fl a a b (isomorphic_refl C₁ a)) _) = idpath.
+  Proof.
+    refine (_ @ path_trunctype_1).
+    apply path_trunctype_eq ; cbn.
+    apply fl_id.
+  Qed.
+  
+  Definition path_hset_fl_trans
+             (a₁ a₂ a₃ : C₁) (b : C₂)
+             (g₁ : a₂ <~=~> a₃) (g₂ : a₁ <~=~> a₂)
+    : path_hset (BuildEquiv _ _ (fl a₁ a₃ b (isomorphic_trans g₂ g₁)) _)
+      =
+      (path_hset (BuildEquiv _ _ (fl a₁ a₂ b g₂) _))
+        @
+        path_hset (BuildEquiv _ _ (fl a₂ a₃ b g₁) _).
+  Proof.
+    refine (_ @ path_trunctype_pp _ _).
+    apply path_trunctype_eq ; cbn.
+    apply fl_comp.
+  Qed.
+
+  Definition path_hset_fl_fr
+             (a₁ a₂ : C₁) (b₁ b₂ : C₂)
+             (g₁ : a₁ <~=~> a₂)
+             (g₂ : b₁ <~=~> b₂)
+    : (path_hset (BuildEquiv _ _ (fr a₁ b₁ b₂ g₂) _))
+        @
+        path_hset (BuildEquiv _ _ (fl a₁ a₂ b₂ g₁) _)
+      =
+      (path_hset (BuildEquiv _ _ (fl a₁ a₂ b₁ g₁) _))
+        @
+        path_hset (BuildEquiv _ _ (fr a₂ b₁ b₂ g₂) _).
+  Proof.
+    refine ((path_trunctype_pp _ _)^ @ _ @ path_trunctype_pp _ _).
+    apply path_trunctype_eq ; cbn.
+    apply fc.
+  Qed.
+
   Definition rezk_relation : rezk C₁ -> rezk C₂ -> hSet.
   Proof.
     simple refine (rezk_double_rec' _ _ _ _ _ _ _ _).
     - exact R.
     - exact (fun a b₁ b₂ g => path_hset (BuildEquiv _ _ (fr a b₁ b₂ g) _)).
-    - intros a b ; simpl.
-      refine (_ @ path_trunctype_1).
-      apply path_trunctype_eq ; cbn.
-      apply fr_id.
-    - intros a b₁ b₂ b₃ g₁ g₂ ; simpl.
-      refine (_ @ path_trunctype_pp _ _).
-      apply path_trunctype_eq ; cbn.
-      apply fr_comp.
+    - exact path_hset_fr_refl.
+    - exact path_hset_fr_trans.
     - exact (fun a₁ a₂ b g => path_hset (BuildEquiv _ _ (fl a₁ a₂ b g) _)).
-    - intros a b ; simpl.
-      refine (_ @ path_trunctype_1).
-      apply path_trunctype_eq ; cbn.
-      apply fl_id.
-    - intros a₁ a₂ a₃ b g₁ g₂ ; simpl.
-      refine (_ @ path_trunctype_pp _ _).
-      apply path_trunctype_eq ; cbn.
-      apply fl_comp.
+    - exact path_hset_fl_refl.
+    - exact path_hset_fl_trans.
     - intros a₁ a₂ b₁ b₂ g₁ g₂.
       apply path_to_square.
-      refine ((path_trunctype_pp _ _)^ @ _ @ path_trunctype_pp _ _).
-      apply path_trunctype_eq ; cbn.
-      apply fc.
+      apply path_hset_fl_fr.
   Defined.
 
   Definition rezk_relation_rcl_rcl (x : C₁) (y : C₂)
@@ -345,13 +394,17 @@ Section rezk_relation.
              {x₁ x₂ : C₁} (y : C₂) (g : x₁ <~=~> x₂)
     : ap (fun z => rezk_relation z (rcl C₂ y)) (rcleq C₁ g)
       =
-      path_hset (BuildEquiv _ _ (fl x₁ x₂ y g) _)
-    := rezk_double_rec'_beta_l_rcleq C₁ C₂ hSet R _ _ _ _ _ _ _ _ g.
+      path_hset (BuildEquiv _ _ (fl x₁ x₂ y g) _).
+  Proof.
+    exact (rezk_double_rec'_beta_l_rcleq C₁ C₂ hSet R _ _ _ _ _ _ _ _ g).
+  Qed.
 
   Definition rezk_relation_beta_r_rcleq
              (x : C₁) {y₁ y₂ : C₂} (g : y₁ <~=~> y₂)
     : ap (rezk_relation (rcl C₁ x)) (rcleq C₂ g)
       =
-      path_hset (BuildEquiv _ _ (fr x y₁ y₂ g) _)
-    := rezk_double_rec'_beta_r_rcleq C₁ C₂ hSet R _ _ _ _ _ _ _ _ g.
+      path_hset (BuildEquiv _ _ (fr x y₁ y₂ g) _).
+  Proof.
+    exact (rezk_double_rec'_beta_r_rcleq C₁ C₂ hSet R _ _ _ _ _ _ _ _ g).
+  Qed.
 End rezk_relation.

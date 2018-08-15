@@ -29,20 +29,38 @@ Section encode_decode.
     : x₂ <~=~> y -> x₁ <~=~> y
     := fun h => isomorphic_trans f h.
 
-  Global Instance right_action_equiv (x : C) {y₁ y₂ : C} (f : y₁ <~=~> y₂)
-    : IsEquiv (right_action x f).
+  Definition right_action_sect
+             {x₁ x₂ : C} (y : C)
+             (f : x₁ <~=~> x₂)
+    : Sect (right_action_inv y f) (right_action y f).
   Proof.
-    simple refine (isequiv_adjointify _ (right_action_inv x f) _ _).
-    - intros h. 
-      apply path_isomorphic ; cbn.
-      rewrite associativity.
-      rewrite right_inverse.
-      apply right_identity.
-    - intros h.
-      apply path_isomorphic ; cbn.
-      rewrite associativity.
-      rewrite left_inverse.
-      apply right_identity.
+    intros h. 
+    apply path_isomorphic ; cbn.
+    rewrite associativity.
+    rewrite right_inverse.
+    apply right_identity.
+  Qed.
+
+  Definition right_action_inv_sect
+             {x₁ x₂ : C} (y : C)
+             (f : x₁ <~=~> x₂)
+    : Sect (right_action y f) (right_action_inv y f).
+  Proof.
+    intros h. 
+    apply path_isomorphic ; cbn.
+    rewrite associativity.
+    rewrite left_inverse.
+    apply right_identity.
+  Qed.
+
+  Global Instance right_action_equiv
+         {x₁ x₂ : C} (y : C)
+         (f : x₁ <~=~> x₂)
+    : IsEquiv (right_action y f).
+  Proof.
+    simple refine (isequiv_adjointify _ (right_action_inv y f) _ _).
+    - apply right_action_sect.
+    - apply right_action_inv_sect.
   Defined.
 
   Definition left_action
@@ -57,32 +75,48 @@ Section encode_decode.
     : x <~=~> y₂ -> x <~=~> y₁
     := fun h => isomorphic_trans h (isomorphic_sym f).
 
+  Definition left_action_sect
+             (x : C) {y₁ y₂ : C}
+             (f : y₁ <~=~> y₂)
+    : Sect (left_action_inv x f) (left_action x f).
+  Proof.
+    intros h.
+    apply path_isomorphic ; cbn.
+    rewrite <- associativity.
+    rewrite right_inverse.
+    apply left_identity.
+  Qed.
+
+  Definition left_action_inv_sect
+             (x : C) {y₁ y₂ : C}
+             (f : y₁ <~=~> y₂)
+    : Sect (left_action x f) (left_action_inv x f).
+  Proof.
+    intros h.
+    apply path_isomorphic ; cbn.
+    rewrite <- associativity.
+    rewrite left_inverse.
+    apply left_identity.
+  Qed.
+
   Global Instance left_action_equiv (x : C) {y₁ y₂ : C} (f : y₁ <~=~> y₂)
     : IsEquiv (left_action x f).
   Proof.
     simple refine (isequiv_adjointify _ (left_action_inv x f) _ _).
-    - intros h.
-      apply path_isomorphic ; cbn.
-      rewrite <- associativity.
-      rewrite right_inverse.
-      apply left_identity.
-    - intros h.
-      apply path_isomorphic ; cbn.
-      rewrite <- associativity.
-      rewrite left_inverse.
-      apply left_identity.
+    - apply left_action_sect.
+    - apply left_action_inv_sect.
   Defined.
 
   (** The action of the unit element is the identity. *)
-  Definition left_action_e (x y : C)
+  Definition left_action_refl (x y : C)
     : left_action x (isomorphic_refl C y) == idmap.
   Proof.
     intro z.
     apply path_isomorphic ; cbn.
     apply left_identity.
-  Defined.
+  Qed.
 
-  Definition right_action_e (x y : C)
+  Definition right_action_refl (x y : C)
     : right_action y (isomorphic_refl C x) == idmap.
   Proof.
     intro z.
@@ -90,40 +124,70 @@ Section encode_decode.
     apply right_identity.
   Qed.
 
-  (** The lift of [hom G] to [gquot G]. *)
-  Definition r_fam : rezk C -> rezk C -> hSet.
+  Definition left_action_trans
+             {y₁ y₂ y₃ : C}
+             (x : C)
+             (g₃ : x <~=~> y₁)
+             (g₂ : y₂ <~=~> y₃)
+             (g₁ : y₁ <~=~> y₂)
+    : left_action x (isomorphic_trans g₁ g₂) g₃
+      =
+      left_action x g₂ (left_action x g₁ g₃).
   Proof.
-    simple refine (rezk_relation
-                     C
-                     C
-                     (fun x y => BuildhSet (x <~=~> y))
-                     (@right_action)
-                     (@left_action)
-                     _ _ _ _ _).
-    - intros x y ; simpl.
-      apply right_action_e.
-    - intros ; intro.
-      apply path_isomorphic ; cbn.
-      rewrite associativity.
-      reflexivity.
-    - intros x y ; simpl.
-      apply left_action_e.
-    - intros ; intro.
-      apply path_isomorphic ; cbn.
-      rewrite associativity.
-      reflexivity.
-    - intros ; intro.
-      apply path_isomorphic ; cbn.
-      rewrite associativity.
-      reflexivity.
-  Defined.
+    apply path_isomorphic ; cbn.
+    rewrite associativity.
+    reflexivity.
+  Qed.
+
+  Definition right_action_trans
+             {x₁ x₂ x₃ : C}
+             (y : C)
+             (g₂ : x₂ <~=~> x₃)
+             (g₁ : x₁ <~=~> x₂)
+             (g₃ : x₁ <~=~> y)
+    : right_action y (isomorphic_trans g₁ g₂) g₃
+      =
+      right_action y g₂ (right_action y g₁ g₃).
+  Proof.
+    apply path_isomorphic ; cbn.
+    rewrite associativity.
+    reflexivity.
+  Qed.
+
+  Definition right_left
+             {x₁ x₂ y₁ y₂ : C}
+             (g₁ : x₁ <~=~> x₂)
+             (g₂ : y₁ <~=~> y₂)
+             (g₃ : x₁ <~=~> y₁)
+    : right_action y₂ g₁ (left_action x₁ g₂ g₃)
+      =
+      left_action x₂ g₂ (right_action y₁ g₁ g₃).
+  Proof.
+    apply path_isomorphic ; cbn.
+    rewrite associativity.
+    reflexivity.
+  Qed.
+
+  (** The lift of [hom G] to [gquot G]. *)
+  Definition r_fam : rezk C -> rezk C -> hSet
+    := rezk_relation
+         C
+         C
+         (fun x y => BuildhSet (x <~=~> y))
+         (@right_action)
+         (@left_action)
+         (fun _ _ => right_action_refl _ _)
+         (fun _ _ _ _ _ _ _ => right_action_trans _ _ _ _)
+         (fun _ _ => left_action_refl _ _)
+         (fun _ _ _ _ _ _ _ => left_action_trans _ _ _ _)
+         (fun _ _ _ _ _ _ => right_left _ _).
 
   (** The computation rules of [g_fam] for the paths. *)
-  Definition r_fam_l_rcleq
+  Time Definition r_fam_l_rcleq
              {x₁ x₂ : C} (y : C) (f : x₁ <~=~> x₂)
     : ap (fun z => r_fam z (rcl C y)) (rcleq C f)
       =
-      path_hset (BuildEquiv _ _ (right_action y f) _)
+      path_hset (BuildEquiv _ _ (right_action y f) (right_action_equiv y f))
     := rezk_relation_beta_l_rcleq C
                                   C
                                   (fun x y => BuildhSet (x <~=~> y))
@@ -147,26 +211,37 @@ Section encode_decode.
     := istrunc_trunctype_type _.
 
   (** The relation [g_fam] is reflexive. *)
+  Definition r_fam_refl_help
+             {x₁ x₂ : C}
+             (f : x₁ <~=~> x₂)
+    : path_over (fun x : rezk C => r_fam x x)
+                (rcleq C f)
+                (isomorphic_refl C x₁)
+                (isomorphic_refl C x₂).
+  Proof.
+    apply path_to_path_over.
+    refine (transport_idmap_ap_set
+              (fun x => r_fam x x)
+              (rcleq C f)
+              (isomorphic_refl C x₁)  @ _).
+    refine (ap (fun z => transport _ z _) (_ @ _ @ _) @ _).
+    + exact (ap_diag2 r_fam (rcleq C f)).
+    + refine (ap (fun z => z @ _) (r_fam_r_rcleq x₁ f) @ _).
+      exact (ap (fun z => _ @ z) (r_fam_l_rcleq x₂ f)).
+    + exact (path_trunctype_pp _ _)^.
+    + refine (transport_path_hset _ _ @ _).
+      apply path_isomorphic ; cbn.
+      rewrite right_identity, right_inverse.
+      reflexivity.
+  Qed.
+  
   Definition r_fam_refl : forall (x : rezk C), r_fam x x.
   Proof.
     simple refine (rezk_ind_set (fun x => r_fam x x) _ _ _).
     - intros x.
       exact (isomorphic_refl C x).
     - intros x₁ x₂ f.
-      apply path_to_path_over.
-      refine (transport_idmap_ap_set
-                (fun x => r_fam x x)
-                (rcleq C f)
-                (isomorphic_refl C x₁)  @ _).
-      refine (ap (fun z => transport _ z _) (_ @ _ @ _) @ _).
-      + exact (ap_diag2 r_fam (rcleq C f)).
-      + refine (ap (fun z => z @ _) (r_fam_r_rcleq x₁ f) @ _).
-        exact (ap (fun z => _ @ z) (r_fam_l_rcleq x₂ f)).
-      + exact (path_trunctype_pp _ _)^.
-      + refine (transport_path_hset _ _ @ _).
-        apply path_isomorphic ; cbn.
-        rewrite right_identity, right_inverse.
-        reflexivity.
+      apply r_fam_refl_help.
   Defined.
 
   (** Now we can define the encode function. *)
@@ -178,7 +253,62 @@ Section encode_decode.
     apply trunc_forall.
   Defined.
 
-  Opaque r_fam.
+  Opaque r_fam r_fam_refl.
+
+  Definition decode_rezl_help₁
+             (x : C)
+             {y₁ y₂ : C}
+             (g : y₁ <~=~> y₂)
+    : path_over
+        (fun z : rezk C => r_fam (rcl C x) z -> (rcl C x) = z) 
+        (rcleq C g)
+        (fun (f : r_fam (rcl C x) (rcl C y₁)) => rcleq C f)
+        (fun (f : r_fam (rcl C x) (rcl C y₂)) => rcleq C f).
+  Proof.
+    simple refine (path_over_arrow _ _ _ _ _ _) ; simpl.
+    intros z.
+    apply map_path_over.
+    refine (whisker_square idpath (ap_const _ _)^ (ap_idmap _)^ _ _).
+    - refine (ap (fun z => rcleq C z) _).
+      refine (_^ @ (transport_idmap_ap_set (r_fam (rcl C _)) (rcleq C g)^ z)^).
+      refine (ap (fun p => transport _ p z) (ap_V _ _ @ _) @ _ @ _).
+      + exact (ap inverse (r_fam_r_rcleq _ g)).
+      + refine (ap (fun p => transport _ p z) _).
+        exact ((path_trunctype_V (BuildEquiv _ _ (left_action _ g) (left_action_equiv _ g)))^).
+      + exact (transport_path_hset _ _).
+    - apply path_to_square.
+      refine (concat_1p _ @ _ @ rconcat _ _ _).
+      apply ap ; unfold left_action_inv.
+      apply path_isomorphic.
+      refine (_ @ associativity _ _ _ _ _ _ _ _).
+      refine (_ @ ap (fun q => q o _)%morphism right_inverse^).
+      exact (left_identity _ _ _ _)^.
+  Qed.
+
+  Definition decode_rezk_help₂
+             {x₁ x₂ : C}
+             (y : C)
+             (g : x₁ <~=~> x₂)
+    : path_over
+        (fun z : rezk C => r_fam z (rcl C y) -> z = rcl C y)
+        (rcleq C g)
+        (fun f : r_fam (rcl C x₁) (rcl C y) => rcleq C f)
+        (fun f : r_fam (rcl C x₂) (rcl C y) => rcleq C f).
+  Proof.
+    simple refine (path_over_arrow _ _ _ _ _ _).
+    intros z ; simpl in *.
+    apply map_path_over.
+    refine (whisker_square idpath (ap_idmap _)^ (ap_const _ _)^ _ _).
+    - refine (ap (fun z => rcleq C z) _).
+      refine (_^ @ (transport_idmap_ap_set (fun z => r_fam z (rcl C _)) (rcleq C g)^ z)^).
+      refine (ap (fun p => transport _ p z) (_ @ _) @ _).
+      + refine (ap_V (fun z : rezk C => r_fam z (rcl C _)) (rcleq C g) @ _).
+        exact (ap inverse (r_fam_l_rcleq _ g)).
+      + exact ((path_trunctype_V (BuildEquiv _ _ (right_action _ g) (right_action_equiv _ g)))^).
+      + exact (transport_path_hset _ _).
+    - apply path_to_square ; simpl.
+      exact ((rconcat _ _ _)^ @ (concat_p1 _)^).
+  Qed.
 
   (** We can also define the decode function.
       For this we use double induction over a family of sets.
@@ -188,39 +318,10 @@ Section encode_decode.
     simple refine (rezk_double_ind_set (fun x y => r_fam x y -> x = y) _ _ x y).
     - intros a b f.
       exact (@rcleq C a b f).
+    - intros.
+      apply decode_rezl_help₁.
     - intros ; simpl.
-      simple refine (path_over_arrow _ _ _ _ _ _) ; simpl.
-      intros z.
-      apply map_path_over.
-      refine (whisker_square idpath (ap_const _ _)^ (ap_idmap _)^ _ _).
-      + refine (ap (fun z => rcleq C z) _).
-        refine (_^ @ (transport_idmap_ap_set (r_fam (rcl C _)) (rcleq C g)^ z)^).
-        refine (ap (fun p => transport _ p z) (ap_V _ _ @ _) @ _ @ _).
-        * exact (ap inverse (r_fam_r_rcleq _ g)).
-        * refine (ap (fun p => transport _ p z) _).
-          exact ((path_trunctype_V (BuildEquiv _ _ (left_action _ g) (left_action_equiv _ g)))^).
-        * exact (transport_path_hset _ _).
-      + apply path_to_square ; simpl.
-        refine (concat_1p _ @ _ @ rconcat _ _ _).
-        apply ap ; unfold left_action_inv.
-        apply path_isomorphic ; cbn.
-        refine (_ @ associativity _ _ _ _ _ _ _ _).
-        refine (_ @ ap (fun q => q o _)%morphism right_inverse^).
-        exact (left_identity _ _ _ _)^.
-    - intros ; simpl.
-      simple refine (path_over_arrow _ _ _ _ _ _).
-      intros z ; simpl in *.
-      apply map_path_over.
-      refine (whisker_square idpath (ap_idmap _)^ (ap_const _ _)^ _ _).
-      + refine (ap (fun z => rcleq C z) _).
-        refine (_^ @ (transport_idmap_ap_set (fun z => r_fam z (rcl C _)) (rcleq C g)^ z)^).
-        refine (ap (fun p => transport _ p z) (_ @ _) @ _).
-        * refine (ap_V (fun z : rezk C => r_fam z (rcl C _)) (rcleq C g) @ _).
-          exact (ap inverse (r_fam_l_rcleq _ g)).
-        * exact ((path_trunctype_V (BuildEquiv _ _ (right_action _ g) (right_action_equiv _ g)))^).
-        * exact (transport_path_hset _ _).
-      + apply path_to_square ; simpl.
-        exact ((rconcat _ _ _)^ @ (concat_p1 _)^).
+      apply decode_rezk_help₂.
   Defined.
 
   (** The encode and decode maps are inverses of each other. *)
@@ -234,7 +335,7 @@ Section encode_decode.
     simple refine (rezk_ind_prop _ _ _).
     intros a ; simpl.
     exact (re _ _).
-  Defined.
+  Qed.
 
   Local Instance encode_gquot_decode_gquot_set (x y : rezk C)
     : IsHProp (forall (p : r_fam x y), encode_rezk x y (decode_rezk x y p) = p)
@@ -245,7 +346,6 @@ Section encode_decode.
   Proof.
     simple refine (rezk_double_ind_prop _ _ _).
     intros a b g.
-    unfold encode_rezk, r_fam_refl.
     simpl.
     refine (transport_idmap_ap_set (fun x : rezk C => r_fam (rcl C a) x)
                                    (rcleq C g)
@@ -254,7 +354,7 @@ Section encode_decode.
     refine (transport_path_hset _ _ @ _).
     apply path_isomorphic ; cbn.
     apply right_identity.
-  Defined.
+  Qed.
 
   Global Instance encode_gquot_isequiv
     : forall {x y: rezk C}, IsEquiv (encode_rezk x y).
