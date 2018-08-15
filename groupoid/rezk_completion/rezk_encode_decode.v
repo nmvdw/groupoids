@@ -183,7 +183,7 @@ Section encode_decode.
          (fun _ _ _ _ _ _ => right_left _ _).
 
   (** The computation rules of [g_fam] for the paths. *)
-  Time Definition r_fam_l_rcleq
+  Definition r_fam_l_rcleq
              {x₁ x₂ : C} (y : C) (f : x₁ <~=~> x₂)
     : ap (fun z => r_fam z (rcl C y)) (rcleq C f)
       =
@@ -252,8 +252,6 @@ Section encode_decode.
   Proof.
     apply trunc_forall.
   Defined.
-
-  Opaque r_fam r_fam_refl.
 
   Definition decode_rezl_help₁
              (x : C)
