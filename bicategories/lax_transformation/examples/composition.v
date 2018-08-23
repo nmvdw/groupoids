@@ -3,9 +3,27 @@ From HoTT.Categories Require Import
      Category Functor NaturalTransformation FunctorCategory.
 From GR.bicategories Require Import
      bicategory.bicategory
+     bicategory.bicategory_laws
      lax_functor.lax_functor
      lax_transformation.lax_transformation
      general_category.
+
+Lemma inverse_pentagon_6
+      {C : BiCategory}
+      {V W X Y Z : C}
+      (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
+      (g : C⟦W,X⟧) (f : C⟦V,W⟧)
+  : assoc_inv k (h · g) f ∘ id₂ k * assoc_inv h g f
+    =
+    assoc k h g * id₂ f ∘ assoc_inv (k · h) g f ∘ assoc_inv k h (g · f).
+Proof.
+  unfold vcomp, id₂.
+  rewrite !associativity.
+  refine (Morphisms.iso_moveL_Mp _ _ _) ; simpl.
+  symmetry.
+  rewrite <- !associativity.
+  apply inverse_pentagon.
+Qed.
 
 Section Composition.
   Context `{Funext}
@@ -27,7 +45,184 @@ Section Composition.
 
   Definition compose_d_is_lax
     : is_lax_transformation compose_d.
-  Admitted.
+  Proof.
+    make_is_lax_transformation.
+    - intros X Y f g α ; cbn in *.
+      unfold bc_whisker_l, bc_whisker_r.
+      rewrite !vcomp_assoc.
+      rewrite <- hcomp_id₂.
+      rewrite assoc_inv_natural.
+      rewrite <- !vcomp_assoc.
+      f_ap.
+      rewrite !vcomp_assoc.
+      rewrite <- interchange.
+      rewrite laxnaturality_natural.
+      rewrite interchange.      
+      rewrite <- !vcomp_assoc.
+      f_ap.
+      rewrite !vcomp_assoc.
+      rewrite assoc_natural.
+      rewrite <- !vcomp_assoc.
+      f_ap.
+      rewrite !vcomp_assoc.
+      rewrite <- interchange.
+      rewrite laxnaturality_natural.
+      rewrite vcomp_left_identity.
+      rewrite <- (vcomp_left_identity (id₂ (σ₂ Y))).
+      rewrite interchange.
+      rewrite <- !vcomp_assoc, vcomp_left_identity.
+      f_ap.
+      rewrite assoc_inv_natural.
+      rewrite hcomp_id₂.
+      reflexivity.
+    - intros X ; cbn.
+      rewrite !vcomp_assoc.
+      unfold bc_whisker_l, bc_whisker_r.
+      rewrite <- hcomp_id₂.
+      rewrite assoc_inv_natural.
+      rewrite !(ap (fun z => _ ∘ (_ ∘ (_ ∘ z))) (vcomp_assoc _ _ _)^).
+      rewrite <- interchange.
+      rewrite transformation_unit.
+      rewrite vcomp_right_identity, !vcomp_assoc.
+      rewrite <- (vcomp_right_identity (id₂ (σ₁ X))).
+      rewrite interchange.
+      rewrite !vcomp_assoc.
+      rewrite !(ap (fun z => _ ∘ (_ ∘ z)) (vcomp_assoc _ _ _)^).
+      rewrite assoc_natural.
+      rewrite !vcomp_assoc.
+      rewrite !(ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
+      rewrite <- interchange.
+      rewrite transformation_unit.
+      rewrite !vcomp_assoc.
+      rewrite interchange.
+      rewrite <- !vcomp_assoc.
+      rewrite assoc_inv_natural.
+      rewrite !vcomp_assoc.
+      rewrite vcomp_right_identity.
+      f_ap.
+      rewrite <- (vcomp_right_identity (id₂ (σ₂ X))).
+      rewrite interchange.
+      rewrite <- !vcomp_assoc.
+      rewrite <- right_unit_inv_assoc.
+      rewrite !vcomp_assoc.
+      f_ap.
+      rewrite <- triangle_l.
+      rewrite !vcomp_assoc.
+      rewrite !(ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
+      rewrite assoc_right, vcomp_left_identity.
+      rewrite <- (vcomp_left_identity (id₂ (σ₁ X))).
+      rewrite interchange.
+      rewrite <- !vcomp_assoc, vcomp_left_identity.
+      rewrite <- interchange.
+      rewrite right_unit_left, vcomp_left_identity, hcomp_id₂.
+      rewrite vcomp_left_identity.
+      pose @left_unit_assoc as p.
+      unfold bc_whisker_l in p.
+      rewrite p ; clear p.
+      rewrite !vcomp_assoc.
+      rewrite assoc_left, vcomp_right_identity.
+      reflexivity.
+    - intros X Y Z f g ; cbn in *.
+      unfold bc_whisker_l, bc_whisker_r.
+      rewrite !vcomp_assoc.
+      rewrite <- hcomp_id₂.
+      rewrite assoc_inv_natural.
+      rewrite !(ap (fun z => _ ∘ (_ ∘ (_ ∘ z))) (vcomp_assoc _ _ _)^).
+      rewrite <- interchange.
+      rewrite transformation_assoc.
+      rewrite !vcomp_assoc.
+      rewrite interchange.
+      rewrite !vcomp_assoc.
+      rewrite !(ap (fun z => _ ∘ (_ ∘ z)) (vcomp_assoc _ _ _)^).
+      rewrite assoc_natural.
+      rewrite !vcomp_assoc.
+      rewrite !(ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
+      rewrite <- interchange.
+      rewrite transformation_assoc.
+      rewrite !vcomp_assoc.
+      rewrite interchange.
+      rewrite <- !vcomp_assoc.
+      rewrite assoc_inv_natural.
+      rewrite !vcomp_assoc.
+      rewrite hcomp_id₂.
+      f_ap.
+      rewrite <- (vcomp_left_identity (id₂ (σ₂ Z))).
+      rewrite interchange.
+      rewrite !vcomp_assoc.
+      rewrite vcomp_left_identity.
+      rewrite <- (vcomp_left_identity (id₂ (F₁ ₁ f))).
+      rewrite interchange.
+      rewrite <- !vcomp_assoc.
+      rewrite inverse_pentagon_2.
+      rewrite !vcomp_assoc.
+      repeat f_ap.
+      rewrite <- !vcomp_assoc.
+      do 3 (rewrite <- (vcomp_left_identity (id₂ (σ₂ Z))) ; rewrite interchange).
+      rewrite <- !vcomp_assoc, !vcomp_left_identity.
+      rewrite assoc_inv_natural.
+      do 3 (rewrite <- (vcomp_left_identity (id₂ (F₁ ₁ f))) ; rewrite interchange).
+      rewrite !vcomp_assoc.
+      rewrite !vcomp_left_identity.
+      f_ap.
+      rewrite <- !vcomp_assoc.
+      rewrite inverse_pentagon_6.
+      rewrite !vcomp_assoc.
+      f_ap.
+      rewrite (ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
+      rewrite assoc_inv_natural.
+      rewrite <- (vcomp_left_identity (id₂ (σ₁ X))).
+      rewrite interchange.
+      rewrite !vcomp_assoc.
+      rewrite !(ap (fun z => _ ∘ (_ ∘ (_ ∘ z))) (vcomp_assoc _ _ _))^.
+      rewrite <- pentagon.
+      rewrite !vcomp_assoc.
+      rewrite (ap (fun z => (_ ∘ (_ ∘ z))) (vcomp_assoc _ _ _)^).
+      rewrite assoc_right, vcomp_left_identity.
+      rewrite <- (vcomp_left_identity (id₂ (F₃ ₁ g))).
+      rewrite interchange.
+      rewrite !vcomp_assoc.
+      rewrite !(ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
+      rewrite <- inverse_pentagon.
+      rewrite <- !vcomp_assoc.
+      rewrite <- assoc_inv_natural.
+      rewrite !vcomp_assoc.
+      repeat f_ap.
+      rewrite !hcomp_id₂.
+      rewrite <- (vcomp_left_identity (id₂ (F₃ ₁ g))).
+      rewrite interchange.
+      rewrite !vcomp_assoc.
+      rewrite !(ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
+      rewrite assoc_inv_natural.
+      rewrite !vcomp_assoc, hcomp_id₂.
+      rewrite <- !vcomp_assoc.
+      rewrite <- interchange, !vcomp_left_identity, !vcomp_right_identity.
+      rewrite !vcomp_assoc.
+      do 3 (rewrite <- (vcomp_left_identity (id₂ (σ₁ X))) ; rewrite interchange).
+      rewrite !vcomp_left_identity, !vcomp_assoc.
+      rewrite inverse_pentagon_4.
+      rewrite <- !vcomp_assoc.
+      repeat f_ap.
+      rewrite !vcomp_assoc.
+      rewrite !(ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
+      rewrite assoc_natural.
+      rewrite !vcomp_assoc.
+      rewrite <- !vcomp_assoc.
+      rewrite <- interchange, hcomp_id₂, vcomp_left_identity, vcomp_right_identity.
+      rewrite !vcomp_assoc.
+      f_ap.
+      rewrite <- (vcomp_left_identity (id₂ (F₃ ₁ g))).
+      rewrite interchange.
+      rewrite <- !vcomp_assoc.
+      rewrite inverse_pentagon_2.
+      rewrite !vcomp_assoc.
+      repeat f_ap.
+      rewrite <- (vcomp_left_identity (id₂ (F₃ ₁ g))).
+      rewrite interchange.
+      rewrite !vcomp_left_identity.
+      rewrite <- !vcomp_assoc.
+      rewrite assoc_inv_natural.
+      reflexivity.
+  Qed.
 
   Definition compose
     : LaxTransformation F₁ F₃

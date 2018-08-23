@@ -4,7 +4,7 @@ From HoTT.Categories Require Export
 From GR.bicategories Require Import
      general_category bicategory.bicategory.
 
-Definition cancel_L
+Definition cancel_left
            {C : PreCategory}
            {X Y Z : C}
            {f g : morphism C X Y}
@@ -20,7 +20,7 @@ Proof.
   reflexivity.
 Defined.
 
-Definition cancel_R
+Definition cancel_right
            {C : PreCategory}
            {X Y Z : C}
            {f g : morphism C Y Z}
@@ -69,6 +69,38 @@ Section laws.
     rewrite vcomp_assoc.
     apply ap.
     exact H.
+  Qed.
+
+  Definition cancel_assoc_L
+             {W X Y Z : C}
+             (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
+             {k : C⟦W,Z⟧}
+             (α : k ==> (h · g) · f)
+             (β : k ==> (h · g) · f)
+    : assoc h g f ∘ β = assoc h g f ∘ α -> β = α.
+  Proof.
+    intros H.
+    rewrite <- (vcomp_left_identity α), <- (vcomp_left_identity β).
+    rewrite <- !assoc_right.
+    rewrite !vcomp_assoc.
+    rewrite H.
+    reflexivity.
+  Qed.
+
+  Definition cancel_assoc_R
+             {W X Y Z : C}
+             (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
+             {k : C⟦W,Z⟧}
+             (α : h · (g · f) ==> k)
+             (β : h · (g · f) ==> k)
+    : β ∘ assoc h g f = α ∘ assoc h g f -> β = α.
+  Proof.
+    intros H.
+    rewrite <- (vcomp_right_identity α), <- (vcomp_right_identity β).
+    rewrite <- !assoc_left.
+    rewrite <- !vcomp_assoc.
+    rewrite H.
+    reflexivity.
   Qed.
 
   Definition assoc_hcomp_left
@@ -121,6 +153,38 @@ Section laws.
     rewrite vcomp_assoc.
     apply ap.
     exact H.
+  Qed.
+
+  Definition cancel_assoc_hcomp_L
+             {V W X Y Z : C}
+             (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧) (k : C⟦V, W⟧)
+             {l : C⟦V,Z⟧}
+             (α : l ==> ((h · g) · f) · k)
+             (β : l ==> ((h · g) · f) · k)
+    : (assoc h g f * id₂ k) ∘ β = assoc h g f * id₂ k ∘ α -> β = α.
+  Proof.
+    intros H.
+    rewrite <- (vcomp_left_identity α), <- (vcomp_left_identity β).
+    rewrite <- !assoc_hcomp_right.
+    rewrite !vcomp_assoc.
+    rewrite H.
+    reflexivity.
+  Qed.
+  
+  Definition cancel_assoc_hcomp_R
+             {V W X Y Z : C}
+             (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧) (k : C⟦V, W⟧)
+             {l : C⟦V,Z⟧}
+             (α : (h · (g · f)) · k ==> l)
+             (β : (h · (g · f)) · k ==> l)
+    : β ∘ assoc h g f * id₂ k  = α ∘ assoc h g f * id₂ k -> β = α.
+  Proof.
+    intros H.
+    rewrite <- (vcomp_right_identity α), <- (vcomp_right_identity β).
+    rewrite <- !assoc_hcomp_left.
+    rewrite <- !vcomp_assoc.
+    rewrite H.
+    reflexivity.
   Qed.
 
   Definition inverse_pentagon
@@ -307,15 +371,36 @@ Section laws.
     rewrite Hη.
     reflexivity.
   Defined.
-  
+
   Definition left_unit_assoc
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
     : (left_unit g) ◅ f = left_unit (g · f) ∘ assoc (id₁ Z) g f.
   Proof.
     unfold bc_whisker_l.
-    
-  Admitted.
+    apply left_comp.
+    rewrite <- (vcomp_left_identity (id₂ (id₁ Z))).
+    rewrite interchange.
+    apply cancel_assoc_R.
+    apply cancel_assoc_hcomp_R.
+    rewrite vcomp_left_identity.
+    rewrite <- assoc_natural.
+    rewrite <- triangle_l.
+    rewrite !vcomp_assoc.
+    rewrite <- interchange.
+    rewrite vcomp_left_identity.
+    pose (pentagon (id₁ Z) (id₁ Z) g f) as p.
+    rewrite !vcomp_assoc in p.
+    rewrite <- p ; clear p.
+    rewrite <- !vcomp_assoc.
+    rewrite <- triangle_r.
+    rewrite !vcomp_assoc.
+    rewrite assoc_right.
+    rewrite vcomp_right_identity.
+    rewrite assoc_natural.
+    rewrite hcomp_id₂.
+    reflexivity.
+  Qed.
 
   Definition left_unit_inv_assoc
              {X Y Z : C}
@@ -337,8 +422,31 @@ Section laws.
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
     : right_unit (g · f) = g ▻ (right_unit f) ∘ assoc g f (id₁ X).
   Proof.
-  Admitted.
-
+    unfold bc_whisker_r.
+    apply right_comp.
+    rewrite <- (vcomp_left_identity (id₂ (id₁ X))).
+    rewrite interchange.
+    apply cancel_assoc_L.
+    rewrite <- !vcomp_assoc.
+    rewrite assoc_natural.
+    rewrite triangle_r.
+    rewrite <- (vcomp_left_identity (id₂ g)).
+    rewrite interchange.
+    rewrite !vcomp_assoc.
+    pose (pentagon g f (id₁ X) (id₁ X)) as p.
+    rewrite !vcomp_assoc in p.
+    rewrite <- p ; clear p.
+    rewrite vcomp_right_identity.
+    rewrite <- !vcomp_assoc.
+    rewrite <- assoc_natural.
+    rewrite hcomp_id₂.
+    rewrite <- triangle_l.
+    rewrite !vcomp_assoc.
+    rewrite assoc_right.
+    rewrite vcomp_right_identity.
+    reflexivity.
+  Qed.
+  
   Definition right_unit_inv_assoc
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
