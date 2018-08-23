@@ -2,7 +2,7 @@ Require Import HoTT.
 From HoTT.Categories Require Import
      Category Functor NaturalTransformation FunctorCategory.
 From GR.bicategories Require Import
-     bicategory.
+     general_category bicategory bicategory_laws.
 
 Record LaxFunctor_d
        (C D : BiCategory)
@@ -279,6 +279,56 @@ Global Instance Fid_is_iso
 Proof.
   apply Fid_iso.
 Defined.
+
+Definition Fid_inv
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           `{is_pseudo _ _ F}
+           (X : C)
+  : (F ₁ (id₁ X)) ==> id₁ (F X)
+  := (Fid F X)^-1.
+
+Definition F_left_unit_inv
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           `{is_pseudo _ _ F}
+           {X Y : C}
+           (f : C⟦X,Y⟧)
+  : left_unit_inv (F ₁ f)
+    =
+    ((Fid_inv F Y) * (id₂ (F ₁ f)))
+      ∘ Fcomp₁_inv F (id₁ Y) f
+      ∘ (F ₂ (left_unit_inv f)).
+Proof.
+  rewrite <- !inverse_of_left_unit.
+  unfold Fcomp₁_inv, Fid_inv, left_unit_inv, id₂, vcomp.
+  rewrite <- inverse_id, inverse_of, <- hcomp_inverse.
+  rewrite <- !inverse_compose.
+  apply path_inverse.
+  rewrite <- !associativity.
+  apply F_left_unit.
+Qed.
+
+Definition F_right_unit_inv
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           `{is_pseudo _ _ F}
+           {X Y : C}
+           (f : C⟦X,Y⟧)
+  : right_unit_inv (F ₁ f)
+    =
+    ((id₂ (F ₁ f)) * (Fid_inv F X))
+      ∘ Fcomp₁_inv F f (id₁ X)
+      ∘ (F ₂ (right_unit_inv f)).
+Proof.
+  rewrite <- !inverse_of_right_unit.
+  unfold Fcomp₁_inv, Fid_inv, left_unit_inv, id₂, vcomp.
+  rewrite <- inverse_id, inverse_of, <- hcomp_inverse.
+  rewrite <- !inverse_compose.
+  apply path_inverse.
+  rewrite <- !associativity.
+  apply F_right_unit.
+Qed.
 
 Record PseudoFunctor_d
        (C D : BiCategory)
