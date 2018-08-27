@@ -19,7 +19,7 @@ Section WhiskerL.
   Proof.
     make_lax_transformation.
     - exact (fun X => σ (F X)).
-    - exact (fun X Y f => laxnaturality_of σ (F ₁ f) ∘ ((G₂ ₁ (F ₁ f) ▻ id₂ (σ (F X))))).
+    - exact (fun X Y f => laxnaturality_of σ (F ₁ f)).
   Defined.
 
   Definition whisker_L_d_is_lax
@@ -27,13 +27,9 @@ Section WhiskerL.
   Proof.
     make_is_lax_transformation.
     - intros X Y f g α ; simpl in * ; unfold bc_whisker_r.
-      rewrite !hcomp_id₂.
-      rewrite !vcomp_right_identity.
       apply (laxnaturality_natural σ).
     - intros X ; simpl in * ; unfold bc_whisker_r.
       unfold Fid ; simpl.
-      rewrite !hcomp_id₂.
-      rewrite !vcomp_right_identity.
       rewrite <- (vcomp_left_identity (id₂ (σ (F X)))).
       rewrite !interchange.
       rewrite !vcomp_assoc.
@@ -43,15 +39,12 @@ Section WhiskerL.
       f_ap.
       apply σ.
     - intros X Y Z f g ; simpl in * ; unfold bc_whisker_r.
-      pose (transformation_assoc σ (F ₁ f) (F ₁ g)).
-      rewrite !hcomp_id₂.
-      rewrite !vcomp_right_identity.
       unfold Fcomp₁ ; simpl in *.
       rewrite <- (vcomp_left_identity (id₂ (σ (F Z)))).
       rewrite interchange.
       rewrite !vcomp_assoc.
       rewrite !(ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
-      rewrite <- p.
+      rewrite <- (transformation_assoc σ (F ₁ f) (F ₁ g)).
       rewrite <- (vcomp_left_identity (id₂ (σ (F X)))).
       rewrite interchange.
       rewrite <- !vcomp_assoc.

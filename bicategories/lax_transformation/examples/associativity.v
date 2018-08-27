@@ -25,7 +25,7 @@ Section LaxAssociativity.
   Proof.
     make_pseudo_transformation.
     - exact (fun X => id₁ (F₃ (F₂ (F₁ X)))).
-    - exact (fun X Y f => (left_unit_inv _) ∘ right_unit _).
+    - exact (fun X Y f => left_unit_inv _ ∘ right_unit _).
     - exact (fun X Y f => right_unit_inv _ ∘ left_unit _).
   Defined.
 
