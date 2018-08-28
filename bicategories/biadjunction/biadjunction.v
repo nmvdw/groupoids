@@ -7,26 +7,27 @@ From GR.bicategories.bicategory Require Import
      adjoint
      equivalence
      examples.full_sub.
-Require Import GR.bicategories.lax_functor.lax_functor.
-Require Import GR.bicategories.lax_functor.examples.restriction.
-Require Import GR.bicategories.lax_functor.examples.factor_full_sub.
-Require Import GR.bicategories.lax_functor.examples.identity.
-Require Import GR.bicategories.lax_functor.examples.composition.
-From GR.bicategories Require Import
-     lax_transformation.lax_transformation
-     lax_transformation.examples.whisker_L
-     lax_transformation.examples.whisker_R
-     lax_transformation.examples.right_identity
-     lax_transformation.examples.left_identity
-     lax_transformation.examples.associativity
-     lax_transformation.examples.right_identity_inv
-     lax_transformation.examples.left_identity_inv
-     lax_transformation.examples.associativity_inv.
-Require Import GR.bicategories.lax_transformation.examples.restriction.
-Require Import GR.bicategories.lax_transformation.examples.identity.
-Require Import GR.bicategories.lax_transformation.examples.composition.
-From GR.bicategories Require Import
-     modification.modification
+From GR.bicategories.lax_functor Require Import
+     lax_functor
+     examples.restriction
+     examples.factor_full_sub
+     examples.identity
+     examples.composition.
+From GR.bicategories.lax_transformation Require Import
+     lax_transformation
+     examples.whisker_L
+     examples.whisker_R
+     examples.right_identity
+     examples.left_identity
+     examples.associativity
+     examples.right_identity_inv
+     examples.left_identity_inv
+     examples.associativity_inv
+     examples.restriction
+     examples.identity
+     examples.composition.
+From GR.bicategories.modification Require Import
+     modification
      examples.composition.
 
 Record BiAdjunction_d
