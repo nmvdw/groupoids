@@ -111,9 +111,7 @@ Definition Fmor₂_id₂
            {X Y : C}
            (f : C⟦X,Y⟧)
   : F ₂ (id₂ f) = id₂ (F ₁ f).
-Proof.
-  apply Fmor.
-Defined.
+Proof. apply Fmor. Defined.
 
 Definition Fmor₂_vcomp
            {C D : BiCategory}
@@ -122,9 +120,7 @@ Definition Fmor₂_vcomp
            {f g h : C⟦X,Y⟧}
            (η₁ : f ==> g) (η₂ : g ==> h)
   : F ₂ (η₂ ∘ η₁) = (F ₂ η₂) ∘ (F ₂ η₁).
-Proof.
-  apply Fmor.
-Defined.
+Proof. apply Fmor. Defined.
 
 Definition Fcomp₁
            {C D : BiCategory}
@@ -213,7 +209,7 @@ Class is_pseudo
                           (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧),
          IsIsomorphism (Fcomp₁ F g f) ;
        Fid_iso : forall {X : C},
-           IsIsomorphism (Fid F X)
+         IsIsomorphism (Fid F X)
      }.
 
 Global Instance Fcomp₁_is_iso
@@ -236,14 +232,14 @@ Definition Fcomp₁_inv
   : (F ₁ (g · f)) ==> (F ₁ g) · (F ₁ f)
   := (Fcomp₁ F g f)^-1.
 
-Global Instance Fcomp₁_inv_is_iso
-       {C D : BiCategory}
-       (F : LaxFunctor C D)
-       `{is_pseudo _ _ F}
-       {X Y Z : C}
-       (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-  : IsIsomorphism (Fcomp₁_inv F g f)
-  := _.
+(* Global Instance Fcomp₁_inv_is_iso *)
+(*        {C D : BiCategory} *)
+(*        (F : LaxFunctor C D) *)
+(*        `{is_pseudo _ _ F} *)
+(*        {X Y Z : C} *)
+(*        (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧) *)
+(*   : IsIsomorphism (Fcomp₁_inv F g f) *)
+(*   := _. *)
        
 Global Instance Fcomp_is_iso
        `{Funext}
