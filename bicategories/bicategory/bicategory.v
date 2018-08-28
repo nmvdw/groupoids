@@ -3,7 +3,7 @@ From HoTT.Categories Require Export
      Category Functor NaturalTransformation FunctorCategory.
 From HoTT.Categories Require Import
      GroupoidCategory.
-From GR Require Import bicategories.general_category.
+From GR.bicategories Require Import general_category.
 
 Record BiCategory_d :=
   Build_BiCategory_d {
@@ -237,7 +237,7 @@ Definition vcomp
   := (η₂ o η₁)%morphism.
 
 Arguments vcomp {C X Y f g h} η₂%bicategory η₁%bicategory.
-Notation "η₂ '∘' η₁" := (vcomp η₂ η₁) (at level 60) : bicategory_scope.
+Notation "η₂ '∘' η₁" := (vcomp η₂ η₁) (at level 41, left associativity) : bicategory_scope.
 
 Definition vcomp_assoc
            {C : BiCategory}
@@ -283,23 +283,23 @@ Definition hcomp1 {C : BiCategory} {X Y Z : C}
   := fun g f => hcomp_obj C.1 (g,f).
 
 Arguments hcomp1 {C X Y Z} g%bicategory f%bicategory.
-Notation "f '·' g" := (hcomp1 f g) (at level 50) : bicategory_scope.
+Notation "f '·' g" := (hcomp1 f g) (at level 41, left associativity) : bicategory_scope.
 
 Definition hcomp2
            {C : BiCategory}
            {X Y Z : C}
            {f₁ g₁ : C⟦X,Y⟧}
            {f₂ g₂ : C⟦Y,Z⟧}
-           (η₁ : f₁ ==> g₁)
            (η₂ : f₂ ==> g₂)
+           (η₁ : f₁ ==> g₁)
   : f₂ · f₁ ==> g₂ · g₁.
 Proof.
   apply (hcomp_hom C.1) ; simpl.
   exact (η₂,η₁).
 Defined.
 
-Arguments hcomp2 {C X Y Z f₁ g₁ f₂ g₂} η₁%bicategory η₂%bicategory.
-Notation "η₁ '*' η₂" := (hcomp2 η₂ η₁) : bicategory_scope.
+Arguments hcomp2 {C X Y Z f₁ g₁ f₂ g₂} η₂%bicategory η₁%bicategory.
+Notation "η₁ '*' η₂" := (hcomp2 η₁ η₂) (at level 40, left associativity) : bicategory_scope.
 
 Definition interchange
            {C : BiCategory}
@@ -779,7 +779,7 @@ Definition bc_whisker_r
   : (g · f₁) ==> (g · f₂)
   := id₂ g * α.
 
-Notation "g '▻' α" := (bc_whisker_r g α) (at level 60) : bicategory_scope.
+Notation "g '▻' α" := (bc_whisker_r g α) (at level 40) : bicategory_scope.
 
 Definition bc_whisker_r_id₂
            {C : BiCategory}
@@ -798,7 +798,7 @@ Definition bc_whisker_l
   : (g₁ · f) ==> (g₂ · f)
   := β * id₂ f.
 
-Notation "β '◅' f" := (bc_whisker_l β f) (at level 60) : bicategory_scope.
+Notation "β '◅' f" := (bc_whisker_l β f) (at level 40) : bicategory_scope.
 
 Definition bc_whisker_l_id₂
            {C : BiCategory}
