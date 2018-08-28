@@ -173,10 +173,10 @@ Proof.
   - rewrite hcomp_id₂, vcomp_left_identity, vcomp_right_identity.
     reflexivity.
   - rewrite hcomp_id₂, vcomp_left_identity, vcomp_right_identity.
-    apply left_unit_is_right_unit.
+    apply right_unit_id_is_left_unit_id.
   - rewrite vcomp_left_identity, <- triangle_l.
     rewrite !vcomp_assoc.
-    rewrite assoc_right, vcomp_right_identity, left_unit_is_right_unit.
+    rewrite assoc_right, vcomp_right_identity, right_unit_id_is_left_unit_id.
     reflexivity.
 Qed.
 
@@ -233,7 +233,7 @@ Proof.
     rewrite <- interchange.
     rewrite right_unit_left.
     rewrite vcomp_left_identity, hcomp_id₂, vcomp_left_identity.
-    rewrite left_unit_is_right_unit.
+    rewrite right_unit_id_is_left_unit_id.
     f_ap.
     rewrite !vcomp_assoc.
     rewrite <- right_unit_inv_assoc.
@@ -355,7 +355,7 @@ Proof.
   unfold bc_whisker_l, bc_whisker_r.
   rewrite !hcomp_id₂.
   rewrite vcomp_right_identity, vcomp_left_identity.
-  rewrite left_unit_is_right_unit, left_unit_inv_is_right_unit_inv.
+  rewrite right_unit_id_is_left_unit_id, right_unit_V_id_is_left_unit_V_id.
   reflexivity.
 Qed.
 
@@ -438,7 +438,7 @@ Proof.
   unfold bc_whisker_l, bc_whisker_r.
   rewrite !hcomp_id₂.
   rewrite vcomp_right_identity, vcomp_left_identity.
-  rewrite left_unit_is_right_unit, left_unit_inv_is_right_unit_inv.
+  rewrite right_unit_id_is_left_unit_id, right_unit_V_id_is_left_unit_V_id.
   reflexivity.
 Qed.
 
@@ -701,7 +701,7 @@ Proof.
                unfold bc_whisker_r.
                rewrite hcomp_id₂, vcomp_right_identity.
                rewrite !vcomp_assoc.
-               rewrite <- left_unit_is_right_unit, right_unit_right, vcomp_right_identity.
+               rewrite <- right_unit_id_is_left_unit_id, right_unit_right, vcomp_right_identity.
                reflexivity.
            *** intros [ ] [ ] [ ] [ ] [ ] ; cbn.
                unfold bc_whisker_r.
@@ -725,7 +725,7 @@ Proof.
                rewrite <- triangle_r.
                rewrite <- !vcomp_assoc.
                rewrite <- interchange.
-               rewrite vcomp_left_identity, left_unit_is_right_unit.
+               rewrite vcomp_left_identity, right_unit_id_is_left_unit_id.
                rewrite <- interchange.
                rewrite !vcomp_right_identity.
                f_ap.

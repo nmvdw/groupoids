@@ -35,14 +35,14 @@ Section IdentityTransformation.
       rewrite !vcomp_assoc.
       reflexivity.
     - intros X ; simpl in *.
-      rewrite <- left_unit_is_right_unit.
+      rewrite <- right_unit_id_is_left_unit_id.
       rewrite !vcomp_assoc.
       rewrite right_unit_right.
       rewrite vcomp_right_identity.
       rewrite right_unit_natural.
       rewrite <- vcomp_assoc.
       rewrite left_unit_inv_natural.
-      rewrite left_unit_is_right_unit.
+      rewrite right_unit_id_is_left_unit_id.
       rewrite vcomp_assoc.
       rewrite left_unit_right.
       apply vcomp_right_identity.

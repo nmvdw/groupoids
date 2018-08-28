@@ -26,7 +26,7 @@ Definition cancel_right
            {f g : morphism C Y Z}
            (h : morphism C X Y)
            `{IsIsomorphism _ _ _ h}
-  : (g o h = f o h)%morphism -> f = g.
+  : (f o h = g o h)%morphism -> f = g.
 Proof.
   intros Hfh.
   refine ((right_identity _ _ _ _)^ @ _ @ right_identity _ _ _ _).
@@ -78,14 +78,7 @@ Section laws.
              (α : k ==> (h · g) · f)
              (β : k ==> (h · g) · f)
     : assoc h g f ∘ β = assoc h g f ∘ α -> β = α.
-  Proof.
-    intros H.
-    rewrite <- (vcomp_left_identity α), <- (vcomp_left_identity β).
-    rewrite <- !assoc_right.
-    rewrite !vcomp_assoc.
-    rewrite H.
-    reflexivity.
-  Qed.
+  Proof. apply cancel_left. apply _. Qed.
 
   Definition cancel_assoc_R
              {W X Y Z : C}
@@ -94,14 +87,7 @@ Section laws.
              (α : h · (g · f) ==> k)
              (β : h · (g · f) ==> k)
     : β ∘ assoc h g f = α ∘ assoc h g f -> β = α.
-  Proof.
-    intros H.
-    rewrite <- (vcomp_right_identity α), <- (vcomp_right_identity β).
-    rewrite <- !assoc_left.
-    rewrite <- !vcomp_assoc.
-    rewrite H.
-    reflexivity.
-  Qed.
+  Proof. apply cancel_right. apply _. Qed.
 
   Definition assoc_hcomp_left
              {V W X Y Z : C}
@@ -161,7 +147,7 @@ Section laws.
              {l : C⟦V,Z⟧}
              (α : l ==> ((h · g) · f) · k)
              (β : l ==> ((h · g) · f) · k)
-    : (assoc h g f * id₂ k) ∘ β = assoc h g f * id₂ k ∘ α -> β = α.
+    : (assoc h g f * id₂ k) ∘ β = (assoc h g f * id₂ k) ∘ α -> β = α.
   Proof.
     intros H.
     rewrite <- (vcomp_left_identity α), <- (vcomp_left_identity β).
@@ -342,32 +328,34 @@ Section laws.
     reflexivity.
   Qed.
 
-  Definition left_comp
+  Definition whisker_l_cancel_id
              {X Y : C}
              {f g : C⟦X,Y⟧}
              (η₁ η₂ : f ==> g)
-             (Hη : id₂ (id₁ Y) * η₁ = id₂ (id₁ Y) * η₂)
+             (Hη : (id₁ Y) ◅ η₁ = (id₁ Y) ◅ η₂)
     : η₁ = η₂.
   Proof.
     refine ((vcomp_left_identity η₁)^ @ _ @ vcomp_left_identity η₂).
     rewrite <- !left_unit_left.
     rewrite !vcomp_assoc.
     rewrite (left_unit_inv_natural η₁), (left_unit_inv_natural η₂).
+    unfold bc_whisker_l in Hη.
     rewrite Hη.
     reflexivity.
   Qed.
 
-  Definition right_comp
+  Definition whisker_r_cancel_id
              {X Y : C}
              {f g : C⟦X,Y⟧}
              (η₁ η₂ : f ==> g)
-             (Hη : η₁ * id₂ (id₁ X) = η₂ * id₂ (id₁ X))
+             (Hη : η₁ ▻ (id₁ X) = η₂ ▻ (id₁ X))
     : η₁ = η₂.
   Proof.
     refine ((vcomp_right_identity η₁)^ @ _ @ vcomp_right_identity η₂).
     rewrite <- !right_unit_left.
     rewrite <- !vcomp_assoc.
     rewrite <- (right_unit_natural η₁), <- (right_unit_natural η₂).
+    unfold bc_whisker_r in Hη.
     rewrite Hη.
     reflexivity.
   Defined.
@@ -377,8 +365,8 @@ Section laws.
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
     : (left_unit g) ▻ f = left_unit (g · f) ∘ assoc (id₁ Z) g f.
   Proof.
-    unfold bc_whisker_l.
-    apply left_comp.
+    apply whisker_l_cancel_id.
+    unfold bc_whisker_l, bc_whisker_r.
     rewrite <- (vcomp_left_identity (id₂ (id₁ Z))).
     rewrite interchange.
     apply cancel_assoc_R.
@@ -422,8 +410,8 @@ Section laws.
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
     : right_unit (g · f) = g ◅ (right_unit f) ∘ assoc g f (id₁ X).
   Proof.
-    unfold bc_whisker_l.
-    apply right_comp.
+    apply whisker_r_cancel_id.
+    unfold bc_whisker_l, bc_whisker_r.
     rewrite <- (vcomp_left_identity (id₂ (id₁ X))).
     rewrite interchange.
     apply cancel_assoc_L.
@@ -462,12 +450,12 @@ Section laws.
     apply right_unit_assoc.
   Qed.
 
-  Definition left_unit_is_right_unit
+  Definition right_unit_id_is_left_unit_id
              `{Funext}
              (X : C)
     : right_unit (id₁ X) = left_unit (id₁ X).
   Proof.
-    apply left_comp.
+    apply whisker_l_cancel_id.
     refine (_ @ vcomp_right_identity _).
     rewrite <- assoc_left.
     rewrite <- vcomp_assoc.
@@ -485,16 +473,17 @@ Section laws.
     reflexivity.
   Qed.
 
-  Definition left_unit_inv_is_right_unit_inv
+  Definition right_unit_V_id_is_left_unit_V_id
              `{Funext}
              (X : C)
-    : left_unit_inv (id₁ X) = right_unit_inv (id₁ X).
+    : right_unit_inv (id₁ X) = left_unit_inv (id₁ X).
   Proof.
+    symmetry.
     refine ((vcomp_right_identity _)^ @ _ @ vcomp_left_identity _).
     rewrite <- right_unit_left.
     rewrite <- vcomp_assoc.
     f_ap.
-    rewrite left_unit_is_right_unit.
+    rewrite right_unit_id_is_left_unit_id.
     apply left_unit_right.
   Qed.
 End laws.

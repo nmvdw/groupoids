@@ -34,13 +34,13 @@ Section ConstantFunctor.
     - rewrite hcomp_id₂, vcomp_right_identity, vcomp_left_identity.
       reflexivity.
     - rewrite hcomp_id₂, vcomp_left_identity, vcomp_right_identity.
-      apply left_unit_is_right_unit.
+      apply right_unit_id_is_left_unit_id.
     - rewrite hcomp_id₂, vcomp_right_identity, vcomp_left_identity.
       reflexivity.
     - rewrite vcomp_left_identity.
       rewrite vcomp_assoc.
       rewrite <- triangle_r.
-      rewrite left_unit_is_right_unit.
+      rewrite right_unit_id_is_left_unit_id.
       reflexivity.
     - apply left_unit_right.
     - apply left_unit_left.

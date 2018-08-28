@@ -247,14 +247,14 @@ Proof.
     rewrite !(ap (fun z => _ ∘ (_ ∘ z)) (vcomp_assoc _ _ _)^).
     rewrite assoc_right.
     rewrite vcomp_left_identity.
-    rewrite left_unit_is_right_unit.
+    rewrite right_unit_id_is_left_unit_id.
     rewrite (ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
     rewrite <- interchange.
     rewrite left_unit_left, vcomp_left_identity, hcomp_id₂.
     rewrite vcomp_left_identity.
     apply left_unit_left.
   - unfold bc_whisker_r, bc_whisker_l, counit_d ; cbn.
-    rewrite <- !left_unit_is_right_unit.
+    rewrite <- !right_unit_id_is_left_unit_id.
     rewrite triangle_r.
     rewrite !vcomp_assoc.
     rewrite !(ap (fun z => _ ∘ (_ ∘ z)) (vcomp_assoc _ _ _)^).
