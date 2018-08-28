@@ -13,7 +13,7 @@ Definition right_unit_assoc_inv
            {C : BiCategory}
            {X Y Z : C}
            (g : C⟦Y, Z⟧) (f : C⟦X,Y⟧)
-  : right_unit (g · f) ∘ assoc_inv g f (id₁ X) = g ▻ right_unit f.
+  : right_unit (g · f) ∘ assoc_inv g f (id₁ X) = g ◅ right_unit f.
 Proof.
   rewrite right_unit_assoc.
   rewrite !vcomp_assoc.

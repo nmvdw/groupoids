@@ -20,7 +20,7 @@ Section WhiskerR.
 
   Definition whisker_R_mod_d
     : modification_d (composition.compose ε₁ η) (composition.compose ε₂ η)
-    := fun A => η A ▻ m A.
+    := fun A => η A ◅ m A.
 
   Definition whisker_R_is_mod
     : is_modification whisker_R_mod_d.

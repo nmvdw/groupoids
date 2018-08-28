@@ -47,7 +47,7 @@ Section Monad.
       := Fcomp₁ m tt tt.
 
     Definition bind_unit
-      : bind ∘ (unit ◅ endo_m) ∘ left_unit_inv endo_m
+      : bind ∘ (unit ▻ endo_m) ∘ left_unit_inv endo_m
         =
         id₂ endo_m.
     Proof.
@@ -62,7 +62,7 @@ Section Monad.
     Qed.
 
     Definition unit_bind
-      : bind ∘ (endo_m ▻ unit) ∘ right_unit_inv endo_m
+      : bind ∘ (endo_m ◅ unit) ∘ right_unit_inv endo_m
         =
         id₂ endo_m.
     Proof.
@@ -77,9 +77,9 @@ Section Monad.
     Qed.
 
     Definition bind_bind
-      : bind ∘ (bind ◅ endo_m)
+      : bind ∘ (bind ▻ endo_m)
         =
-        bind ∘ (endo_m ▻ bind) ∘ assoc endo_m endo_m endo_m.
+        bind ∘ (endo_m ◅ bind) ∘ assoc endo_m endo_m endo_m.
     Proof.
       unfold bind, endo_m, bc_whisker_l, bc_whisker_r ; cbn.
       rewrite F_assoc.
@@ -134,9 +134,9 @@ Section Monad.
       := mod_component σ tt.
 
     Definition under_mmm_natural
-      : under_mm_natural η₂ ∘ (endo_m m₂ ▻ under_mmm)
+      : under_mm_natural η₂ ∘ (endo_m m₂ ◅ under_mmm)
         =
-        (under_mmm ◅ endo_m m₁) ∘ under_mm_natural η₁
+        (under_mmm ▻ endo_m m₁) ∘ under_mm_natural η₁
       := mod_commute σ tt.
   End TransformationData.  
 End Monad.

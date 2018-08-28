@@ -67,7 +67,7 @@ Section IdentityTransformation.
       rewrite <- !vcomp_assoc.
       f_ap.
       pose (left_unit_inv_assoc (F ₁ g) (F ₁ f)) as p.
-      unfold bc_whisker_l in p.
+      unfold bc_whisker_r in p.
       rewrite p ; clear p.
       rewrite <- vcomp_assoc.
       rewrite assoc_left.

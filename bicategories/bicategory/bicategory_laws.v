@@ -318,24 +318,24 @@ Section laws.
     reflexivity.
   Qed.
 
-  Definition bc_whisker_l_compose
+  Definition bc_whisker_r_compose
              {X Y Z : C}
              (f : C⟦X,Y⟧)
              {g₁ g₂ g₃ : C⟦Y,Z⟧}
              (p₁ : g₁ ==> g₂) (p₂ : g₂ ==> g₃)
-    : (p₂ ∘ p₁) ◅ f = (p₂ ◅ f) ∘ (p₁ ◅ f).
+    : (p₂ ∘ p₁) ▻ f = (p₂ ▻ f) ∘ (p₁ ▻ f).
   Proof.
     rewrite <- interchange.
     rewrite vcomp_left_identity.
     reflexivity.
   Qed.
 
-  Definition bc_whisker_r_compose
+  Definition bc_whisker_l_compose
              {X Y Z : C}
              {f₁ f₂ f₃ : C⟦X,Y⟧}
              (g : C⟦Y,Z⟧)
              (p₁ : f₁ ==> f₂) (p₂ : f₂ ==> f₃)
-    : g ▻ (p₂ ∘ p₁) = (g ▻ p₂) ∘ (g ▻ p₁).
+    : g ◅ (p₂ ∘ p₁) = (g ◅ p₂) ∘ (g ◅ p₁).
   Proof.
     rewrite <- interchange.
     rewrite vcomp_left_identity.
@@ -375,7 +375,7 @@ Section laws.
   Definition left_unit_assoc
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-    : (left_unit g) ◅ f = left_unit (g · f) ∘ assoc (id₁ Z) g f.
+    : (left_unit g) ▻ f = left_unit (g · f) ∘ assoc (id₁ Z) g f.
   Proof.
     unfold bc_whisker_l.
     apply left_comp.
@@ -405,9 +405,9 @@ Section laws.
   Definition left_unit_inv_assoc
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-    : (left_unit_inv g) ◅ f = assoc_inv (id₁ Z) g f ∘ left_unit_inv (g · f).
+    : (left_unit_inv g) ▻ f = assoc_inv (id₁ Z) g f ∘ left_unit_inv (g · f).
   Proof.
-    unfold bc_whisker_l, vcomp, id₂.
+    unfold bc_whisker_r, vcomp, id₂.
     rewrite <- !inverse_of_left_unit.
     rewrite <- inverse_of_assoc.
     rewrite <- inverse_compose.
@@ -420,9 +420,9 @@ Section laws.
   Definition right_unit_assoc
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-    : right_unit (g · f) = g ▻ (right_unit f) ∘ assoc g f (id₁ X).
+    : right_unit (g · f) = g ◅ (right_unit f) ∘ assoc g f (id₁ X).
   Proof.
-    unfold bc_whisker_r.
+    unfold bc_whisker_l.
     apply right_comp.
     rewrite <- (vcomp_left_identity (id₂ (id₁ X))).
     rewrite interchange.
@@ -450,9 +450,9 @@ Section laws.
   Definition right_unit_inv_assoc
              {X Y Z : C}
              (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-    : right_unit_inv (g · f) = assoc_inv g f (id₁ X) ∘ (g ▻ (right_unit_inv f)).
+    : right_unit_inv (g · f) = assoc_inv g f (id₁ X) ∘ (g ◅ (right_unit_inv f)).
   Proof.
-    unfold bc_whisker_r, vcomp, id₂.
+    unfold bc_whisker_l, vcomp, id₂.
     rewrite <- !inverse_of_right_unit.
     rewrite <- inverse_of_assoc.
     rewrite <- inverse_id.
@@ -479,7 +479,7 @@ Section laws.
     rewrite !vcomp_assoc.
     apply ap.
     pose @right_unit_assoc as p.
-    unfold bc_whisker_r, vcomp in p.
+    unfold bc_whisker_l, vcomp in p.
     rewrite <- p ; clear p.
     rewrite (right_unit_natural (right_unit (id₁ X))).
     reflexivity.

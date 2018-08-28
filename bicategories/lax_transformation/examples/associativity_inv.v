@@ -79,7 +79,7 @@ Section LaxAssociativityInv.
       rewrite !vcomp_assoc.
       f_ap.
       pose (left_unit_inv_assoc (F₃ ₁ (F₂ ₁ (F₁ ₁ g))) (F₃ ₁ (F₂ ₁ (F₁ ₁ f)))) as p.
-      unfold bc_whisker_l in p.
+      unfold bc_whisker_r in p.
       rewrite p ; clear p.
       rewrite <- !vcomp_assoc.
       rewrite assoc_left.

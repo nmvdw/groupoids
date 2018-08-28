@@ -56,15 +56,15 @@ Definition is_adjunction
   : Type
   := Datatypes.prod
        (((right_unit (right_d A))
-          ∘ ((right_d A) ▻ counit_d A)
+          ∘ ((right_d A) ◅ counit_d A)
           ∘ (assoc (right_d A) l (right_d A))
-          ∘ (unit_d A ◅ (right_d A))
+          ∘ (unit_d A ▻ (right_d A))
           ∘ (left_unit_inv (right_d A)))
         = id₂ (right_d A))
        (((left_unit l)
-           ∘ (counit_d A ◅ l)
+           ∘ (counit_d A ▻ l)
            ∘ assoc_inv l (right_d A) l
-           ∘ (l ▻ unit_d A)
+           ∘ (l ◅ unit_d A)
           ∘ right_unit_inv l)
         = id₂ l).
 
@@ -122,9 +122,9 @@ Definition unit_counit_l
            {l : C⟦X,Y⟧}
            (A : adjunction l)
   : ((right_unit (right_adjoint A))
-       ∘ ((right_adjoint A) ▻ counit A)
+       ∘ ((right_adjoint A) ◅ counit A)
        ∘ (assoc (right_adjoint A) l (right_adjoint A))
-       ∘ (unit A ◅ (right_adjoint A))
+       ∘ (unit A ▻ (right_adjoint A))
        ∘ (left_unit_inv (right_adjoint A)))
     = id₂ (right_adjoint A)
   := Datatypes.fst A.2.
@@ -135,9 +135,9 @@ Definition unit_counit_r
            {l : C⟦X,Y⟧}
            (A : adjunction l)
   : ((left_unit l)
-       ∘ (counit A ◅ l)
+       ∘ (counit A ▻ l)
        ∘ assoc_inv l (right_adjoint A) l
-       ∘ (l ▻ unit A)
+       ∘ (l ◅ unit A)
        ∘ right_unit_inv l)
     = id₂ l
   := Datatypes.snd A.2.
@@ -375,13 +375,13 @@ Proof.
   make_adjunction.
   - exact (right_adjoint A₁ · right_adjoint A₂).
   - refine (_ ∘ unit A₁).
-    refine (_ ∘ (right_unit_inv _ ◅ l₁)).
-    refine (_ ∘ ((_ ▻ unit A₂) ◅ l₁)).
-    exact (assoc_inv _ _ _ ∘ (_ ▻ assoc _ _ _) ∘ assoc _ _ _).
+    refine (_ ∘ (right_unit_inv _ ▻ l₁)).
+    refine (_ ∘ ((_ ◅ unit A₂) ▻ l₁)).
+    exact (assoc_inv _ _ _ ∘ (_ ◅ assoc _ _ _) ∘ assoc _ _ _).
   - refine (counit A₂ ∘ _).
-    refine ((l₂ ▻ left_unit _) ∘ _).
-    refine ((l₂ ▻ (counit A₁ ◅ _)) ∘ _).
-    exact (assoc _ _ _ ∘ (assoc _ _ _ ◅ _) ∘ assoc_inv _ _ _).
+    refine ((l₂ ◅ left_unit _) ∘ _).
+    refine ((l₂ ◅ (counit A₁ ▻ _)) ∘ _).
+    exact (assoc _ _ _ ∘ (assoc _ _ _ ▻ _) ∘ assoc_inv _ _ _).
 Defined.
 
 Definition id_to_adjequiv

@@ -79,11 +79,11 @@ Definition triangle_l_lhs
   := compose
        (lax_right_identity_inv (left_adjoint_d F))
        (compose
-          (whisker_R (left_adjoint_d F) (unit_d F))
+          (whisker_L (left_adjoint_d F) (unit_d F))
           (compose
              (lax_associativity_inv _ _ _)
              (compose
-                (whisker_L (left_adjoint_d F) (counit_d F))
+                (whisker_R (left_adjoint_d F) (counit_d F))
                 (lax_left_identity (left_adjoint_d F))
              )
           )
@@ -97,11 +97,11 @@ Definition triangle_r_lhs
   := compose
        (lax_left_identity_inv (right_adjoint_d F))
        (compose
-          (whisker_L (right_adjoint_d F) (unit_d F))
+          (whisker_R (right_adjoint_d F) (unit_d F))
           (compose
              (lax_associativity _ _ _)
              (compose
-                (whisker_R (right_adjoint_d F) (counit_d F))
+                (whisker_L (right_adjoint_d F) (counit_d F))
                 (lax_right_identity (right_adjoint_d F))
              )
           )

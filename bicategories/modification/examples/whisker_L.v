@@ -20,7 +20,7 @@ Section WhiskerL.
 
   Definition whisker_L_mod_d
     : modification_d (composition.compose ε η₁) (composition.compose ε η₂)
-    := fun A => m A ◅ ε A.
+    := fun A => m A ▻ ε A.
 
   Definition whisker_L_is_mod
     : is_modification whisker_L_mod_d.

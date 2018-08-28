@@ -22,7 +22,7 @@ Proof.
     simple refine (Build_Functor _ _ _ _ _ _).
     + exact (fun g => g · f).
     + intros g₁ g₂ α ; cbn.
-      exact (α ◅ f).
+      exact (α ▻ f).
     + intros g₁ g₂ g₃ α₁ α₂ ; cbn in *.
       pose @interchange as p.
       unfold bc_whisker_l, vcomp in *.
@@ -34,7 +34,7 @@ Proof.
   - intros Y₁ Y₂ f g α ; cbn in *.
     simple refine (Build_NaturalTransformation _ _ _ _).
     + intros h ; cbn in *.
-      exact (h ▻ α).
+      exact (h ◅ α).
     + intros h₁ h₂ β ; cbn in *.
       pose @interchange as p.
       unfold bc_whisker_r, bc_whisker_l, vcomp in *.

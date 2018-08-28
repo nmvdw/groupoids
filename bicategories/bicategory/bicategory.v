@@ -770,7 +770,7 @@ Definition hcomp_inverse
   : ((η₁ * η₂)^-1 = η₁^-1 * η₂^-1)%morphism
   := idpath.
 
-Definition bc_whisker_r
+Definition bc_whisker_l
            {C : BiCategory}
            {X Y Z : C}
            {f₁ : C⟦X,Y⟧} {f₂ : C⟦X,Y⟧}
@@ -779,17 +779,17 @@ Definition bc_whisker_r
   : (g · f₁) ==> (g · f₂)
   := id₂ g * α.
 
-Notation "g '▻' α" := (bc_whisker_r g α) (at level 40) : bicategory_scope.
+Notation "g '◅' α" := (bc_whisker_l g α) (at level 40) : bicategory_scope.
 
-Definition bc_whisker_r_id₂
+Definition bc_whisker_l_id₂
            {C : BiCategory}
            {X Y Z : C}
            (f : C⟦X,Y⟧)
            (g : C⟦Y,Z⟧)
-  : g ▻ (id₂ f) = id₂ (g · f)
+  : g ◅ (id₂ f) = id₂ (g · f)
   := hcomp_id₂ g f.
 
-Definition bc_whisker_l
+Definition bc_whisker_r
            {C : BiCategory}
            {X Y Z : C}
            {g₁ : C⟦Y,Z⟧} {g₂ : C⟦Y,Z⟧}
@@ -798,14 +798,14 @@ Definition bc_whisker_l
   : (g₁ · f) ==> (g₂ · f)
   := β * id₂ f.
 
-Notation "β '◅' f" := (bc_whisker_l β f) (at level 40) : bicategory_scope.
+Notation "β '▻' f" := (bc_whisker_r β f) (at level 40) : bicategory_scope.
 
-Definition bc_whisker_l_id₂
+Definition bc_whisker_r_id₂
            {C : BiCategory}
            {X Y Z : C}
            (f : C⟦X,Y⟧)
            (g : C⟦Y,Z⟧)
-  : (id₂ g) ◅ f = id₂ (g · f)
+  : (id₂ g) ▻ f = id₂ (g · f)
   := hcomp_id₂ g f.
 
 Definition is_21 `{Funext} (C : BiCategory)

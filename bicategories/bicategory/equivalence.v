@@ -96,9 +96,9 @@ Definition comp_sect
   : (e_inv f · e_inv g) · (equiv g · equiv f) ==> id₁ X.
 Proof.
   refine (_ ∘ (assoc (e_inv f) (e_inv g) (equiv g · equiv f))).
-  refine (sect f ∘ ((e_inv f) ▻ _)).
+  refine (sect f ∘ ((e_inv f) ◅ _)).
   refine (_ ∘ assoc_inv (e_inv g) g f).
-  exact (left_unit f ∘ (sect g ◅ f)).
+  exact (left_unit f ∘ (sect g ▻ f)).
 Defined.
 
 Local Instance comp_sect_isiso
@@ -117,10 +117,10 @@ Definition comp_retr
   : (equiv g · equiv f) · (e_inv f · e_inv g) ==> (id₁ Z).
 Proof.
   refine (_ ∘ assoc (equiv g) (equiv f) (e_inv f · e_inv g)).
-  refine (retr g ∘ (g ▻ _))%morphism.
+  refine (retr g ∘ (g ◅ _))%morphism.
   refine (_ ∘ assoc_inv f (e_inv f) (e_inv g)).
   refine (left_unit (e_inv g) ∘ _).
-  exact (retr f ◅ e_inv g).
+  exact (retr f ▻ e_inv g).
 Defined.
 
 Local Instance comp_retr_isiso

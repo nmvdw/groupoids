@@ -18,9 +18,9 @@ Definition is_modification
            (σ : modification_d η₁ η₂)
   : Type
   := forall (A B : C) (f : C⟦A,B⟧),
-    laxnaturality_of η₂ f ∘ ((G ₁ f) ▻ σ A)
+    laxnaturality_of η₂ f ∘ ((G ₁ f) ◅ σ A)
     =
-    (σ B ◅ (F ₁ f)) ∘ laxnaturality_of η₁ f.
+    (σ B ▻ (F ₁ f)) ∘ laxnaturality_of η₁ f.
 
 Definition modification
        {C D : BiCategory}
@@ -53,9 +53,9 @@ Definition mod_commute
            {η₁ η₂ : LaxTransformation F G}
            (m : modification η₁ η₂)
   : forall {A B : C} (f : C⟦A,B⟧),
-    laxnaturality_of η₂ f ∘ ((G ₁ f) ▻ m A)
+    laxnaturality_of η₂ f ∘ ((G ₁ f) ◅ m A)
     =
-    (m B ◅ (F ₁ f)) ∘ laxnaturality_of η₁ f
+    (m B ▻ (F ₁ f)) ∘ laxnaturality_of η₁ f
   := m.2.
 
 Definition path_modification

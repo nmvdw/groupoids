@@ -37,9 +37,9 @@ Section Composition.
     - exact (fun X => σ₂ X · σ₁ X).
     - intros X Y f ; cbn in *.
       exact ((assoc_inv (σ₂ Y) (σ₁ Y) (F₁ ₁ f))
-               ∘ ((σ₂ Y) ▻ laxnaturality_of σ₁ f)
+               ∘ ((σ₂ Y) ◅ laxnaturality_of σ₁ f)
                ∘ assoc (σ₂ Y) (F₂ ₁ f) (σ₁ X)
-               ∘ (laxnaturality_of σ₂ f ◅ (σ₁ X))
+               ∘ (laxnaturality_of σ₂ f ▻ (σ₁ X))
                ∘ assoc_inv (F₃ ₁ f) (σ₂ X) (σ₁ X)).
   Defined.
 
@@ -117,7 +117,7 @@ Section Composition.
       rewrite right_unit_left, vcomp_left_identity, hcomp_id₂.
       rewrite vcomp_left_identity.
       pose @left_unit_assoc as p.
-      unfold bc_whisker_l in p.
+      unfold bc_whisker_r in p.
       rewrite p ; clear p.
       rewrite !vcomp_assoc.
       rewrite assoc_left, vcomp_right_identity.

@@ -36,11 +36,11 @@ Section CoMonad.
       := @Fcomp₁ _ _ m tt tt tt tt tt.
 
     Definition extend_duplicate
-      : left_unit endo_c ∘ (extend ◅ endo_c) ∘ duplicate
+      : left_unit endo_c ∘ (extend ▻ endo_c) ∘ duplicate
         =
         id₂ endo_c.
     Proof.
-      unfold duplicate, extend, endo_c, bc_whisker_l ; cbn.
+      unfold duplicate, extend, endo_c, bc_whisker_r ; cbn.
       rewrite <- left_unit_left.
       rewrite !vcomp_assoc.
       f_ap.
@@ -52,11 +52,11 @@ Section CoMonad.
     Qed.
 
     Definition duplicate_extend
-      : right_unit endo_c ∘ (endo_c ▻ extend) ∘ duplicate
+      : right_unit endo_c ∘ (endo_c ◅ extend) ∘ duplicate
         =
         id₂ endo_c.
     Proof.
-      unfold duplicate, extend, endo_c, bc_whisker_l ; cbn.
+      unfold duplicate, extend, endo_c, bc_whisker_r ; cbn.
       rewrite <- right_unit_left.
       rewrite !vcomp_assoc.
       f_ap.
@@ -67,9 +67,9 @@ Section CoMonad.
     Qed.
 
     Definition duplicate_duplicate
-      : (duplicate ◅ endo_c) ∘ duplicate
+      : (duplicate ▻ endo_c) ∘ duplicate
         =
-        assoc_inv endo_c endo_c endo_c ∘ (endo_c ▻ duplicate) ∘ duplicate.
+        assoc_inv endo_c endo_c endo_c ∘ (endo_c ◅ duplicate) ∘ duplicate.
     Proof.
       unfold duplicate, extend, endo_c, bc_whisker_l, bc_whisker_r ; cbn.
       rewrite !vcomp_assoc.
@@ -128,9 +128,9 @@ Section CoMonad.
       := mod_component σ tt.
 
     Definition under_mmm_natural
-      : (endo_c m₂ ▻ under_cmm) ∘ under_cm_natural η₂
+      : (endo_c m₂ ◅ under_cmm) ∘ under_cm_natural η₂
         =
-        under_cm_natural η₁ ∘ (under_cmm ◅ endo_c m₁)
+        under_cm_natural η₁ ∘ (under_cmm ▻ endo_c m₁)
       := mod_commute σ tt.
   End TransformationData.  
 End CoMonad.

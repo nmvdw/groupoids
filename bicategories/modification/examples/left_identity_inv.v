@@ -38,7 +38,7 @@ Section LeftIdentityInv.
     rewrite !vcomp_assoc.
     rewrite !(ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
     pose @left_unit_inv_assoc as p.
-    unfold bc_whisker_l in p.
+    unfold bc_whisker_r in p.
     rewrite p ; clear p.
     rewrite !vcomp_assoc.
     rewrite !(ap (fun z => _ ∘ (_ ∘ z)) (vcomp_assoc _ _ _)^).
