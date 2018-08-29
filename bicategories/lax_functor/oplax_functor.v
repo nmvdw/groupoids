@@ -159,9 +159,9 @@ Proof.
     + intros f ; simpl in *.
       exact (Fmor₂_id₂ F f).
   - intros X Y Z g f ; simpl in *.
-    exact ((Fcomp₁ F g f)^-1)%morphism.
+    exact (Fcomp₁_inv F g f).
   - intros X ; simpl in *.
-    exact ((Fid F X)^-1)%morphism.
+    exact (Fid_inv F X).
 Defined.
 
 Definition pseudo_to_oplax_is_oplax
@@ -171,27 +171,52 @@ Definition pseudo_to_oplax_is_oplax
   : is_lax (pseudo_to_oplax_d F).
 Proof.
   make_is_lax.
-  - intros ; simpl.
-    unfold vcomp ; simpl.
-    apply iso_moveR_pV.
-    rewrite associativity.
-    apply iso_moveL_Vp.
+  - intros ; cbn.
+    apply vcomp_move_L_Vp.
+    rewrite <- vcomp_assoc.
+    refine (vcomp_move_R_pM _ _ _ _) ; simpl.
     apply F.
   - intros X Y f ; cbn in *.
-    rewrite <- !inverse_of_left_unit, inverse_of, <- inverse_id, <- hcomp_inverse.
-    rewrite <- !inverse_compose.
-    apply path_inverse.
-    apply F.
+    unfold Fid_inv, Fcomp₁_inv.
+    rewrite <- !inverse_of_left_unit.
+    rewrite <- !vcomp_assoc.
+    refine (vcomp_move_L_pM _ _ _ _).
+    refine (vcomp_move_R_Mp _ _ _ _) ; simpl.
+    rewrite F_left_unit.
+    rewrite !vcomp_assoc.
+    rewrite !(ap (fun z => _ ∘ (_ ∘ z)) (vcomp_assoc _ _ _)^).
+    rewrite <- interchange.
+    rewrite vcomp_right_inverse, vcomp_right_identity, hcomp_id₂.
+    rewrite vcomp_left_identity.
+    rewrite vcomp_right_inverse, vcomp_right_identity.
+    reflexivity.
   - intros X Y f ; cbn in *.
-    rewrite <- !inverse_of_right_unit, inverse_of, <- inverse_id, <- hcomp_inverse.
-    rewrite <- !inverse_compose.
-    apply path_inverse.
-    apply F.
+    unfold Fid_inv, Fcomp₁_inv.
+    rewrite <- !inverse_of_right_unit.
+    rewrite <- !vcomp_assoc.
+    refine (vcomp_move_L_pM _ _ _ _).
+    refine (vcomp_move_R_Mp _ _ _ _) ; simpl.
+    rewrite F_right_unit.
+    rewrite !vcomp_assoc.
+    rewrite !(ap (fun z => _ ∘ (_ ∘ z)) (vcomp_assoc _ _ _)^).
+    rewrite <- interchange.
+    rewrite vcomp_right_inverse, vcomp_right_identity, hcomp_id₂.
+    rewrite vcomp_left_identity.
+    rewrite vcomp_right_inverse, vcomp_right_identity.
+    reflexivity.
   - intros W X Y Z h g f ; cbn in *.
-    rewrite <- !inverse_of_assoc, inverse_of, <- !inverse_id, <- !hcomp_inverse.
-    rewrite <- !inverse_compose.
-    apply path_inverse.
-    apply F.
+    unfold Fid_inv, Fcomp₁_inv.
+    refine (vcomp_move_R_Mp _ _ _ _) ; simpl.
+    refine (vcomp_move_R_Mp _ _ _ _).
+    rewrite <- !vcomp_assoc.
+    refine (vcomp_move_L_pM _ _ _ _).
+    refine (vcomp_move_R_Mp _ _ _ _).
+    rewrite hcomp_inverse, id₂_inverse ; simpl.
+    rewrite <- !vcomp_assoc.
+    do 2 refine (vcomp_move_L_pM _ _ _ _).
+    symmetry.
+    rewrite F_assoc.
+    reflexivity.
 Qed.
 
 Definition pseudo_to_oplax

@@ -21,11 +21,10 @@ Lemma F_assoc_inv₁
       ∘ (Fcomp₁_inv F h g * id₂ (F ₁ f))
       ∘ Fcomp₁_inv F (h · g) f.
 Proof.
-  unfold vcomp.
-  refine (Morphisms.iso_moveR_Mp _ _ _) ; simpl.
-  rewrite <- !associativity.
-  refine (Morphisms.iso_moveL_pM _ _ _) ; simpl.
-  refine (Morphisms.iso_moveL_pM _ _ _) ; simpl.
+  refine (vcomp_move_R_Mp _ _ _ _).
+  rewrite <- !vcomp_assoc.
+  refine (vcomp_move_L_pM _ _ _ _).
+  refine (vcomp_move_L_pM _ _ _ _).
   symmetry. 
   apply F_assoc.
 Qed.
@@ -43,11 +42,10 @@ Lemma F_assoc_inv₂
       ∘ assoc_inv (F ₁ h) (F ₁ g) (F ₁ f)
       ∘ id₂ (F ₁ h) * Fcomp₁_inv F g f.
 Proof.
-  unfold vcomp.
-  refine (Morphisms.iso_moveR_Mp _ _ _) ; simpl.
-  rewrite <- !associativity.
-  refine (Morphisms.iso_moveL_pM _ _ _) ; simpl.
-  refine (Morphisms.iso_moveL_pM _ _ _) ; simpl.
+  refine (vcomp_move_R_Mp _ _ _ _).
+  rewrite <- !vcomp_assoc.
+  refine (vcomp_move_L_pM _ _ _ _).
+  refine (vcomp_move_L_pM _ _ _ _).
   apply F_assoc.
 Qed.
 
@@ -115,8 +113,8 @@ Section WhiskerL.
       rewrite <- !interchange.
       rewrite !vcomp_right_identity.
       rewrite vcomp_assoc.
-      unfold Fid_inv, vcomp.
-      rewrite right_inverse, right_identity.
+      unfold Fid_inv.
+      rewrite vcomp_right_inverse, vcomp_right_identity.
       reflexivity.
     - intros X Y Z f g ; cbn in *.
       rewrite !vcomp_assoc.

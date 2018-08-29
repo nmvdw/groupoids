@@ -61,3 +61,39 @@ Proof.
   rewrite (path_universe (id_to_adjequiv X Y)).
   apply _.
 Defined.
+
+Definition strict_left_unit
+           `{Univalence}
+           {C : BiCategory}
+           `{LocallyUnivalent C}
+           {X Y : C}
+           (f : C⟦X, Y⟧)
+  : id₁ Y · f = f.
+Proof.
+  apply (isotoid (C⟦X,Y⟧) _ _).
+  exact {| morphism_isomorphic := left_unit f |}.
+Defined.
+
+Definition strict_right_unit
+           `{Univalence}
+           {C : BiCategory}
+           `{LocallyUnivalent C}
+           {X Y : C}
+           (f : C⟦X, Y⟧)
+  : f · id₁ X = f.
+Proof.
+  apply (isotoid (C⟦X,Y⟧) _ _).
+  exact {| morphism_isomorphic := right_unit f |}.
+Defined.
+
+Definition strict_assoc
+           `{Univalence}
+           {C : BiCategory}
+           `{LocallyUnivalent C}
+           {W X Y Z : C}
+           (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
+  : (h · g) · f = h · (g · f).
+Proof.
+  apply (isotoid (C⟦W,Z⟧) _ _).
+  exact {| morphism_isomorphic := assoc h g f |}.
+Defined.

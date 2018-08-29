@@ -1,4 +1,5 @@
 Require Import HoTT.
+From HoTT.Categories Require Import Category Functor NaturalTransformation.
 From GR.bicategories Require Import
      general_category
      bicategory.bicategory
@@ -369,9 +370,9 @@ Section UnivalentGQuotAdjunction.
       := Build_Modification unit_retr_inv_d unit_retr_inv_is_modification.
 
     Definition unit_ugq_adjunction_d
-      : @adjunction_d (Lax univalent_grpd univalent_grpd) _ _ unit_ugq.
+      : @is_left_adjoint_d (Lax univalent_grpd univalent_grpd) _ _ unit_ugq.
     Proof.
-      make_adjunction.
+      make_is_left_adjoint.
       - exact unit_inv.
       - exact unit_retr_inv.
       - exact unit_sect.
@@ -399,12 +400,13 @@ Section UnivalentGQuotAdjunction.
     Qed.
 
     Definition unit_ugq_adjunction
-      :  @adjunction (Lax univalent_grpd univalent_grpd) _ _ unit_ugq
-      := Build_Adjunction unit_ugq_adjunction_d unit_ugq_is_adjunction.
+      :  @is_left_adjoint (Lax univalent_grpd univalent_grpd) _ _ unit_ugq
+      := Build_is_left_adjoint unit_ugq_adjunction_d unit_ugq_is_adjunction.
 
     Definition unit_univalent_gquot_biadjunction_equiv
-      : is_adjoint_equivalence unit_ugq_adjunction.
+      : @is_adjoint_equivalence (Lax univalent_grpd univalent_grpd) _ _ unit_ugq.
     Proof.
+      simple refine (unit_ugq_adjunction;_).
       split.
       - simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
         + exact unit_retr.
@@ -613,9 +615,9 @@ Section UnivalentGQuotAdjunction.
       := Build_Modification counit_retr_inv_d counit_retr_inv_is_modification.
 
     Definition counit_ugq_adjunction_d
-      : @adjunction_d (Lax one_types one_types) _ _ counit_ugq.
+      : @is_left_adjoint_d (Lax one_types one_types) _ _ counit_ugq.
     Proof.
-      make_adjunction.
+      make_is_left_adjoint.
       - exact counit_ugq_inv.
       - exact counit_retr_inv.
       - exact counit_sect.
@@ -649,12 +651,13 @@ Section UnivalentGQuotAdjunction.
     Qed.
 
     Definition counit_ugq_adjunction
-      :  @adjunction (Lax one_types one_types) _ _ counit_ugq
-      := Build_Adjunction counit_ugq_adjunction_d counit_ugq_is_adjunction.
+      : @is_left_adjoint (Lax one_types one_types) _ _ counit_ugq
+      := Build_is_left_adjoint counit_ugq_adjunction_d counit_ugq_is_adjunction.
 
     Definition counit_univalent_gquot_biadjunction_equiv
-      : is_adjoint_equivalence counit_ugq_adjunction.
+      : @is_adjoint_equivalence (Lax one_types one_types) _ _ counit_ugq.
     Proof.
+      simple refine (counit_ugq_adjunction;_).
       split.
       - simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
         + exact counit_retr.

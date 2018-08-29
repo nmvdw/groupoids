@@ -111,7 +111,9 @@ Definition Fmor₂_id₂
            {X Y : C}
            (f : C⟦X,Y⟧)
   : F ₂ (id₂ f) = id₂ (F ₁ f).
-Proof. apply Fmor. Defined.
+Proof.
+  apply Fmor.
+Defined.
 
 Definition Fmor₂_vcomp
            {C D : BiCategory}
@@ -120,7 +122,9 @@ Definition Fmor₂_vcomp
            {f g h : C⟦X,Y⟧}
            (η₁ : f ==> g) (η₂ : g ==> h)
   : F ₂ (η₂ ∘ η₁) = (F ₂ η₂) ∘ (F ₂ η₁).
-Proof. apply Fmor. Defined.
+Proof.
+  apply Fmor.
+Defined.
 
 Definition Fcomp₁
            {C D : BiCategory}
@@ -229,8 +233,12 @@ Definition Fcomp₁_inv
            `{is_pseudo _ _ F}
            {X Y Z : C}
            (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
-  : (F ₁ (g · f)) ==> (F ₁ g) · (F ₁ f)
-  := (Fcomp₁ F g f)^-1.
+  : (F ₁ (g · f)) ==> (F ₁ g) · (F ₁ f).
+Proof.
+  exact (Fcomp₁ F g f)^-1.
+Defined.
+  (* DAN: TODO: this is parsed in the wrong scope--morphism instead of bicategory *)
+  (* := (Fcomp₁ F g f)^-1. *)
 
 (* Global Instance Fcomp₁_inv_is_iso *)
 (*        {C D : BiCategory} *)
@@ -281,8 +289,13 @@ Definition Fid_inv
            (F : LaxFunctor C D)
            `{is_pseudo _ _ F}
            (X : C)
-  : (F ₁ (id₁ X)) ==> id₁ (F X)
-  := (Fid F X)^-1.
+  : (F ₁ (id₁ X)) ==> id₁ (F X).
+Proof.
+  exact (Fid F X)^-1.
+Defined.
+  (* TODO: same problem *)
+  (* := (Fid F X)^-1%bicategory. *)
+
 
 Definition F_left_unit_inv
            {C D : BiCategory}
@@ -297,13 +310,16 @@ Definition F_left_unit_inv
       ∘ (F ₂ (left_unit_inv f)).
 Proof.
   rewrite <- !inverse_of_left_unit.
-  unfold Fcomp₁_inv, Fid_inv, left_unit_inv, id₂, vcomp.
-  rewrite <- inverse_id, inverse_of, <- hcomp_inverse.
-  rewrite <- !inverse_compose.
-  apply path_inverse.
-  rewrite <- !associativity.
-  apply F_left_unit.
-Qed.
+  unfold Fcomp₁_inv, Fid_inv.
+  rewrite <- id₂_inverse.
+  admit.
+(*   rewrite inverse_of. <- hcomp_inverse. *)
+(*   rewrite <- !vcomp_inverse. *)
+(*   apply path_inverse_2cell. *)
+(*   rewrite <- !vcomp_assoc. *)
+(*   apply F_left_unit. *)
+(* Qed. *)
+Admitted.
 
 Definition F_right_unit_inv
            {C D : BiCategory}
@@ -319,12 +335,14 @@ Definition F_right_unit_inv
 Proof.
   rewrite <- !inverse_of_right_unit.
   unfold Fcomp₁_inv, Fid_inv, left_unit_inv, id₂, vcomp.
-  rewrite <- inverse_id, inverse_of, <- hcomp_inverse.
-  rewrite <- !inverse_compose.
-  apply path_inverse.
-  rewrite <- !associativity.
-  apply F_right_unit.
-Qed.
+  admit.
+(*   rewrite <- inverse_id, inverse_of, <- hcomp_inverse. *)
+(*   rewrite <- !inverse_compose. *)
+(*   apply path_inverse. *)
+(*   rewrite <- !associativity. *)
+(*   apply F_right_unit. *)
+(* Qed. *)
+Admitted.
 
 Record PseudoFunctor_d
        (C D : BiCategory)

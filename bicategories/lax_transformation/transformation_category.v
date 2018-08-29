@@ -68,10 +68,14 @@ Section transformation_category.
     intros HmA.
     simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
     - simpl. simple refine (Build_Modification _ _).
-      + intro A. apply (HmA A).
+      + intro A. apply ((m A)^-1).
       + intros A B f. simpl.
+        Unset Printing Notations.
+        Set Printing All.
+        pose (α := (G ₁ f) ◅ m A).
+        (* for this we need: whisker with an isomorphism => isomorphism *)
         (* 1) precompose both side with Gf ◅ mA
-           2) postcompose both sides with mA ▻ Fg *) admit.
+           2) postcompose both sides with mA ▻ Ff *) admit.
     - simpl. apply path_modification. funext x. (* confusing notation *)
       simpl. unfold comp_modification_d, id_modification_d. simpl.
       pose (HmA x). unfold vcomp.

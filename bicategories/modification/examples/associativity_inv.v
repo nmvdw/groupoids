@@ -36,7 +36,7 @@ Section AssociativityInverse.
     repeat (rewrite <- (vcomp_left_identity (id₂ (η₃ A))) ; rewrite interchange).
     rewrite !vcomp_left_identity.
     rewrite !vcomp_assoc.
-    apply move_assoc_inv_hcomp_L.
+    refine (vcomp_move_L_Mp _ _ _ _).
     rewrite <- !vcomp_assoc.
     rewrite inverse_pentagon_4.
     rewrite !vcomp_assoc.

@@ -67,14 +67,7 @@ Section OpBiCategory.
     - intros X Y Z g f ; simpl in *.
       exact (triangle_l f g)^.
     - intros W V X Y Z k h g f ; simpl in *.
-      rewrite <- !inverse_of_assoc.
-      rewrite <- !inverse_id.
-      rewrite <- !hcomp_inverse.
-      rewrite <- !inverse_compose.
-      apply path_inverse.
-      pose (pentagon f g h k) as p.
-      refine (p @ _).
-      apply associativity.
+      apply inverse_pentagon.
   Qed.
 
   Definition op : BiCategory

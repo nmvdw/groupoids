@@ -28,7 +28,7 @@ Section Counit.
     - reflexivity.
     - reflexivity.
   Defined.
-  
+
   Definition naturality_help₁
              {X Y : one_types}
              (f : X -> Y)
@@ -38,7 +38,7 @@ Section Counit.
         (fun h : gquot (path_groupoid X) =>
            f (counit_map X h)
            =
-           counit_map Y ((Fmor (lax_comp gquot_functor path_groupoid_functor)) _ _ f h)
+           counit_map Y (gquot_functor_map (ap_functor f) h)
         )
         (gcleq (path_groupoid X) g)
         idpath
@@ -59,7 +59,7 @@ Section Counit.
              (g : path_groupoid X a₁ a₂)
     : path_over
         (fun h : gquot (path_groupoid X) =>
-           counit_map Y ((Fmor (lax_comp gquot_functor path_groupoid_functor)) _ _ f h)
+           counit_map Y (gquot_functor_map (ap_functor f) h)
            =
            f (counit_map X h)
         )
@@ -74,7 +74,6 @@ Section Counit.
     rewrite ge.
     reflexivity.
   Qed.
-
   Definition counit_gq_d
     : PseudoTransformation_d
         (lax_comp gquot_functor path_groupoid_functor)
@@ -86,18 +85,14 @@ Section Counit.
       funext x ; simpl ; revert x.
       simple refine (gquot_ind_set _ _ _ _).
       + reflexivity.
-      + intros.
-        pose (naturality_help₁ f g) as p.
-        cbn in p.
-        exact p.
+      + intros ? ? g.
+        exact (naturality_help₁ f g).
     - intros X Y f.
       funext x ; simpl ; revert x.
       simple refine (gquot_ind_set _ _ _ _).
       + reflexivity.
       + intros a₁ a₂ g.
-        pose (naturality_help₂ f g) as p.
-        cbn in p.
-        exact p.
+        exact (naturality_help₂ f g).
   Defined.
 
   Definition counit_gq_is_lax

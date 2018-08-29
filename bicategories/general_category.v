@@ -1,6 +1,6 @@
 Require Import HoTT.
-From HoTT.Categories Require Export
-  Category Functor NaturalTransformation FunctorCategory.
+From HoTT.Categories Require Export Category.
+From HoTT.Categories Require Import Functor NaturalTransformation FunctorCategory.
 
 Definition const_functor
            {C D : PreCategory}

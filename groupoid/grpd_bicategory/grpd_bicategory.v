@@ -1,5 +1,6 @@
 Require Import HoTT.
-From HoTT.Categories Require Import Category GroupoidCategory.
+From HoTT.Categories Require Import
+     Category Functor NaturalTransformation GroupoidCategory FunctorCategory.
 From GR.bicategories.bicategory Require Import
      bicategory examples.precat examples.full_sub.
 
