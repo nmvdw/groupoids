@@ -55,8 +55,8 @@ Section TerminalBiCategory.
   Definition terminal_bicategory : BiCategory
     := Build_BiCategory terminal_d terminal_is_bicategory.
 
-  Definition terminal_locally_univalent
-    : locally_univalent terminal_bicategory.
+  Definition locally_univalent_terminal_bicategory
+    : LocallyUnivalent terminal_bicategory.
   Proof.
     intros [ ] [ ] [ ] [ ].
     cbn.

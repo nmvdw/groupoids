@@ -80,8 +80,8 @@ Section OpBiCategory.
   Definition op : BiCategory
     := Build_BiCategory op_d op_is_bicategory.
 
-  Definition op_locally_univalent (HC : locally_univalent C)
-    : locally_univalent op.
+  Definition locally_univalent_op {HC : LocallyUnivalent C}
+    : LocallyUnivalent op.
   Proof.
     intros X Y f g ; cbn in *.
     apply (HC Y X).

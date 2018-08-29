@@ -79,8 +79,8 @@ Section TwoTypeBiGroupoid.
   Definition path_bigroupoid : BiCategory
     := Build_BiCategory path_bigroupoid_d path_bigroupoid_is_bicategory.
 
-  Definition path_bigroupoid_locally_univalent
-    : locally_univalent path_bigroupoid.
+  Global Instance locally_univalent_path_bigroupoid
+    : LocallyUnivalent path_bigroupoid.
   Proof.
     intro ; apply _.
   Qed.

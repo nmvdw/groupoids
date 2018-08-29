@@ -35,9 +35,9 @@ Section FullSub.
          full_sub_d
          full_sub_d_is_bicategory.
 
-  Definition full_sub_locally_univalent
-             (HC: locally_univalent C)
-    : locally_univalent full_sub.
+  Global Instance locally_univalent_full_sub
+             {HC : LocallyUnivalent C}
+    : LocallyUnivalent full_sub.
   Proof.
     intros X Y.
     apply HC.

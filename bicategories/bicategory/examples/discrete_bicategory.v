@@ -76,8 +76,8 @@ Section DiscreteBiCategory.
   Definition discrete_bicategory : BiCategory
     := Build_BiCategory discrete_bicategory_d discrete_is_bicategory.
 
-  Definition discrete_locally_univalent
-    : locally_univalent discrete_bicategory.
+  Global Instance locally_univalent_discrete_bicategory
+    : LocallyUnivalent discrete_bicategory.
   Proof.
     intros X Y f g.
     cbn in *.

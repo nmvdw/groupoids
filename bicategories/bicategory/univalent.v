@@ -6,59 +6,58 @@ From GR.bicategories Require Import
      bicategory.bicategory
      bicategory.adjoint.
 
-Definition locally_univalent (C : BiCategory)
-  : Type
-  := forall (X Y : C), IsCategory (C⟦X,Y⟧).
+Class LocallyUnivalent (C : BiCategory)
+  := locally_univalent :> forall (X Y : C), IsCategory (C⟦X,Y⟧).
 
-Definition univalent_0 `{Funext} (C : BiCategory)
-  : Type
-  := forall (X Y : C), IsEquiv(id_to_adjequiv X Y).
+Global Instance ishprop_LocallyUnivalent `{Funext} (C : BiCategory)
+  : IsHProp (LocallyUnivalent C).
+Proof.
+  unfold LocallyUnivalent.
+  apply _.
+Defined.
 
-Definition univalent `{Funext} (C : BiCategory)
-  := (locally_univalent C * univalent_0 C)%type.
+Class Univalent_0 `{Funext} (C : BiCategory)
+  := univalent_0 :> forall (X Y : C), IsEquiv(id_to_adjequiv X Y).
+
+Global Instance ishprop_Univalent_0 `{Funext} (C : BiCategory)
+  : IsHProp (Univalent_0 C).
+Proof.
+  unfold Univalent_0.
+  apply _.
+Defined.
+
+Class Univalent `{Funext} (C : BiCategory)
+  := { Univalent_Univalent_0 :> Univalent_0 C;
+       Univalent_LocallyUnivalent :> LocallyUnivalent C }.
 
 Global Instance univalent_hprop `{Funext} (C : BiCategory)
-  : IsHProp (univalent C)
-  := _.
+  : IsHProp (Univalent C).
+Proof.
+  apply hprop_allpath.
+  intros x y.
+  destruct x as [x1 x2], y as [y1 y2].
+  assert (x1 = y1) as ->.
+  { apply path_ishprop. }
+  assert (x2 = y2) as ->.
+  { apply path_ishprop. }
+  reflexivity.
+Defined.
 
 Global Instance hom_locally_univalent_cat
        `{Univalence}
        {C : BiCategory}
-       (UC : locally_univalent C)
+       {UC : LocallyUnivalent C}
        (X Y : C)
-  : IsTrunc 1 (C⟦X,Y⟧).
-Proof.
-  unfold locally_univalent in UC.
-  apply _.
-Defined.
-
-Global Instance sigma_trunc
-       {X : Type}
-       (P : X -> Type)
-       (n : trunc_index)       
-       `{forall (x : X), IsTrunc (trunc_S n) (P x)}
-       `{IsTrunc (trunc_S n) X}
-  : IsTrunc (trunc_S n) {x : X & P x}
+  : IsTrunc 1 (C⟦X,Y⟧)
   := _.
 
 Global Instance obj_univalent_cat
        `{Univalence}
        (C : BiCategory)
-       (UC : univalent C)
+       `{Univalent C}
   : IsTrunc 2 C.
 Proof.
   intros X Y.
-  destruct UC as [LC UC].
-  specialize (UC X Y).
   rewrite (path_universe (id_to_adjequiv X Y)).
-  apply sigma_trunc.
-  - intros.
-    apply sigma_trunc.
-    + apply _.
-    + apply sigma_trunc.
-      * apply _.
-      * apply sigma_trunc.
-        ** apply _.
-        ** apply hom_locally_univalent_cat ; assumption.
-  - apply hom_locally_univalent_cat ; assumption.
+  apply _.
 Defined.

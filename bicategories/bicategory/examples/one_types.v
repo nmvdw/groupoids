@@ -110,14 +110,13 @@ Section OneTypesBiCategory.
   Definition one_types : BiCategory
     := Build_BiCategory one_types_d one_types_is_bicategory.
 
-  Definition one_types_locally_univalent
-    : locally_univalent one_types.
+  Global Instance locally_univalent_one_types
+    : LocallyUnivalent one_types.
   Proof.
     intro ; apply _.
   Qed.
 
   Definition one_types_is_21
-             `{Funext}
     : is_21 one_types.
   Proof.
     intros X Y f g p ; simpl in *.
