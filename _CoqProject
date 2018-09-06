@@ -11,6 +11,7 @@ bicategories/bicategory/bicategory_laws.v
 bicategories/bicategory/equivalence.v
 bicategories/bicategory/adjoint.v
 bicategories/bicategory/equiv_to_adjequiv.v
+bicategories/bicategory/adjoint_unique.v
 bicategories/bicategory/univalent.v
 bicategories/bicategory/examples/two_type.v
 bicategories/bicategory/examples/one_types.v
