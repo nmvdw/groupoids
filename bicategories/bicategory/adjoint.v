@@ -138,8 +138,8 @@ Definition adjunction_is_equivalence
            {l : C⟦X,Y⟧}
            (A : is_left_adjoint l)
   : Type
-  := IsIsomorphism (unit A)
-     * IsIsomorphism (counit A).
+  := isomorphism_2cell (unit A)
+     * isomorphism_2cell (counit A).
 
 Definition is_adjoint_equivalence
            {C : BiCategory}
@@ -162,8 +162,8 @@ Global Instance ishprop_adjunction_is_equivalence
        {X Y : C}
        {l : C⟦X,Y⟧}
        (A : is_left_adjoint l)
-  : IsHProp (adjunction_is_equivalence A)
-  := _.
+  : IsHProp (adjunction_is_equivalence A).
+Admitted.
 
 Definition adjoint_equivalence
            {C : BiCategory}
@@ -176,8 +176,8 @@ Definition Build_adjoint_equivalence
            {X Y : C}
            {l : C⟦X,Y⟧}
            (A : is_left_adjoint l)
-           (unit_iso : IsIsomorphism (unit A))
-           (counit_iso : IsIsomorphism (counit A))
+           (unit_iso : isomorphism_2cell (unit A))
+           (counit_iso : isomorphism_2cell (counit A))
   : adjoint_equivalence X Y
   := (l;(A;(unit_iso,counit_iso))).
 
@@ -200,7 +200,7 @@ Global Instance unit_isomorphism
        {C : BiCategory}
        {X Y : C}
        (l : X ≃ Y)
-  : IsIsomorphism (unit l).
+  : isomorphism_2cell (unit l).
 Proof.
   apply l.2.
 Defined.
@@ -209,7 +209,7 @@ Global Instance counit_isomorphism
        {C : BiCategory}
        {X Y : C}
        (l : X ≃ Y)
-  : IsIsomorphism (counit l).
+  : isomorphism_2cell (counit l).
 Proof.
   apply l.2.
 Defined.
@@ -219,14 +219,14 @@ Definition unit_inv
            {X Y : C}
            (l : X ≃ Y)
   : right_adjoint l · l ==> id₁ X
-  := (unit l)^-1.
+  := (unit l)^-1%bicategory.
 
 Definition counit_inv
            {C : BiCategory}
            {X Y : C}
            (l : X ≃ Y)
   : id₁ Y ==> l · right_adjoint l
-  := (counit l)^-1.
+  := (counit l)^-1%bicategory.
 
 Definition adjoint_equivalence_is_equivalence 
       {C : BiCategory}
@@ -326,24 +326,24 @@ Proof.
     pose (unit_counit_r l) as p.
     rewrite !vcomp_assoc in p.
     unfold bc_whisker_l, bc_whisker_r in p.
-    unfold vcomp, id₂ in *.
-    refine ((left_identity _ _ _ _)^ @ _).
-    refine (Morphisms.iso_moveR_pM _ _ _) ; simpl.
-    refine (p^ @ _).
-    rewrite left_identity.
-    rewrite !associativity.
+    refine (vcomp_move_R_pM _ _ _ _) ; simpl.
+    rewrite vcomp_left_identity.
+    rewrite <- (vcomp_left_identity (right_unit l)).
+    refine (vcomp_move_R_pM _ _ _ _) ; simpl.
+    rewrite !vcomp_assoc.
+    rewrite p.
     reflexivity.
   - cbn ; unfold bc_whisker_l, bc_whisker_r.        
     rewrite !vcomp_assoc.
     pose (unit_counit_l l) as p.
     rewrite !vcomp_assoc in p.
     unfold bc_whisker_l, bc_whisker_r in p.
-    unfold vcomp, id₂ in *.
-    refine ((left_identity _ _ _ _)^ @ _).
-    refine (Morphisms.iso_moveR_pM _ _ _) ; simpl.
-    refine (p^ @ _).
-    rewrite left_identity.
-    rewrite !associativity.
+    refine (vcomp_move_R_pM _ _ _ _) ; simpl.
+    rewrite vcomp_left_identity.
+    rewrite <- (vcomp_left_identity (left_unit (right_adjoint l))).
+    refine (vcomp_move_R_pM _ _ _ _) ; simpl.
+    rewrite !vcomp_assoc.
+    rewrite p.
     reflexivity.
 Qed.
 
@@ -372,240 +372,66 @@ Definition id_to_adjequiv
        | idpath => id_adjoint_equivalence X
        end.
 
-Definition transport_two_cell_FlFr
+Definition transport_one_cell_FlFr
            `{Funext}
            {C : BiCategory}
-           {X₁ X₂ Y₁ Y₂ : C}
            {A : Type}
            (f g : A -> C)
            {a₁ a₂ : A}
            (p : a₁ = a₂)
            (h : C⟦f a₁,g a₁⟧)
-  : (transport (fun (z : A) => C⟦f z,g z⟧)
-               p
-               h)
+  : transport (fun (z : A) => C⟦f z,g z⟧)
+              p
+              h
       ==>
       id_to_adjequiv _ _ (ap g p) · h · id_to_adjequiv _ _ (ap f p^)
   := match p with
      | idpath => right_unit_inv _ ∘ left_unit_inv _
      end.
 
-(* Separate file *)
-(*
-Definition right_adjoint_unique_fun
-      {C : BiCategory}
-      {X Y : C}
-      (l : C⟦X,Y⟧)
-      (L1 L2 : is_left_adjoint l)
-  : right_adjoint L1 ==> right_adjoint L2.
+Definition transport_vcomp₁_l
+           `{Funext}
+           {C : BiCategory}
+           {X Y Z : C}
+           (g : C⟦Y,Z⟧)
+           {f₁ f₂ : C⟦X,Y⟧}
+           (q : f₁ = f₂)
+  : g ◅ idtoiso (C⟦X,Y⟧) q = idtoiso _ (ap (hcomp1 g) q).
 Proof.
-  refine (_ ∘ left_unit_inv _).
-  refine (_ ∘ unit L2 ▻ _).
-  refine (_ ∘ assoc _ _ _).
-  refine (_ ∘ _ ◅ counit L1).
-  apply right_unit.
+  induction q ; cbn.
+  apply hcomp_id₂.
 Defined.
 
-Definition right_adjoint_unique
-      {C : BiCategory}
-      {X Y : C}
-      (l : C⟦X,Y⟧)
-      (L1 L2 : is_left_adjoint l)
-  : IsIsomorphism (right_adjoint_unique_fun l L1 L2).
-Proof.
-  simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-  - exact (right_adjoint_unique_fun l L2 L1).
-  - unfold right_adjoint_unique_fun.
-    pose @unit_counit_l.
-    admit.
-  - admit.
-Admitted.
-
-Global Instance ishprop_is_adjoint_equivalence
-       {C : BiCategory}
-       {X Y : C}
-       (l : C⟦X,Y⟧)
-  : IsHProp (is_adjoint_equivalence l).
-Proof.
-  apply hprop_allpath.
-  unfold is_adjoint_equivalence.
-  intros [[L1 ?] ?] [[L2 ?] ?].
-  apply path_sigma_hprop. simpl.
-  apply path_sigma_hprop. simpl.
-  admit.
-Admitted.
-
-
-
-Definition unique_right
+Definition transport_vcomp₁_r
+           `{Funext}
            {C : BiCategory}
-           {X Y : C}
-           {l : C⟦X,Y⟧}
-           (A₁ : adjoint_equivalence l)
-           (A₂ : adjoint_equivalence l)
-  : right_adjoint A₁ ==> right_adjoint A₂.
+           {X Y Z : C}
+           (g : C⟦X,Y⟧)
+           {f₁ f₂ : C⟦Y,Z⟧}
+           (q : f₁ = f₂)
+  : idtoiso (C⟦Y,Z⟧) q ▻ g = idtoiso _ (ap (fun (f : C⟦Y,Z⟧) => f · g) q).
 Proof.
-  refine (_ ∘ left_unit_inv (right_adjoint A₁)).
-  refine (_ ∘ (unit A₂) ▻ right_adjoint A₁).
-  refine (_ ∘ assoc _ _ _).
-  refine (_ ∘ right_adjoint A₂ ◅ (counit A₁)).
-  apply right_unit.
+  induction q ; cbn.
+  apply hcomp_id₂.
 Defined.
 
-Global Instance unique_right_iso
-       {C : BiCategory}
-       {X Y : C}
-       {l : C⟦X,Y⟧}
-       (A₁ : adjoint_equivalence l)
-       (A₂ : adjoint_equivalence l)
-  : IsIsomorphism (unique_right A₁ A₂).
+(** Put the inverse on the idtoiso instead of on the ap *)
+Definition transport_two_cell_FlFr
+           `{Funext}
+           {C : BiCategory}
+           {A : Type}
+           {X Y : C}
+           (F G : A -> C⟦X,Y⟧)
+           {a₁ a₂ : A}
+           (p : a₁ = a₂)
+           (α : F a₁ ==> G a₁)
+  : transport (fun (z : A) => F z ==> G z)
+              p
+              α
+    =
+    idtoiso (C⟦X,Y⟧) (ap G p) ∘ α ∘ (idtoiso (C⟦X,Y⟧) (ap F p))^-1.
 Proof.
-  simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-  - refine (_ ∘ left_unit_inv (right_adjoint A₂)).
-    refine (_ ∘ (unit A₁) ▻ right_adjoint A₂).
-    refine (_ ∘ assoc _ _ _).
-    refine (_ ∘ right_adjoint A₁ ◅ (counit A₂)).
-    apply right_unit.
-  - admit.
-  - unfold unique_right, vcomp, bc_whisker_l, bc_whisker_r ; cbn.
-    rewrite !associativity.
-    pose (unit_counit_l A₁).
-
-  - unfold unique_right, vcomp, bc_whisker_l, bc_whisker_r ; cbn.
-    rewrite !associativity.
-    pose (unit_counit_l A₁).
-    pose @triangle_r.
-    pose @left_unit_inv_natural.
-
-           
-Definition new_right
-           {C : BiCategory}
-           {X Y : C}
-           (h : C⟦X,Y⟧)
-           (Hh : is_equivalence h)
-  : C⟦Y,X⟧
-  := f_inv Hh.
-
-Definition new_counit
-           {C : BiCategory}
-           {X Y : C}
-           (h : C⟦X,Y⟧)
-           (Hh : is_equivalence h)
-  : h · new_right h Hh ==> id₁ Y
-  := @retr _ _ _ h Hh.
-
-Definition new_unit
-           {C : BiCategory}
-           {X Y : C}
-           (h : C⟦X,Y⟧)
-           (Hh : is_equivalence h)
-  : id₁ X ==> new_right h Hh · h.
-Proof.
-  refine (_ ∘ (@sect _ _ _ h Hh)^-1) ; unfold new_right ; cbn.
-  refine (right_unit _ ∘ _ ◅ @sect _ _ _ h Hh ∘ _).
-  refine (_ ∘ (right_unit_inv _) ▻ h).
-  refine (_ ∘ ((f_inv Hh ◅ (@retr _ _ _ h Hh)^-1) ▻ h)).
-  refine (assoc_inv _ _ _ ∘ _ ∘ assoc _ _ _).
-  refine (_ ◅ _).
-  apply assoc.
-Defined.
-
-Definition new_adj
-           {C : BiCategory}
-           {X Y : C}
-           (h : C⟦X,Y⟧)
-           (Hh : is_equivalence h)
-  : adjunction_d h.
-Proof.
-  make_adjunction.
-  - exact (new_right h Hh).
-  - exact (new_unit h Hh).
-  - exact (new_counit h Hh).
-Defined.
-
-Definition test
-           {C : BiCategory}
-           {X Y : C}
-           (h : C⟦X,Y⟧)
-           (Hh : is_equivalence h)
-  : is_adjunction (new_adj h Hh).
-Proof.
-  split.
-  - cbn ; unfold new_right, new_counit, new_unit, bc_whisker_l, bc_whisker_r.
-    rewrite <- !vcomp_assoc.
-    refine (vcomp_move_R_pM _ _ _ _).
-    rewrite vcomp_left_identity ; simpl.
-    rewrite !vcomp_assoc.
-    rewrite !(ap (fun z => _ ∘ (_ ∘ z)) (vcomp_assoc _ _ _)^).
-    rewrite <- inverse_pentagon_5.
-    rewrite !vcomp_assoc.
-    rewrite triangle_r_inv.
-    rewrite !vcomp_assoc.
-    rewrite !(ap (fun z => (_ ∘ (_ ∘ (_ ∘ (_ ∘ z)))) * id₂ _) (vcomp_assoc _ _ _)^).
-    rewrite <- assoc_inv_natural.
-    rewrite !vcomp_assoc.
-    rewrite !(ap (fun z => _ ∘ (_ ∘ (_ ∘ z)) * id₂ _) (vcomp_assoc _ _ _)^).
-    rewrite <- inverse_pentagon_2.
-    rewrite !vcomp_assoc.
-    rewrite right_unit_assoc.
-    rewrite !(ap (fun z => (_ ∘ z) * id₂ _) (vcomp_assoc _ _ _)^).
-    rewrite <- hcomp_id₂.
-    rewrite <- assoc_inv_natural.
-    rewrite !vcomp_assoc.
-    rewrite !(ap (fun z => (_ ∘ z) * id₂ _) (vcomp_assoc _ _ _)^).
-    rewrite assoc_left, vcomp_left_identity.
-    unfold bc_whisker_l.
-    rewrite <- (vcomp_left_identity (id₂ (f_inv Hh))), !interchange.
-    rewrite !vcomp_left_identity.
-    rewrite !vcomp_assoc.
-    rewrite !(ap (fun z => _ ∘ (_ ∘ z)) (vcomp_assoc _ _ _)^).
-    rewrite assoc_natural.
-    rewrite !vcomp_assoc.
-    rewrite <- (vcomp_left_identity (id₂ (f_inv Hh))), !interchange.
-    rewrite !vcomp_left_identity.
-    rewrite !(ap (fun z => _ ∘ (_ ∘ (_ ∘ z))) (vcomp_assoc _ _ _)^).
-    rewrite assoc_natural.
-    rewrite <- (vcomp_left_identity (id₂ (f_inv Hh))), !interchange.
-    rewrite !vcomp_left_identity.
-    rewrite !vcomp_assoc.
-    rewrite !(ap (fun z => _ ∘ (_ ∘ (_ ∘ (_ ∘ z)))) (vcomp_assoc _ _ _)^).
-    rewrite assoc_natural.
-    rewrite !vcomp_assoc.
-    rewrite <- (vcomp_left_identity (id₂ (f_inv Hh))), !interchange.
-    rewrite !vcomp_left_identity.
-    rewrite !(ap (fun z => _ ∘ (_ ∘ (_ ∘ (_ ∘ (_ ∘ z))))) (vcomp_assoc _ _ _)^).
-    rewrite assoc_natural.
-    rewrite !vcomp_assoc.
-    rewrite <- (vcomp_left_identity (id₂ (f_inv Hh))), !interchange.
-    rewrite !vcomp_left_identity.
-    rewrite !(ap (fun z => _ ∘ (_ ∘ (_ ∘ (_ ∘ (_ ∘ (_ ∘ z)))))) (vcomp_assoc _ _ _)^).
-    rewrite assoc_natural.
-    rewrite !vcomp_assoc.
-    rewrite !(ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
-    rewrite <- !interchange.
-    rewrite !vcomp_assoc, !vcomp_left_identity.
-    pose @left_unit_inv_natural.
-
-    pose @triangle_r_inv.
-
-    pose @right_unit_natural.
-    rewrite !vcomp_assoc, !vcomp_left_identity.
-    !vcomp_assoc.
-    pose @right_unit_natural.
-
-    pose @assoc_inv_natural.
-    pose @inverse_pentagon_2.
-        
-    pose @assoc_inv_natural.
-    pose @triangle_r_inv.
-    pose @right_unit_natural.
-    pose @triangle_l_inv.
-    pose @left_unit_inv_natural.
-    cbn.
-    admit.
-  - cbn ; unfold new_right, new_counit, new_unit, bc_whisker_l, bc_whisker_r.
-    rewrite <- !vcomp_assoc.
-    
-    rewrite right_unit_natural.
-    pose 
-*)
+  induction p ; cbn.
+  rewrite vcomp_left_identity, vcomp_right_identity.
+  reflexivity.
+Qed.

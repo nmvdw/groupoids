@@ -1,8 +1,10 @@
 Require Import HoTT.
+Require Import HoTT.Categories.Category.
 From GR.bicategories Require Import
      bicategory.bicategory_laws
      bicategory.adjoint
-     bicategory.equivalence.
+     bicategory.equivalence
+     bicategory.univalent.
 
 Definition banaan
            `{Funext}
@@ -50,7 +52,6 @@ Definition test
         ∘ left_unit_inv _
         ∘ η' ▻ g.
 Proof.
-  pose @banaan.
   rewrite !vcomp_assoc.
   rewrite !(ap (fun z => _ ∘ (_ ∘ z)) (vcomp_assoc _ _ _)^).
   rewrite <- banaan.
@@ -162,7 +163,7 @@ Section AdjointUniqueMapCompose.
     reflexivity.
   Qed.
     
-  Local Definition composition_of_maps : r₂_to_r₁ ∘ r₁_to_r₂ = composition_of_triangles.
+  Definition composition_of_maps : r₂_to_r₁ ∘ r₁_to_r₂ = composition_of_triangles.
   Proof.
     unfold r₁_to_r₂, r₂_to_r₁, composition_of_triangles.
     rewrite !vcomp_assoc.
@@ -262,13 +263,145 @@ Section UniquenessAdjoint.
   Local Notation r₂_to_r₁ := (adjoint_unique_map l A₂ A₁).
 
   Global Instance adjoint_unique_map_iso
-    : isomorphism_2cell r₁_to_r₂.
+    : IsIsomorphism r₁_to_r₂.
   Proof.
-    simple refine (Build_isomorphism_2cell _ _ _).
+    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
     - exact r₂_to_r₁.
-    - rewrite composition_of_maps.
-      apply composition_of_triangles_is_identity.
-    - rewrite composition_of_maps.
-      apply composition_of_triangles_is_identity.
+    - pose @composition_of_maps as p.
+      pose @composition_of_triangles_is_identity as q.
+      unfold vcomp in *.
+      rewrite p, q.
+      reflexivity.
+    - pose @composition_of_maps as p.
+      pose @composition_of_triangles_is_identity as q.
+      unfold vcomp in *.
+      rewrite p, q.
+      reflexivity.
+  Defined.
+
+  Definition remove_η₂
+    : r₂ ◅ (left_unit l ∘ ε₁ ▻ l ∘ assoc_inv l r₁ l ∘ l ◅ η₁)
+         ∘ assoc r₂ l (id₁ X)
+         ∘ right_unit_inv (r₂ · l)
+         ∘ η₂
+      = η₂.
+  Proof.
+    refine (_ @ vcomp_left_identity _).
+    f_ap.
+    rewrite <- hcomp_id₂.
+    rewrite <- (unit_counit_r A₁).
+    pose @bc_whisker_l_compose as p.
+    unfold bc_whisker_l in *.
+    rewrite !p.
+    rewrite !vcomp_assoc.
+    repeat f_ap.
+    rewrite right_unit_inv_assoc.
+    rewrite <- !vcomp_assoc.
+    rewrite assoc_left, vcomp_left_identity.
+    reflexivity.
+  Qed.
+
+  Definition help_triangle_η
+    : (η₂ ▻ r₁) ▻ l ∘ (left_unit_inv r₁ ▻ l ∘ η₁)
+      =
+      (assoc_inv (r₂ · l) r₁ l)
+        ∘ assoc_inv r₂ l (r₁ · l)
+        ∘ r₂ ◅ (l ◅ η₁)
+        ∘ assoc r₂ l (id₁ X)
+        ∘ right_unit_inv (r₂ · l) ∘ η₂.
+  Proof.
+    rewrite !vcomp_assoc.
+    rewrite !(ap (fun z => _ ∘ (_ ∘ z)) (vcomp_assoc _ _ _)^).
+    rewrite <- assoc_natural.
+    rewrite !vcomp_assoc.
+    rewrite !(ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
+    rewrite assoc_right, vcomp_left_identity.
+    rewrite !vcomp_assoc.
+    refine (vcomp_move_L_Mp _ _ _ _) ; simpl.
+    rewrite right_unit_inv_natural.
+    rewrite <- !vcomp_assoc.
+    rewrite <- interchange, vcomp_right_identity, hcomp_id₂, vcomp_left_identity.
+    rewrite assoc_natural, hcomp_id₂.
+    rewrite right_unit_V_id_is_left_unit_V_id.
+    rewrite !vcomp_assoc.
+    rewrite !(ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
+    rewrite <- left_unit_inv_assoc₂.
+    rewrite left_unit_inv_natural.
+    rewrite <- !vcomp_assoc.
+    f_ap.
+    rewrite <- interchange.
+    rewrite !vcomp_left_identity, vcomp_right_identity.
+    reflexivity.
+  Qed.
+
+  Definition transport_unit
+    : r₁_to_r₂ ▻ l ∘ η₁ = η₂.
+  Proof.
+    rewrite <- remove_η₂.
+    unfold r₁_to_r₂.
+    rewrite !bc_whisker_r_compose.
+    rewrite !vcomp_assoc.
+    rewrite help_triangle_η.
+    rewrite right_unit_inv_assoc.
+    rewrite !vcomp_assoc.
+    rewrite !(ap (fun z => _ ∘ (_ ∘ (_ ∘ (_ ∘ (_ ∘ (_ ∘ z)))))) (vcomp_assoc _ _ _)^).
+    rewrite assoc_left, vcomp_left_identity.
+    rewrite !(ap (fun z => _ ∘ (_ ∘ (_ ∘ (_ ∘ (_ ∘ z))))) (vcomp_assoc _ _ _)^).
+    rewrite <- bc_whisker_l_compose.
+    rewrite <- !vcomp_assoc.
+    rewrite !bc_whisker_l_compose.
+    repeat f_ap.
+    rewrite <- !vcomp_assoc.
+    f_ap.
+    rewrite !vcomp_assoc.
+    rewrite assoc_left, vcomp_right_identity.
+    rewrite <- !vcomp_assoc.
+    f_ap.
+    rewrite !vcomp_assoc.
+    rewrite inverse_pentagon.
+    rewrite <- !vcomp_assoc.
+    f_ap.
+    rewrite !vcomp_assoc.
+    rewrite !(ap (fun z => _ ∘ (_ ∘ z)) (vcomp_assoc _ _ _)^).
+    rewrite <- !bc_whisker_r_compose.
+    rewrite assoc_left.
+    unfold bc_whisker_r.
+    rewrite hcomp_id₂, vcomp_left_identity.
+    rewrite <- assoc_inv_natural.
+    rewrite <- !vcomp_assoc.
+    f_ap.
+    apply triangle_l.
+  Qed.
+
+  Definition transport_counit
+    : ε₂ ∘ l ◅ r₁_to_r₂ = ε₁.
+  Proof.
+    unfold r₁_to_r₂.
+  Admitted.
+
+  Definition unique_adjoint
+             `{Univalent C}
+    : A₁ = A₂.
+  Proof.
+    simple refine (path_sigma_hprop _ _ _).
+    simple refine (path_sigma _ _ _ _ _) ; simpl.
+    - refine (isotoid _ _ _ _).
+      refine (@Build_Isomorphic _ _ _ r₁_to_r₂ _).
+    - rewrite transport_prod ; simpl.
+      apply path_prod'.
+      + rewrite transport_two_cell_FlFr.
+        rewrite ap_const ; simpl.
+        rewrite <- transport_vcomp₁_r ; simpl.
+        rewrite !vcomp_right_identity.
+        rewrite eisretr ; cbn.
+        apply transport_unit.
+      + rewrite transport_two_cell_FlFr.
+        rewrite ap_const.
+        rewrite !vcomp_left_identity.
+        refine (vcomp_move_R_pM _ _ _ _) ; simpl.
+        rewrite <- transport_vcomp₁_l.
+        rewrite eisretr ; cbn.
+        symmetry.
+        apply transport_counit.
   Defined.
 End UniquenessAdjoint.
