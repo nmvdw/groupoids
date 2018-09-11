@@ -11,7 +11,7 @@ Definition representable_faithful
            (η : id₁ X ==> g · f)
            (k₁ k₂ : C⟦Z,X⟧)
            (α β : k₁ ==> k₂)
-           `{isomorphism_2cell _ _ _ _ _ η}
+           `{IsIsomorphism _ _ _ η}
   : f ◅ α = f ◅ β -> α = β.
 Proof.
   intros Hαβ.
@@ -27,7 +27,7 @@ Definition representable_full
            {f : C⟦X,Y⟧} {g : C⟦Y,X⟧}
            (η : id₁ X ==> g · f)
            (θ : f · g ==> id₁ Y)
-           `{isomorphism_2cell _ _ _ _ _ η}
+           `{IsIsomorphism _ _ _ η}
            (k₁ k₂ : C⟦Z,X⟧)
            (α : f · k₁ ==> f · k₂)
   : k₁ ==> k₂.
@@ -47,8 +47,8 @@ Definition full_spec
            {f : C⟦X,Y⟧} {g : C⟦Y,X⟧}
            (η : id₁ X ==> g · f)
            (θ : f · g ==> id₁ Y)
-           `{isomorphism_2cell _ _ _ _ _ η}
-           `{isomorphism_2cell _ _ _ _ _ θ}
+           `{IsIsomorphism _ _ _ η}
+           `{IsIsomorphism _ _ _ θ}
            (k₁ k₂ : C⟦Z,X⟧)
            (α : f · k₁ ==> f · k₂)
   : f ◅ (representable_full η θ k₁ k₂ α) = α.

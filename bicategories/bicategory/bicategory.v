@@ -588,13 +588,94 @@ Proof.
   apply assoc_right.
 Qed.
 
+Definition Build_IsIsomorphism_2cell
+           {C : BiCategory}
+           {X Y : C}
+           {f g : C⟦X,Y⟧}
+           {α : f ==> g}
+           (α_inv : g ==> f)
+           (sect : α_inv ∘ α = id₂ f)
+           (retr : α ∘ α_inv = id₂ g)
+  : IsIsomorphism α.
+Proof.
+  simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+  - exact α_inv.
+  - exact sect.
+  - exact retr.
+Defined.
+
+(** * Two-cells that are isomorphisms *)
+(** Inverse of a two-cell *)
+Definition twoinverse
+           {C : BiCategory}
+           {X Y : C}
+           {f g : C⟦X,Y⟧}
+           (η : f ==> g)
+           `{IsIsomorphism _ _ _ η}
+  : g ==> f
+  := morphism_inverse η.
+(** We add this notion insted of using the notation for
+    `morphism_inverse` because `morphism_inverse` is a projection out
+    of the IsIsomorphism typeclass, which is often implicit, leading
+    to goals containing term "_ ^-1". E.g. `Check left_inverse.` *)
+Notation "η ^-1" := (twoinverse η) : bicategory_scope.
+
+Definition vcomp_left_inverse
+           {C : BiCategory}
+           {X Y : C}
+           {f g : C⟦X,Y⟧}
+           (η : f ==> g)
+           `{IsIsomorphism _ _ _ η}
+  : η^-1 ∘ η = id₂ f.
+Proof.
+  apply left_inverse.
+Defined.
+
+Definition vcomp_right_inverse
+           {C : BiCategory}
+           {X Y : C}
+           {f g : C⟦X,Y⟧}
+           (η : f ==> g)
+           `{IsIsomorphism _ _ _ η}
+  : η ∘ η^-1 = id₂ g.
+Proof.
+  apply right_inverse.
+Defined.
+
+Instance iso_id₂
+         {C : BiCategory}
+         {X Y : C}
+         (f : C⟦X,Y⟧)
+  : IsIsomorphism (id₂ f)
+  := _.
+
+Instance iso_inverse
+         {C : BiCategory}
+         {X Y : C}
+         {f g : C⟦X,Y⟧}
+         (α : f ==> g)
+         `{IsIsomorphism _ _ _ α}
+  : IsIsomorphism α^-1
+  := _.
+
+Instance iso_vcomp
+         {C : BiCategory}
+         {X Y : C}
+         {f g h : C⟦X,Y⟧}
+         (α : f ==> g)
+         (β : g ==> h)
+         `{IsIsomorphism _ _ _ α}
+         `{IsIsomorphism _ _ _ β}
+  : IsIsomorphism (β ∘ α)
+  := _.
+ 
 Instance left_unit_iso
          {C : BiCategory}
          {X Y : C}
          (f : C⟦X,Y⟧)
   : IsIsomorphism (left_unit f).
 Proof.
-  simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+  simple refine (Build_IsIsomorphism_2cell _ _ _).
   - exact (left_unit_inv f).
   - apply left_unit_right.
   - apply left_unit_left.
@@ -606,7 +687,7 @@ Instance left_unit_inv_iso
          (f : C⟦X,Y⟧)
   : IsIsomorphism (left_unit_inv f).
 Proof.
-  simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+  simple refine (Build_IsIsomorphism_2cell _ _ _).
   - exact (left_unit f).
   - apply left_unit_left.
   - apply left_unit_right.
@@ -634,7 +715,7 @@ Instance right_unit_iso
          (f : C⟦X,Y⟧)
   : IsIsomorphism (right_unit f).
 Proof.
-  simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+  simple refine (Build_IsIsomorphism_2cell _ _ _).
   - exact (right_unit_inv f).
   - apply right_unit_right.
   - apply right_unit_left.
@@ -646,7 +727,7 @@ Instance right_unit_inv_iso
          (f : C⟦X,Y⟧)
   : IsIsomorphism (right_unit_inv f).
 Proof.
-  simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+  simple refine (Build_IsIsomorphism_2cell _ _ _).
   - exact (right_unit f).
   - apply right_unit_left.
   - apply right_unit_right.
@@ -674,7 +755,7 @@ Instance assoc_iso
          (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
   : IsIsomorphism (assoc h g f).
 Proof.
-  simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+  simple refine (Build_IsIsomorphism_2cell _ _ _).
   - exact (assoc_inv h g f).
   - apply assoc_right.
   - apply assoc_left.
@@ -686,7 +767,7 @@ Instance assoc_inv_iso
          (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
   : IsIsomorphism (assoc_inv h g f).
 Proof.
-  simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+  simple refine (Build_IsIsomorphism_2cell _ _ _).
   - exact (assoc h g f).
   - apply assoc_left.
   - apply assoc_right.
@@ -733,11 +814,18 @@ Global Instance hcomp_iso
        {X Y Z : C}
        {f₁ g₁ : C⟦Y,Z⟧} {f₂ g₂ : C⟦X,Y⟧}
        (η₁ : f₁ ==> g₁) (η₂ : f₂ ==> g₂)
-       `{IsIsomorphism _ _ _ η₁} `{IsIsomorphism _ _ _ η₂}
+       `{IsIsomorphism _ _ _ η₁}
+       `{IsIsomorphism _ _ _ η₂}
   : IsIsomorphism (η₁ * η₂).
 Proof.
-  apply (@Morphisms.iso_functor _ _ (hcomp X Y Z) (f₁,f₂) (g₁,g₂) (η₁,η₂)).
-  apply iso_pair ; assumption.
+  simple refine (Build_IsIsomorphism_2cell _ _ _).
+  - exact (η₁^-1 * η₂^-1).
+  - rewrite <- interchange.
+    rewrite !vcomp_left_inverse.
+    apply hcomp_id₂.
+  - rewrite <- interchange.
+    rewrite !vcomp_right_inverse.
+    apply hcomp_id₂.
 Defined.
 
 Definition bc_whisker_l
@@ -778,22 +866,6 @@ Definition bc_whisker_r_id₂
   : (id₂ g) ▻ f = id₂ (g · f)
   := hcomp_id₂ g f.
 
-(** * Two-cells that are isomorphisms *)
-(** Inverse of a two-cell *)
-Definition twoinverse
-           {C : BiCategory}
-           {X Y : C}
-           {f g : C⟦X,Y⟧}
-           (η : f ==> g)
-           `{IsIsomorphism _ _ _ η}
-  : g ==> f
-  := morphism_inverse η.
-(** We add this notion insted of using the notation for
-    `morphism_inverse` because `morphism_inverse` is a projection out
-    of the IsIsomorphism typeclass, which is often implicit, leading
-    to goals containing term "_ ^-1". E.g. `Check left_inverse.` *)
-Notation "η ^-1" := (twoinverse η) : bicategory_scope.
-
 Definition inverse_of_assoc
            {C : BiCategory}
            {W X Y Z : C}
@@ -828,38 +900,18 @@ Definition vcomp_inverse
            {X Y : C}
            {f g h : C⟦X,Y⟧}
            (η₁ : f ==> g) (η₂ : g ==> h)
-           `{IsIsomorphism _ _ _ η₁} `{IsIsomorphism _ _ _ η₂}
+           `{IsIsomorphism _ _ _ η₁}
+           `{IsIsomorphism _ _ _ η₂}
   : (η₂ ∘ η₁)^-1 = η₁^-1 ∘ η₂^-1
   := idpath.
-
-Definition vcomp_left_inverse
-           {C : BiCategory}
-           {X Y : C}
-           {f g : C⟦X,Y⟧}
-           (η : f ==> g)
-           `{IsIsomorphism _ _ _ η}
-  : η^-1 ∘ η = id₂ f.
-Proof.
-  apply left_inverse.
-Defined.
-
-Definition vcomp_right_inverse
-           {C : BiCategory}
-           {X Y : C}
-           {f g : C⟦X,Y⟧}
-           (η : f ==> g)
-           `{IsIsomorphism _ _ _ η}
-  : η ∘ η^-1 = id₂ g.
-Proof.
-  apply right_inverse.
-Defined.
 
 Definition hcomp_inverse
            {C : BiCategory}
            {X Y Z : C}
            {f₁ g₁ : C⟦Y,Z⟧} {f₂ g₂ : C⟦X,Y⟧}
            (η₁ : f₁ ==> g₁) (η₂ : f₂ ==> g₂)
-           `{IsIsomorphism _ _ _ η₁} `{IsIsomorphism _ _ _ η₂}
+           `{IsIsomorphism _ _ _ η₁}
+           `{IsIsomorphism _ _ _ η₂}
   : (η₁ * η₂)^-1 = η₁^-1 * η₂^-1
   := idpath.
 
@@ -997,11 +1049,18 @@ Definition path_inverse_2cell
            {X Y : C}
            {f g : C⟦X,Y⟧}
            (η₁ η₂ : f ==> g)
-           `{IsIsomorphism _ _ _ η₁}
-           `{IsIsomorphism _ _ _ η₂}
+           {Hη₁ : IsIsomorphism η₁}
+           {Hη₂ : IsIsomorphism η₂}
   : η₁ = η₂ -> η₁^-1 = η₂^-1.
 Proof.
-  apply path_inverse.
+  intros p.
+  rewrite <- (vcomp_right_identity (η₁^-1)%bicategory).
+  rewrite <- (vcomp_left_identity (η₂^-1)%bicategory).
+  rewrite <- (vcomp_right_inverse η₂).
+  rewrite <- vcomp_assoc.
+  f_ap.
+  rewrite <- p.
+  apply vcomp_left_inverse.
 Defined.
 
 Definition is_21 `{Funext} (C : BiCategory)

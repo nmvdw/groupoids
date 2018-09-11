@@ -138,8 +138,8 @@ Definition adjunction_is_equivalence
            {l : C⟦X,Y⟧}
            (A : is_left_adjoint l)
   : Type
-  := isomorphism_2cell (unit A)
-     * isomorphism_2cell (counit A).
+  := IsIsomorphism (unit A)
+     * IsIsomorphism (counit A).
 
 Definition is_adjoint_equivalence
            {C : BiCategory}
@@ -162,8 +162,8 @@ Global Instance ishprop_adjunction_is_equivalence
        {X Y : C}
        {l : C⟦X,Y⟧}
        (A : is_left_adjoint l)
-  : IsHProp (adjunction_is_equivalence A).
-Admitted.
+  : IsHProp (adjunction_is_equivalence A)
+  := _.
 
 Definition adjoint_equivalence
            {C : BiCategory}
@@ -176,8 +176,8 @@ Definition Build_adjoint_equivalence
            {X Y : C}
            {l : C⟦X,Y⟧}
            (A : is_left_adjoint l)
-           (unit_iso : isomorphism_2cell (unit A))
-           (counit_iso : isomorphism_2cell (counit A))
+           (unit_iso : IsIsomorphism (unit A))
+           (counit_iso : IsIsomorphism (counit A))
   : adjoint_equivalence X Y
   := (l;(A;(unit_iso,counit_iso))).
 
@@ -200,7 +200,7 @@ Global Instance unit_isomorphism
        {C : BiCategory}
        {X Y : C}
        (l : X ≃ Y)
-  : isomorphism_2cell (unit l).
+  : IsIsomorphism (unit l).
 Proof.
   apply l.2.
 Defined.
@@ -209,7 +209,7 @@ Global Instance counit_isomorphism
        {C : BiCategory}
        {X Y : C}
        (l : X ≃ Y)
-  : isomorphism_2cell (counit l).
+  : IsIsomorphism (counit l).
 Proof.
   apply l.2.
 Defined.
@@ -415,7 +415,6 @@ Proof.
   apply hcomp_id₂.
 Defined.
 
-(** Put the inverse on the idtoiso instead of on the ap *)
 Definition transport_two_cell_FlFr
            `{Funext}
            {C : BiCategory}

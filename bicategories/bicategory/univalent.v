@@ -61,7 +61,7 @@ Proof.
   rewrite (path_universe (id_to_adjequiv X Y)).
   apply _.
 Defined.
-(*
+
 Definition strict_left_unit
            `{Univalence}
            {C : BiCategory}
@@ -97,4 +97,3 @@ Proof.
   apply (isotoid (C⟦W,Z⟧) _ _).
   exact {| morphism_isomorphic := assoc h g f |}.
 Defined.
-*)

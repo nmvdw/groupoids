@@ -373,14 +373,92 @@ Section UniquenessAdjoint.
     apply triangle_l.
   Qed.
 
+  Definition help_triangle_ε
+    : ε₂ ∘ l ◅ (right_unit r₂ ∘ r₂ ◅ ε₁)
+      = ε₁ ∘ left_unit (l · r₁)
+           ∘ assoc _ _ _
+           ∘ ε₂ ▻ l ▻ r₁
+           ∘ assoc_inv _ _ _ ∘ assoc_inv _ _ _.
+  Proof.
+    rewrite !vcomp_assoc.
+    rewrite !(ap (fun z => _ ∘ (_ ∘ z)) (vcomp_assoc _ _ _)^).
+    rewrite assoc_natural.
+    rewrite !vcomp_assoc.
+    rewrite !(ap (fun z => _ ∘ (_ ∘ (_ ∘ z))) (vcomp_assoc _ _ _)^).
+    rewrite assoc_left, vcomp_left_identity.
+    rewrite <- !vcomp_assoc.
+    refine (vcomp_move_L_pM _ _ _ _) ; simpl.
+    rewrite <- left_unit_natural.
+    rewrite !vcomp_assoc.
+    rewrite hcomp_id₂.
+    rewrite <- interchange.
+    rewrite !vcomp_left_identity, vcomp_right_identity.
+    rewrite bc_whisker_l_compose.
+    rewrite !vcomp_assoc.
+    rewrite <- assoc_natural.
+    rewrite !(ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
+    rewrite <- right_unit_assoc.
+    rewrite <- !vcomp_assoc.
+    rewrite <- right_unit_natural.
+    rewrite !vcomp_assoc.
+    rewrite <- interchange.
+    rewrite hcomp_id₂, !vcomp_left_identity, vcomp_right_identity.
+    rewrite right_unit_id_is_left_unit_id.
+    reflexivity.
+  Qed.
+
+  Definition remove_ε₁
+    : ε₁ ∘ left_unit (l · r₁)
+         ∘ assoc (id₁ Y) l r₁
+         ∘ (ε₂ ▻ l ∘ assoc_inv l r₂ l ∘ l ◅ η₂ ∘ right_unit_inv l) ▻ r₁
+      = ε₁.
+  Proof.
+    rewrite !vcomp_assoc.
+    rewrite !(ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
+    rewrite <- left_unit_assoc.
+    rewrite !vcomp_assoc.
+    rewrite <- bc_whisker_r_compose.
+    refine (_ @ vcomp_right_identity _).
+    f_ap.
+    rewrite <- !vcomp_assoc.
+    rewrite unit_counit_r.
+    apply hcomp_id₂.
+  Qed.
+
   Definition transport_counit
     : ε₂ ∘ l ◅ r₁_to_r₂ = ε₁.
   Proof.
+    rewrite <- remove_ε₁.
     unfold r₁_to_r₂.
-  Admitted.
+    do 3 rewrite bc_whisker_l_compose.
+    rewrite <- !vcomp_assoc.
+    rewrite help_triangle_ε.
+    rewrite !vcomp_assoc.
+    rewrite !bc_whisker_r_compose.
+    repeat f_ap.
+    refine (vcomp_move_L_Mp _ _ _ _) ; simpl.
+    rewrite (ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
+    rewrite inverse_pentagon.
+    rewrite <- !vcomp_assoc.
+    rewrite <- !bc_whisker_r_compose.
+    unfold bc_whisker_l, bc_whisker_r.
+    rewrite assoc_left, hcomp_id₂, vcomp_left_identity.
+    rewrite !vcomp_assoc.
+    rewrite (ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
+    rewrite <- bc_whisker_l_compose.
+    unfold bc_whisker_l, bc_whisker_r.
+    rewrite assoc_right, hcomp_id₂, vcomp_left_identity.
+    rewrite <- !vcomp_assoc.
+    rewrite assoc_inv_natural.
+    rewrite !vcomp_assoc.
+    rewrite <- (vcomp_left_identity (id₂ r₁)).
+    rewrite interchange, vcomp_left_identity.
+    rewrite triangle_r_inv.
+    reflexivity.
+  Qed.
 
   Definition unique_adjoint
-             `{Univalent C}
+             `{LocallyUnivalent C}
     : A₁ = A₂.
   Proof.
     simple refine (path_sigma_hprop _ _ _).
@@ -405,3 +483,41 @@ Section UniquenessAdjoint.
         apply transport_counit.
   Defined.
 End UniquenessAdjoint.
+
+Global Instance ishprop_is_left_adjoint
+       `{Funext}
+       {C : BiCategory}
+       `{LocallyUnivalent C}
+       {X Y : C}
+       (l : C⟦X,Y⟧)
+  : IsHProp (is_left_adjoint l).
+Proof.
+  apply hprop_allpath.
+  intros.
+  apply unique_adjoint.
+  assumption.
+Defined.
+
+Global Instance ishprop_is_adjoint_equivalence
+       `{Funext}
+       {C : BiCategory}
+       `{LocallyUnivalent C}
+       {X Y : C}
+       (l : C⟦X,Y⟧)
+  : IsHProp (is_adjoint_equivalence l).
+Proof.
+  apply hprop_allpath.
+  intros.
+  apply path_sigma_hprop.
+  apply ishprop_is_left_adjoint.
+Defined.
+
+Definition path_adjoint_equivalence
+           `{Funext}
+           {C : BiCategory}
+           `{LocallyUnivalent C}
+           {X Y : C}
+           {l₁ l₂ : X ≃ Y}
+           (Hp : adjoint_equivalence_map l₁ = adjoint_equivalence_map l₂)
+  : l₁ = l₂
+  := path_sigma_hprop _ _ Hp.

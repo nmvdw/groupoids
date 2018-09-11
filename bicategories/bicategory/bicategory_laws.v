@@ -189,7 +189,6 @@ Section laws.
     reflexivity.
   Qed.
 
-
   Definition whisker_l_id₁
              {X Y : C}
              (f g : C⟦X,Y⟧)
@@ -499,77 +498,3 @@ Section laws.
     reflexivity.
   Qed.
 End laws.
-
-(* Being an adjoint equivalence is an hProp blah
-
-  Definition banaan
-             `{Funext}
-             {X Y : C}
-             (f : C⟦X,Y⟧) (g g' : C⟦Y,X⟧)
-             (η : id₁ X ==> g · f)
-             (η' : id₁ X ==> g' · f)
-    : ((g · f) ◅ (η' ▻ g ∘ left_unit_inv _))
-        ∘ η ▻ g
-      = (η ▻ (g' · f · g) ∘ left_unit_inv _)
-          ∘ η' ▻ g.
-  Proof.
-    rewrite bc_whisker_l_compose.
-    unfold bc_whisker_l, bc_whisker_r.
-    rewrite !vcomp_assoc.
-    rewrite left_unit_inv_natural.
-    rewrite <- !vcomp_assoc.
-    rewrite <- !interchange.
-    rewrite !vcomp_right_identity, !vcomp_left_identity.
-    rewrite <- (vcomp_right_identity η).
-    rewrite interchange.
-    rewrite vcomp_right_identity.
-    f_ap.
-    rewrite left_unit_inv_assoc₂.
-    rewrite <- triangle_l_inv.
-    rewrite <- right_unit_V_id_is_left_unit_V_id.
-    reflexivity.
-  Qed.
-
-  Definition test
-             `{Funext}
-             {X Y : C}
-             (f : C⟦X,Y⟧) (g g' : C⟦Y,X⟧)
-             (η : id₁ X ==> g · f)
-             (η' : id₁ X ==> g' · f)
-    : g ◅ ((f ◅ η') ▻ g)
-        ∘ g ◅ (right_unit_inv f ▻ g)
-        ∘ assoc _ _ _
-        ∘ η ▻ g
-      = g ◅ (assoc_inv _ _ _)
-          ∘ assoc _ _ _
-          ∘ η ▻ (g' · f · g)
-          ∘ left_unit_inv _
-          ∘ η' ▻ g.
-  Proof.
-    pose @banaan.
-    rewrite !vcomp_assoc.
-    rewrite !(ap (fun z => _ ∘ (_ ∘ z)) (vcomp_assoc _ _ _)^).
-    rewrite <- banaan.
-    rewrite <- !vcomp_assoc.
-    f_ap.
-    rewrite bc_whisker_l_compose.
-    unfold bc_whisker_l, bc_whisker_r.
-    rewrite !vcomp_assoc.
-    rewrite !(ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
-    rewrite <- hcomp_id₂.
-    rewrite assoc_natural.
-    rewrite !vcomp_assoc.
-    rewrite assoc_natural.
-    rewrite <- !vcomp_assoc.
-    f_ap.
-    rewrite <- !interchange.
-    rewrite !vcomp_right_identity.
-    rewrite assoc_inv_natural.
-    rewrite !vcomp_assoc.
-    rewrite <- (vcomp_left_identity (id₂ g)).
-    rewrite !interchange.
-    rewrite triangle_r_inv.
-    rewrite vcomp_left_identity.
-    reflexivity.
-  Qed.
-*)

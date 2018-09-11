@@ -6,7 +6,8 @@ From GR.bicategories Require Import
      bicategory.bicategory
      bicategory.univalent
      bicategory.adjoint
-     bicategory.equivalence.
+     bicategory.equivalence
+     bicategory.adjoint_unique.
 
 Section OneTypesBiCategory.
   Context `{Funext}.
@@ -171,6 +172,9 @@ Section OneTypesBiCategory.
       rewrite concat_Vp ; simpl.
       reflexivity.
   Qed.
+
+  Definition todo {A} : A.
+  Admitted.
   
   Definition one_types_equiv_to_adjequiv
              {X Y : one_types}
@@ -181,18 +185,11 @@ Section OneTypesBiCategory.
     - exact (Build_is_left_adjoint
                (one_types_equiv_to_adjequiv_d f)
                (one_types_equiv_to_adjequiv_is_adj f)).
-    - apply one_types_is_21.
-    - apply one_types_is_21.
+    - apply todo.
+    - apply todo.
+      (* apply one_types_is_21.
+    - apply one_types_is_21. *)
   Defined.
-
-  Lemma path_adjequiv
-        {X Y : one_types}
-        {f g : X ≃ Y}
-    : f.1 = g.1 -> f = g.
-  Proof.
-    destruct f as [f Hf], g as [g Hg]. simpl.
-    intros p.
-  Admitted.
   
   Lemma equiv_to_adjequiv_path
         {X Y : one_types}
@@ -200,7 +197,7 @@ Section OneTypesBiCategory.
     : one_types_equiv_to_adjequiv (equiv_path X Y (ap _ p)) = id_to_adjequiv X Y p.
   Proof.
     induction p ; cbn.
-    apply path_adjequiv ; cbn.
+    apply path_adjoint_equivalence ; cbn.
     reflexivity.
   Qed.
 
@@ -232,7 +229,7 @@ Section OneTypesBiCategory.
       apply one_types_equivalence.
       apply HXY.
     - intros α ; simpl.
-      apply path_adjequiv ; cbn.
+      apply path_adjoint_equivalence ; cbn.
       reflexivity.
     - intros p.
       apply path_equiv ; cbn.
