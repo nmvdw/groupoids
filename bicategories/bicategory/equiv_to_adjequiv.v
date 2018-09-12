@@ -228,7 +228,7 @@ Section EquivToAdjEquiv.
       =
       f ◅ η ∘ right_unit_inv f.
   Proof.
-    refine (representable_faithful _ _ _ _ _ help2).
+    unshelve refine (representable_faithful _ _ _ _ _ help2).
     apply (equivalence_inv (Build_Equivalence f Hf)).
   Qed.
 
@@ -252,7 +252,7 @@ Section EquivToAdjEquiv.
 
   Definition equiv_to_adjequiv_left_adj : is_left_adjoint f
     := Build_is_left_adjoint equiv_to_adjequiv_d equiv_to_adjequiv_isadj.
-  
+
   Definition equiv_to_adjequiv
     : X ≃ Y
     := Build_adjoint_equivalence equiv_to_adjequiv_left_adj _ _.
