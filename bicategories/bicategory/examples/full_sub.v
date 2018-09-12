@@ -1,8 +1,11 @@
 Require Import HoTT.
 From HoTT.Categories Require Import
-     Category Functor NaturalTransformation FunctorCategory.
+     Category Functor NaturalTransformation.
 From GR Require Import
-     bicategory.bicategory bicategory.univalent.
+     bicategory.bicategory
+     bicategory.univalent
+     bicategory.adjoint
+     bicategory.adjoint_unique.
 
 Section FullSub.
   Variable (C : BiCategory)
@@ -36,10 +39,62 @@ Section FullSub.
          full_sub_d_is_bicategory.
 
   Global Instance locally_univalent_full_sub
-             {HC : LocallyUnivalent C}
+         `{Univalence}
+         {HC : Univalent C}
     : LocallyUnivalent full_sub.
   Proof.
     intros X Y.
     apply HC.
+  Defined.
+
+  Lemma id_to_adjequiv_full_sub
+        `{Univalence}
+         {HC : Univalent C} 
+        {X Y : full_sub}
+        (p : X = Y)
+    : id_to_adjequiv X Y (path_sigma_hprop X Y p..1)
+      =
+      id_to_adjequiv X.1 Y.1 p..1.
+  Proof.
+    induction p ; cbn.
+    rewrite path_sigma_hprop_1.
+    apply path_adjoint_equivalence.
+    reflexivity.
+  Qed.
+
+  Global Instance univalent_0_full_sub
+         `{Univalence}
+         {HC : Univalent C}
+    : Univalent_0 full_sub.
+  Proof.
+    intros X Y.
+    simple refine (isequiv_adjointify _ _ _ _) ; cbn.
+    - exact (fun e => path_sigma_hprop _ _ (adjequiv_to_id X.1 Y.1 e)).
+    - intros e.
+      apply path_adjoint_equivalence ; f_ap.
+      refine (_ @ @eisretr _ _ (id_to_adjequiv X.1 Y.1) _ e).
+      refine (_ @ (id_to_adjequiv_full_sub
+                     (path_sigma_hprop _ _ (adjequiv_to_id X.1 Y.1 e)))
+                @ _).
+      + rewrite pr1_path_path_sigma_hprop.
+        reflexivity.
+      + rewrite pr1_path_path_sigma_hprop.
+        reflexivity.
+    - intros p.
+      induction p ; cbn.
+      rewrite <- path_sigma_hprop_1.
+      f_ap.
+      rewrite <- (eissect (id_to_adjequiv _ _)) ; cbn.
+      f_ap.
+      apply path_adjoint_equivalence.
+      reflexivity.
+  Defined.
+
+  Global Instance univalent_full_sub
+         `{Univalence}
+         {HC : Univalent C}
+    : Univalent full_sub.
+  Proof.
+    split ; apply _.
   Defined.
 End FullSub.

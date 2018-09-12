@@ -19,6 +19,8 @@ Defined.
 Class Univalent_0 `{Funext} (C : BiCategory)
   := univalent_0 :> forall (X Y : C), IsEquiv(id_to_adjequiv X Y).
 
+Notation adjequiv_to_id X Y e := ((id_to_adjequiv X Y)^-1%function e).
+
 Global Instance ishprop_Univalent_0 `{Funext} (C : BiCategory)
   : IsHProp (Univalent_0 C).
 Proof.

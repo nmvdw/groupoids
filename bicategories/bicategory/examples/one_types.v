@@ -173,9 +173,6 @@ Section OneTypesBiCategory.
       reflexivity.
   Qed.
 
-  Definition todo {A} : A.
-  Admitted.
-  
   Definition one_types_equiv_to_adjequiv
              {X Y : one_types}
              (f : X <~> Y)
@@ -185,10 +182,8 @@ Section OneTypesBiCategory.
     - exact (Build_is_left_adjoint
                (one_types_equiv_to_adjequiv_d f)
                (one_types_equiv_to_adjequiv_is_adj f)).
-    - apply todo.
-    - apply todo.
-      (* apply one_types_is_21.
-    - apply one_types_is_21. *)
+    - apply one_types_is_21.
+    - apply one_types_is_21.
   Defined.
   
   Lemma equiv_to_adjequiv_path
@@ -247,5 +242,11 @@ Section OneTypesBiCategory.
     - change (IsEquiv (equiv_path X Y o ap trunctype_type)).
       eapply (@isequiv_compose _ _ (ap trunctype_type)); typeclasses eauto.
     - apply _.
+  Defined.
+
+  Global Instance univalent_one_types `{Univalence}
+    : Univalent one_types.
+  Proof.
+    split ; apply _.
   Defined.
 End OneTypesBiCategory.
