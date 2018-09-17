@@ -7,48 +7,28 @@ Require Import GR.bicategories.lax_transformations.
 Require Import GR.bicategories.modifications.
 
 Record BiAdjunction_d
-       `{Funext}
+       `{Univalence}
        (C D : BiCategory)
   := Build_BiAdjunction_d
-       { left_adjoint_d : LaxFunctor C D ;
-         left_adjoint_pseudo_d : is_pseudo left_adjoint_d ;
-         right_adjoint_d : LaxFunctor D C ;
-         right_adjoint_pseudo_d : is_pseudo right_adjoint_d ;
-         unit_d : LaxTransformation
+       { left_adjoint_d : PseudoFunctor C D ;
+         right_adjoint_d : PseudoFunctor D C ;
+         unit_d : PseudoTransformation
                     (lax_id_functor C)
                     (lax_comp right_adjoint_d left_adjoint_d) ;
-         counit_d : LaxTransformation
+         counit_d : PseudoTransformation
                       (lax_comp left_adjoint_d right_adjoint_d)
                       (lax_id_functor D) ;
        }.
 
-Arguments Build_BiAdjunction_d {_ C D} _ _ _ _ _ _.
-Ltac make_biadjunction := simple refine (Build_BiAdjunction_d _ _ _ _ _ _).
+Arguments Build_BiAdjunction_d {_ C D} _ _ _ _.
+Ltac make_biadjunction := simple refine (Build_BiAdjunction_d _ _ _ _).
 Arguments left_adjoint_d {_ C D}.
 Arguments right_adjoint_d {_ C D}.
 Arguments unit_d {_ C D}.
 Arguments counit_d {_ C D}.
 
-Global Instance left_adjoint_pseudo_functor
-       `{Funext}
-       {C D : BiCategory}
-       (F : BiAdjunction_d C D)
-  : is_pseudo (left_adjoint_d F).
-Proof.
-  apply left_adjoint_pseudo_d.
-Defined.
-
-Global Instance right_adjoint_pseudo_functor
-       `{Funext}
-       {C D : BiCategory}
-       (F : BiAdjunction_d C D)
-  : is_pseudo (right_adjoint_d F).
-Proof.
-  apply right_adjoint_pseudo_d.
-Defined.
-
 Definition triangle_l_lhs
-           `{Funext}
+           `{Univalence}
            {C D : BiCategory}
            (F : BiAdjunction_d C D)
   : LaxTransformation (left_adjoint_d F) (left_adjoint_d F)
@@ -66,7 +46,7 @@ Definition triangle_l_lhs
        ).
 
 Definition triangle_r_lhs
-           `{Funext}
+           `{Univalence}
            {C D : BiCategory}
            (F : BiAdjunction_d C D)
   : LaxTransformation (right_adjoint_d F) (right_adjoint_d F)
@@ -84,42 +64,34 @@ Definition triangle_r_lhs
        ).
 
 Record is_biadjunction
-       `{Funext}
+       `{Univalence}
        {C D : BiCategory}
        (F : BiAdjunction_d C D)
   := Build_is_biadjunction
        {
-         unit_pseudo_p : is_pseudo_transformation (unit_d F) ;
-         counit_pseudo_p : is_pseudo_transformation (counit_d F) ;
          adj_triangle_l_p :
-           modification
+           PseudoModification
              (triangle_l_lhs F)
              (identity_transformation (left_adjoint_d F)) ;
-         adj_triangle_l_p_pseudo : is_pseudo_modification adj_triangle_l_p ;
          adj_triangle_r_p :
-           modification
+           PseudoModification
              (triangle_r_lhs F)
-             (identity_transformation (right_adjoint_d F)) ;
-         adj_triangle_r_p_pseudo : is_pseudo_modification adj_triangle_r_p
+             (identity_transformation (right_adjoint_d F))
        }.
 
-Arguments Build_is_biadjunction {_ C D F} _ _ _ _ _ _.
-Ltac make_is_biadjunction := simple refine (Build_is_biadjunction _ _ _ _ _ _).
-Arguments unit_pseudo_p {_ C D F} _.
-Arguments counit_pseudo_p {_ C D F} _.
+Arguments Build_is_biadjunction {_ C D F} _ _.
+Ltac make_is_biadjunction := simple refine (Build_is_biadjunction _ _).
 Arguments adj_triangle_l_p {_ C D F} _.
-Arguments adj_triangle_l_p_pseudo {_ C D F} _.
 Arguments adj_triangle_r_p {_ C D F} _.
-Arguments adj_triangle_r_p_pseudo {_ C D F} _.
 
 Definition BiAdjunction
-           `{Funext}
+           `{Univalence}
            (C D : BiCategory)
   : Type
   := {F : BiAdjunction_d C D & is_biadjunction F}.
 
 Definition Build_BiAdjunction
-           `{Funext}
+           `{Univalence}
            {C D : BiCategory}
            (F : BiAdjunction_d C D)
            (HF : is_biadjunction F)
@@ -127,99 +99,59 @@ Definition Build_BiAdjunction
   := (F;HF).
 
 Definition left_adjoint
-           `{Funext}
+           `{Univalence}
            {C D : BiCategory}
            (F : BiAdjunction C D)
+  : PseudoFunctor C D
   := left_adjoint_d F.1.
 
-Global Instance left_adjoint_pseudo
-       `{Funext}
-       {C D : BiCategory}
-       (F : BiAdjunction C D)
-  : is_pseudo (left_adjoint F)
-  := left_adjoint_pseudo_d _ _ F.1.
-
 Definition right_adjoint
-           `{Funext}
+           `{Univalence}
            {C D : BiCategory}
            (F : BiAdjunction C D)
+  : PseudoFunctor D C
   := right_adjoint_d F.1.
 
-Global Instance right_adjoint_pseudo
-       `{Funext}
-       {C D : BiCategory}
-       (F : BiAdjunction C D)
-  : is_pseudo (right_adjoint F)
-  := right_adjoint_pseudo_d _ _ F.1.
-
 Definition unit
-           `{Funext}
+           `{Univalence}
            {C D : BiCategory}
            (F : BiAdjunction C D)
   := unit_d F.1.
 
-Global Instance unit_pseudo
-       `{Funext}
-       {C D : BiCategory}
-       (F : BiAdjunction C D)
-  : is_pseudo_transformation (unit F)
-  := unit_pseudo_p F.2.
-
 Definition counit
-           `{Funext}
+           `{Univalence}
            {C D : BiCategory}
            (F : BiAdjunction C D)
   := counit_d F.1.
 
-Global Instance counit_pseudo
-       `{Funext}
-       {C D : BiCategory}
-       (F : BiAdjunction C D)
-  : is_pseudo_transformation (counit F)
-  := counit_pseudo_p F.2.
-
 Definition adj_triangle_l
-           `{Funext}
+           `{Univalence}
            {C D : BiCategory}
            (F : BiAdjunction C D)
-  : modification
+  : PseudoModification
       (triangle_l_lhs F.1)
       (identity_transformation (left_adjoint F))
   := adj_triangle_l_p F.2.
 
-Global Instance adj_triangle_l_pseudo
-       `{Funext}
-       {C D : BiCategory}
-       (F : BiAdjunction C D)
-  : is_pseudo_modification (adj_triangle_l F)
-  := adj_triangle_l_p_pseudo F.2.
-
 Definition adj_triangle_r
-           `{Funext}
+           `{Univalence}
            {C D : BiCategory}
            (F : BiAdjunction C D)
-  : modification
+  : PseudoModification
       (triangle_r_lhs F.1)
       (identity_transformation (right_adjoint F))
   := adj_triangle_r_p F.2.
 
-Global Instance adj_triangle_r_pseudo
-       `{Funext}
-       {C D : BiCategory}
-       (F : BiAdjunction C D)
-  : is_pseudo_modification (adj_triangle_r F)
-  := adj_triangle_r_p_pseudo F.2.
-
 Section Restriction.
-  Context `{Funext}
+  Context `{Univalence}
           {C D : BiCategory}.
   Variable (adj : BiAdjunction C D)
            (P : C -> hProp)
            (HP : forall (x : D), P(right_adjoint adj x)).
 
-  Definition restriction_left_adjoint := lax_restriction (left_adjoint adj) P.
+  Definition restriction_left_adjoint := pseudo_restriction (left_adjoint adj) P.
 
-  Definition restriction_right_adjoint := lax_factor (right_adjoint adj) P HP.
+  Definition restriction_right_adjoint := pseudo_factor (right_adjoint adj) P HP.
 
   Definition restriction_unit_d
     : LaxTransformation_d
@@ -244,18 +176,15 @@ Section Restriction.
   Qed.
 
   Definition restriction_unit
-    : LaxTransformation
+    : PseudoTransformation
         (lax_id_functor (full_sub C P))
-        (lax_comp restriction_right_adjoint restriction_left_adjoint)
-    := Build_LaxTransformation restriction_unit_d is_lax_restriction_unit_d.
-
-  Global Instance restriction_unit_is_pseudo
-    : is_pseudo_transformation restriction_unit.
+        (lax_comp restriction_right_adjoint restriction_left_adjoint).
   Proof.
-    split.
-    intros [X PX] [Y PY] f ; cbn in *.
-    apply adj.
-  Qed.
+    make_pseudo_transformation_lax.
+    - exact (Build_LaxTransformation restriction_unit_d is_lax_restriction_unit_d).
+    - intros [X PX] [Y PY] f ; cbn in *.
+      exact (laxnaturality_of_is_iso (unit adj) f).
+  Defined.
 
   Definition restriction_counit_d
     : LaxTransformation_d
@@ -281,37 +210,33 @@ Section Restriction.
   Qed.
 
   Definition restriction_counit
-    : LaxTransformation
+    : PseudoTransformation
         (lax_comp restriction_left_adjoint restriction_right_adjoint)
-        (lax_id_functor D)
-    := Build_LaxTransformation restriction_counit_d is_lax_restriction_counit_d.
-
-  Global Instance restriction_counit_is_pseudo
-    : is_pseudo_transformation restriction_counit.
+        (lax_id_functor D).
   Proof.
-    split.
-    intros X Y f ; cbn in *.
-    apply adj.
-  Qed.
+    make_pseudo_transformation_lax.
+    - exact (Build_LaxTransformation restriction_counit_d is_lax_restriction_counit_d).
+    - intros X Y f ; cbn in *.
+      exact (laxnaturality_of_is_iso (counit adj) f).
+  Defined.
 
   Definition restrict_adjunction_d : BiAdjunction_d (full_sub C P) D
     := Build_BiAdjunction_d
          restriction_left_adjoint
-         _
          restriction_right_adjoint
-         _
          restriction_unit
          restriction_counit.
 
-  Definition restriction_triangle_l_d
-    : modification_d
-        (triangle_l_lhs restrict_adjunction_d)
-        (identity_transformation (left_adjoint_d restrict_adjunction_d))
-    := fun X => mod_component (adj_triangle_l adj) X.1.
+  Local Notation restriction_triangle_l_d
+    := (fun (A : (full_sub C P)) =>
+          mod_component (adj_triangle_l adj) A.1
+          : (triangle_l_lhs restrict_adjunction_d A)
+              ==>
+              identity_transformation (left_adjoint_d restrict_adjunction_d) A).
 
   Definition restrict_triangle_l_lhs
              {X Y : full_sub C P}
-             (f : Hom (full_sub C P) X Y)
+             (f : full_sub C P ⟦X,Y⟧)
     : laxnaturality_of (triangle_l_lhs adj.1) f
       =
       laxnaturality_of (triangle_l_lhs restrict_adjunction_d) f
@@ -325,28 +250,25 @@ Section Restriction.
   Qed.
 
   Definition restriction_triangle_l
-    : modification
+    : PseudoModification
         (triangle_l_lhs restrict_adjunction_d)
-        (identity_transformation (left_adjoint_d restrict_adjunction_d))
-    := Build_Modification restriction_triangle_l_d restriction_triangle_l_is_mod.
-
-  Global Instance restriction_triangle_l_pseudo
-    : is_pseudo_modification restriction_triangle_l.
+        (identity_transformation (left_adjoint_d restrict_adjunction_d)).
   Proof.
-    split.
-    intros [X PX] ; cbn in *.
-    apply adj_triangle_l_pseudo.
-  Qed.
+    make_pseudo_modification.
+    - exact (Build_Modification restriction_triangle_l_d restriction_triangle_l_is_mod).
+    - intros [X PX] ; cbn in *.
+      exact (mod_component_is_iso_pseudo (adj_triangle_l adj) X).
+  Defined.
 
-  Definition restriction_triangle_r_d
-    : modification_d
-        (triangle_r_lhs restrict_adjunction_d)
-        (identity_transformation (right_adjoint_d restrict_adjunction_d))
-    := fun X => mod_component (adj_triangle_r adj) X.
+  Local Notation restriction_triangle_r_d
+    := (fun (A : D) =>
+          mod_component (adj_triangle_r adj) A
+          : (triangle_r_lhs restrict_adjunction_d A)
+              ==> identity_transformation (right_adjoint_d restrict_adjunction_d) A).
 
   Definition restriction_triangle_r_lhs
              {X Y : D}
-             (f : Hom D X Y)
+             (f : D⟦X,Y⟧)
     : laxnaturality_of (triangle_r_lhs adj.1) f
       =
       laxnaturality_of (triangle_r_lhs restrict_adjunction_d) f
@@ -360,22 +282,21 @@ Section Restriction.
   Qed.
 
   Definition restriction_triangle_r
-    : modification
+    : PseudoModification
         (triangle_r_lhs restrict_adjunction_d)
-        (identity_transformation (right_adjoint_d restrict_adjunction_d))
-    := Build_Modification restriction_triangle_r_d restriction_triangle_r_is_mod.
-
-  Global Instance restriction_triangle_r_pseudo
-    : is_pseudo_modification restriction_triangle_r.
+        (identity_transformation (right_adjoint_d restrict_adjunction_d)).
   Proof.
-    split.
-    intros X ; cbn in *.
-    apply adj_triangle_r_pseudo.
-  Qed.
+    make_pseudo_modification.
+    - exact (Build_Modification restriction_triangle_r_d restriction_triangle_r_is_mod).
+    - intros X ; cbn in *.
+      exact (mod_component_is_iso_pseudo (adj_triangle_r adj) X).
+  Defined.
 
   Definition restrict_adjunction : BiAdjunction (full_sub C P) D.
   Proof.
     simple refine (Build_BiAdjunction restrict_adjunction_d _).
     make_is_biadjunction.
+    - exact restriction_triangle_l.
+    - exact restriction_triangle_r.
   Defined.
 End Restriction.
