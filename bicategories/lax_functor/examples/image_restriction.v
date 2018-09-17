@@ -32,11 +32,16 @@ Section ImageRestriction.
 
   Definition restrict_image : LaxFunctor C (image F)
     := Build_LaxFunctor restrict_image_d restrict_image_is_lax.
-
-  Global Instance restrict_image_pseudo
-         `{is_pseudo _ _ F}
-    : is_pseudo restrict_image.
-  Proof.
-    split ; intros ; cbn in * ; apply _.
-  Defined.
 End ImageRestriction.
+
+Definition restrict_image_pseudo
+           `{Univalence}
+           {C D : BiCategory}
+           (F : PseudoFunctor C D)
+  : PseudoFunctor C (image F).
+Proof.
+  make_pseudo_functor_lax.
+  - exact (restrict_image F).
+  - simpl.
+    split ; apply _.
+Defined.

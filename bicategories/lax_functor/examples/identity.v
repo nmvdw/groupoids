@@ -3,6 +3,7 @@ From GR.bicategories Require Import
      bicategory.bicategory lax_functor.lax_functor.
 
 Section IdentityFunctor.
+  Context `{Univalence}.
   Variable (C : BiCategory).
 
   Definition id_functor_d : PseudoFunctor_d C C.
@@ -50,10 +51,6 @@ Section IdentityFunctor.
       apply vcomp_left_identity.
   Qed.
 
-  Definition lax_id_functor : LaxFunctor C C
+  Definition lax_id_functor : PseudoFunctor C C
     := Build_PseudoFunctor id_functor_d id_functor_is_pseudo.
-
-  Global Instance lax_id_functor_pseudo
-    : is_pseudo lax_id_functor
-    := _.
 End IdentityFunctor.

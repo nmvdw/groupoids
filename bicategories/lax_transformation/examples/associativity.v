@@ -10,7 +10,7 @@ From GR.bicategories Require Import
      general_category.
 
 Section LaxAssociativity.
-  Context `{Funext}
+  Context `{Univalence}
           {C₁ C₂ C₃ C₄ : BiCategory}.
   Variable (F₃ : LaxFunctor C₃ C₄)
            (F₂ : LaxFunctor C₂ C₃)

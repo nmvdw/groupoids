@@ -30,11 +30,16 @@ Section RestrictionFunctor.
 
   Definition lax_restriction : LaxFunctor (full_sub C P) D
     := Build_LaxFunctor lax_restriction_d is_lax_restriction.
-
-  Global Instance lax_id_functor_pseudo
-         `{is_pseudo _ _ F}
-    : is_pseudo lax_restriction.
-  Proof.
-    simple refine {| Fcomp_iso := _ |} ; intros ; cbn in * ; apply _.
-  Defined.
 End RestrictionFunctor.
+
+Definition pseudo_restriction
+           `{Univalence}
+           {C D : BiCategory}
+           (F : PseudoFunctor C D)
+           (P : C -> hProp)
+  : PseudoFunctor (full_sub C P) D.
+Proof.
+  make_pseudo_functor_lax.
+  - exact (lax_restriction F P).
+  - split ; intros ; cbn in * ; apply _.
+Defined.

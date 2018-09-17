@@ -10,7 +10,7 @@ From GR.bicategories Require Import
      general_category.
 
 Section LaxRightIdentityInv.
-  Context `{Funext}
+  Context `{Univalence}
           {C D : BiCategory}.
   Variable (F : LaxFunctor C D).
   

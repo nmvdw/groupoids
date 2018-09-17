@@ -153,12 +153,5 @@ Definition representable
            `{Univalence}
            {C : BiCategory}
            (X : C)
-  : LaxFunctor (op C) PreCat
+  : PseudoFunctor (op C) PreCat
   := Build_PseudoFunctor (representable_d X) (representable_d_is_pseudo X).
-
-Global Instance representable_is_pseudo
-       `{Univalence}
-       {C : BiCategory}
-       (X : C)
-  : is_pseudo (representable X)
-  := _.

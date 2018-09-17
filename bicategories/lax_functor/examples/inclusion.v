@@ -6,6 +6,7 @@ From GR.bicategories Require Import
      lax_functor.examples.identity.
 
 Section InclusionFunctor.
+  Context `{Univalence}.
   Variable (C : BiCategory)
            (P : C -> hProp).
 
@@ -54,10 +55,6 @@ Section InclusionFunctor.
       apply (@vcomp_left_identity C).
   Qed.
 
-  Definition lax_inclusion : LaxFunctor (full_sub C P) C
+  Definition lax_inclusion : PseudoFunctor (full_sub C P) C
     := Build_PseudoFunctor lax_inclusion_d inclusion_is_pseudo.
-
-  Global Instance lax_inclusion_pseudo
-    : is_pseudo lax_inclusion
-    := _.
 End InclusionFunctor.

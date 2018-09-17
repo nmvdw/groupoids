@@ -5,7 +5,7 @@ From GR.bicategories Require Import
      lax_functor.lax_functor.
 
 Section ConstantFunctor.
-  Context `{Funext}
+  Context `{Univalence}
           {C D : BiCategory}.
   Variable (Y : D).
 

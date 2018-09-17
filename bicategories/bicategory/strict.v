@@ -1,5 +1,3 @@
-(** A 2-category is a bicategory in which every Hom-set is a Category.
-    In a 2-category the axioms for composition hold "on the nose". *)
 Require Import HoTT.
 Require Import GR.bicategories.general_category.
 From GR.bicategories Require Import bicategory.bicategory.

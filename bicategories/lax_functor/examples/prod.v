@@ -26,11 +26,16 @@ Section ProdFunctor.
 
   Definition lax_prod : LaxFunctor C (prod D₁ D₂)
     := Build_LaxFunctor lax_prod_d lax_prod_d_is_lax.
-  
-  Global Instance pseudo_prod
-         `{is_pseudo _ _ F₁} `{is_pseudo _ _ F₂}
-    : is_pseudo lax_prod.
-  Proof.
-    split ; apply _.
-  Defined.
 End ProdFunctor.
+
+Definition pseudo_prod
+           `{Univalence}
+           {C D₁ D₂ : BiCategory}
+           (F₁ : PseudoFunctor C D₁) (F₂ : PseudoFunctor C D₂)
+  : PseudoFunctor C (prod D₁ D₂).
+Proof.
+  make_pseudo_functor_lax.
+  - exact (lax_prod F₁ F₂).
+  - simpl.
+    split ; apply _.
+Defined.

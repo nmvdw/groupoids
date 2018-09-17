@@ -28,11 +28,18 @@ Section FactorFullSub.
 
   Definition lax_factor : LaxFunctor C (full_sub D P)
     := Build_LaxFunctor lax_factor_d is_lax_factor.
-
-  Global Instance lax_inclusion_pseudo
-         `{is_pseudo _ _ F}
-    : is_pseudo lax_factor.
-  Proof.
-    simple refine {| Fcomp_iso := _ |} ; intros ; cbn in * ; apply _.
-  Defined.
 End FactorFullSub.
+
+Definition pseudo_factor
+           `{Univalence}
+           {C D :BiCategory}
+           (F : PseudoFunctor C D)
+           (P : D -> hProp)
+           (FP : forall (X : C), P (F X))
+  : PseudoFunctor C (full_sub D P).
+Proof.
+  make_pseudo_functor_lax.
+  - exact (lax_factor F P FP).
+  - simpl.
+    split ; apply _.
+Defined.

@@ -8,9 +8,9 @@ From GR.bicategories Require Import
      general_category.
 
 Lemma F_assoc_inv₁
+      `{Univalence}
       {C D : BiCategory}
-      {F : LaxFunctor C D}
-      `{is_pseudo _ _ F}
+      {F : PseudoFunctor C D}
       {W X Y Z : C}
       (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
   : Fcomp₁_inv F h (g · f) ∘ (F ₂ assoc h g f)
@@ -29,9 +29,9 @@ Proof.
 Qed.
 
 Lemma F_assoc_inv₂
+      `{Univalence}
       {C D : BiCategory}
-      {F : LaxFunctor C D}
-      `{is_pseudo _ _ F}
+      {F : PseudoFunctor C D}
       {W X Y Z : C}
       (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
   : (Fcomp₁_inv F (h · g) f)
@@ -49,12 +49,11 @@ Proof.
 Qed.
 
 Section WhiskerL.
-  Context `{Funext}
+  Context `{Univalence}
           {C D E : BiCategory}
           {F₁ F₂ : LaxFunctor C D}.
-  Variable (G : LaxFunctor D E)
+  Variable (G : PseudoFunctor D E)
            (σ : LaxTransformation F₁ F₂).
-  Context `{is_pseudo _ _ G}.
 
   Definition whisker_L_d
     : LaxTransformation_d (lax_comp G F₁) (lax_comp G F₂).

@@ -143,9 +143,9 @@ Definition opF_assoc
   := F_assoc F h g f.
 
 Definition pseudo_to_oplax_d
+           `{Univalence}
            {C D : BiCategory}
-           (F : LaxFunctor C D)
-           `{is_pseudo _ _ F}
+           (F : PseudoFunctor C D)
   : LaxFunctor_d (op2 C) (op2 D).
 Proof.
   make_laxfunctor.
@@ -165,9 +165,9 @@ Proof.
 Defined.
 
 Definition pseudo_to_oplax_is_oplax
+           `{Univalence}
            {C D : BiCategory}
-           (F : LaxFunctor C D)
-           `{is_pseudo _ _ F}
+           (F : PseudoFunctor C D)
   : is_lax (pseudo_to_oplax_d F).
 Proof.
   make_is_lax.
@@ -175,7 +175,7 @@ Proof.
     apply vcomp_move_L_Vp.
     rewrite <- vcomp_assoc.
     refine (vcomp_move_R_pM _ _ _ _) ; simpl.
-    apply F.
+    apply (Fcomp₂ F).
   - intros X Y f ; cbn in *.
     unfold Fid_inv, Fcomp₁_inv.
     rewrite <- !inverse_of_left_unit.
@@ -220,13 +220,16 @@ Proof.
 Qed.
 
 Definition pseudo_to_oplax
+           `{Univalence}
            {C D : BiCategory}
-           (F : LaxFunctor C D)
-           `{is_pseudo _ _ F}
+           (F : PseudoFunctor C D)
   : OpLaxFunctor C D
   := Build_LaxFunctor (pseudo_to_oplax_d F) (pseudo_to_oplax_is_oplax F).
 
-Definition oplax_id_functor (C : BiCategory) : OpLaxFunctor C C
+Definition oplax_id_functor
+           `{Univalence}
+           (C : BiCategory)
+  : OpLaxFunctor C C
   := pseudo_to_oplax (lax_id_functor C).
 
 Definition oplax_comp

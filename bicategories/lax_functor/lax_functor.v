@@ -126,6 +126,18 @@ Proof.
   apply Fmor.
 Defined.
 
+Definition Fmor₂_inverse
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           {X Y : C}
+           {f g : C⟦X,Y⟧}
+           (α : f ==> g)
+           `{IsIsomorphism _ _ _ α}
+  : F ₂ (α^-1) = (F ₂ α)^-1.
+Proof.
+  apply inverse_of.
+Qed.
+
 Definition Fcomp₁
            {C D : BiCategory}
            (F : LaxFunctor C D)
@@ -216,10 +228,47 @@ Class is_pseudo
          IsIsomorphism (Fid F X)
      }.
 
-Global Instance Fcomp₁_is_iso
+Global Instance is_hprop_is_pseudo
+       `{Univalence}
        {C D : BiCategory}
        (F : LaxFunctor C D)
-       `{is_pseudo _ _ F}
+  : IsHProp (is_pseudo F).
+Proof.
+  apply hprop_allpath.
+  intros x y.
+  destruct x as [x1 x2], y as [y1 y2].
+  assert (x1 = y1) as ->.
+  { apply path_ishprop. }
+  assert (x2 = y2) as ->.
+  { apply path_ishprop. }
+  reflexivity.
+Qed.
+
+Definition PseudoFunctor
+           `{Univalence}
+           (C D : BiCategory)
+  : Type
+  := {F : LaxFunctor C D & is_pseudo F}.
+
+Ltac make_pseudo_functor_lax := simple refine (_;_).
+
+Coercion PseudoFunctor_to_LaxFunctor
+         `{Univalence}
+         {C D : BiCategory}
+         (F : PseudoFunctor C D)
+  := F.1.
+
+Global Instance ise_pseudo_pseudo_functor
+       `{Univalence}
+       {C D : BiCategory}
+       (F : PseudoFunctor C D)
+  : is_pseudo F
+  := F.2.
+
+Global Instance Fcomp₁_is_iso
+       `{Univalence}
+       {C D : BiCategory}
+       (F : PseudoFunctor C D)
        {X Y Z : C}
        (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
   : IsIsomorphism (Fcomp₁ F g f).
@@ -229,31 +278,19 @@ Defined.
 
 Definition Fcomp₁_inv
            {C D : BiCategory}
-           (F : LaxFunctor C D)
-           `{is_pseudo _ _ F}
+           `{Univalence}
+           (F : PseudoFunctor C D)
            {X Y Z : C}
            (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
   : (F ₁ (g · f)) ==> (F ₁ g) · (F ₁ f).
 Proof.
   exact (Fcomp₁ F g f)^-1.
 Defined.
-  (* DAN: TODO: this is parsed in the wrong scope--morphism instead of bicategory *)
-  (* := (Fcomp₁ F g f)^-1. *)
 
-(* Global Instance Fcomp₁_inv_is_iso *)
-(*        {C D : BiCategory} *)
-(*        (F : LaxFunctor C D) *)
-(*        `{is_pseudo _ _ F} *)
-(*        {X Y Z : C} *)
-(*        (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧) *)
-(*   : IsIsomorphism (Fcomp₁_inv F g f) *)
-(*   := _. *)
-       
 Global Instance Fcomp_is_iso
-       `{Funext}
+       `{Univalence}
        {C D : BiCategory}
-       (F : LaxFunctor C D)
-       `{is_pseudo _ _ F}
+       (F : PseudoFunctor C D)
        {X Y Z : C}
   : @IsIsomorphism (_ -> _) _ _ (Fcomp F X Y Z).
 Proof.
@@ -262,10 +299,9 @@ Proof.
 Defined.
 
 Definition Fcomp₁_inv_naturality
-           `{Funext}
+           `{Univalence}
            {C D : BiCategory}
-           (F : LaxFunctor C D)
-           `{is_pseudo _ _ F}
+           (F : PseudoFunctor C D)
            {X Y Z : C}
            {g₁ g₂ : C⟦Y,Z⟧} {f₁ f₂ : C⟦X,Y⟧}
            (ηg : g₁ ==> g₂) (ηf : f₁ ==> f₂)
@@ -275,9 +311,9 @@ Definition Fcomp₁_inv_naturality
   := commutes (@morphism_inverse (_ -> _) _ _ (Fcomp F X Y Z) _) (g₁,f₁) (g₂,f₂) (ηg,ηf).
 
 Global Instance Fid_is_iso
+       `{Univalence}
        {C D : BiCategory}
-       (F : LaxFunctor C D)
-       `{is_pseudo _ _ F}
+       (F : PseudoFunctor C D)
        {X : C}
   : IsIsomorphism (Fid F X).
 Proof.
@@ -285,22 +321,19 @@ Proof.
 Defined.
 
 Definition Fid_inv
+           `{Univalence}
            {C D : BiCategory}
-           (F : LaxFunctor C D)
-           `{is_pseudo _ _ F}
+           (F : PseudoFunctor C D)
            (X : C)
   : (F ₁ (id₁ X)) ==> id₁ (F X).
 Proof.
   exact (Fid F X)^-1.
 Defined.
-  (* TODO: same problem *)
-  (* := (Fid F X)^-1%bicategory. *)
-
 
 Definition F_left_unit_inv
+           `{Univalence}
            {C D : BiCategory}
-           (F : LaxFunctor C D)
-           `{is_pseudo _ _ F}
+           (F : PseudoFunctor C D)
            {X Y : C}
            (f : C⟦X,Y⟧)
   : left_unit_inv (F ₁ f)
@@ -312,19 +345,18 @@ Proof.
   rewrite <- !inverse_of_left_unit.
   unfold Fcomp₁_inv, Fid_inv.
   rewrite <- id₂_inverse.
-  admit.
-(*   rewrite inverse_of. <- hcomp_inverse. *)
-(*   rewrite <- !vcomp_inverse. *)
-(*   apply path_inverse_2cell. *)
-(*   rewrite <- !vcomp_assoc. *)
-(*   apply F_left_unit. *)
-(* Qed. *)
-Admitted.
+  rewrite Fmor₂_inverse.
+  rewrite <- hcomp_inverse.
+  rewrite <- !vcomp_inverse.
+  apply path_inverse_2cell.
+  rewrite <- !vcomp_assoc.
+  apply F_left_unit.
+Qed.
 
 Definition F_right_unit_inv
+           `{Univalence}
            {C D : BiCategory}
-           (F : LaxFunctor C D)
-           `{is_pseudo _ _ F}
+           (F : PseudoFunctor C D)
            {X Y : C}
            (f : C⟦X,Y⟧)
   : right_unit_inv (F ₁ f)
@@ -334,15 +366,15 @@ Definition F_right_unit_inv
       ∘ (F ₂ (right_unit_inv f)).
 Proof.
   rewrite <- !inverse_of_right_unit.
-  unfold Fcomp₁_inv, Fid_inv, left_unit_inv, id₂, vcomp.
-  admit.
-(*   rewrite <- inverse_id, inverse_of, <- hcomp_inverse. *)
-(*   rewrite <- !inverse_compose. *)
-(*   apply path_inverse. *)
-(*   rewrite <- !associativity. *)
-(*   apply F_right_unit. *)
-(* Qed. *)
-Admitted.
+  unfold Fcomp₁_inv, Fid_inv.
+  rewrite <- id₂_inverse.
+  rewrite Fmor₂_inverse.
+  rewrite <- hcomp_inverse.
+  rewrite <- !vcomp_inverse.
+  apply path_inverse_2cell.
+  rewrite <- !vcomp_assoc.
+  apply F_right_unit.
+Qed.
 
 Record PseudoFunctor_d
        (C D : BiCategory)
@@ -445,41 +477,35 @@ Record is_pseudo_functor_p
 Ltac make_is_pseudo := simple refine (Build_is_pseudo_functor _ _ _ _ _ _ _ _ _ _ _ _ _).
 
 Definition Build_PseudoFunctor
+           `{Univalence}
            {C D : BiCategory}
            (F : PseudoFunctor_d C D)
            (HF : is_pseudo_functor_p F)
-    : LaxFunctor C D.
+    : PseudoFunctor C D.
 Proof.
-  simple refine (Build_LaxFunctor _ _).
-  - make_laxfunctor.
-    + exact (PObj F).
-    + intros X Y.
-      simple refine (Build_Functor _ _ _ _ _ _).
-      * exact (POne F).
-      * exact (@PTwo _ _ F X Y).
+  simple refine (_;_).
+  - simple refine (Build_LaxFunctor _ _).
+    + make_laxfunctor.
+      * exact (PObj F).
+      * intros X Y.
+        simple refine (Build_Functor _ _ _ _ _ _).
+        ** exact (POne F).
+        ** exact (@PTwo _ _ F X Y).
+        ** apply HF.
+        ** apply HF.
+      * intros X Y Z g f ; simpl in *.
+        exact (Pcomp_d F g f).
+      * exact (Pid_d F).
+    + make_is_lax ; intros ; simpl in * ; apply HF.
+  - split.
+    + intros X Y Z g f.
+      simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+      * exact (Pcomp_inv_d F g f).
       * apply HF.
       * apply HF.
-    + intros X Y Z g f ; simpl in *.
-      exact (Pcomp_d F g f).
-    + exact (Pid_d F).
-  - make_is_lax ; intros ; simpl in * ; apply HF.
-Defined.
-
-Global Instance Build_PseudoFunctor_is_pseudo
-       {C D : BiCategory}
-       (F : PseudoFunctor_d C D)
-       (HF : is_pseudo_functor_p F)
-  : is_pseudo (Build_PseudoFunctor F HF).
-Proof.
-  split.
-  - intros X Y Z g f.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    + exact (Pcomp_inv_d F g f).
-    + apply HF.
-    + apply HF.
-  - intros X.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    + exact (Pid_inv_d F X).
-    + apply HF.
-    + apply HF.
+    + intros X.
+      simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+      * exact (Pid_inv_d F X).
+      * apply HF.
+      * apply HF.
 Defined.

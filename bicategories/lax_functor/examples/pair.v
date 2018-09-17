@@ -1,7 +1,9 @@
 Require Import HoTT.
 Require Import HoTT.Categories.Functor.
 From GR.bicategories Require Import
-     bicategory.bicategory bicategory.examples.prod
+     general_category
+     bicategory.bicategory
+     bicategory.examples.prod
      lax_functor.lax_functor.
 
 Section PairFunctor.
@@ -26,11 +28,16 @@ Section PairFunctor.
 
   Definition lax_pair : LaxFunctor (prod C₁ C₂) (prod D₁ D₂)
     := Build_LaxFunctor lax_pair_d lax_pair_d_is_lax.
-
-  Global Instance pseudo_pair
-         `{is_pseudo _ _ F₁} `{is_pseudo _ _ F₂}
-    : is_pseudo lax_pair.
-  Proof.
-    split ; apply _.
-  Defined.
 End PairFunctor.
+
+Definition pseudo_pair
+           `{Univalence}
+           {C₁ C₂ D₁ D₂ : BiCategory}
+           (F₁ : PseudoFunctor C₁ D₁) (F₂ : PseudoFunctor C₂ D₂)
+  : PseudoFunctor (prod C₁ C₂) (prod D₁ D₂).
+Proof.
+  make_pseudo_functor_lax.
+  - exact (lax_pair F₁ F₂).
+  - simpl.
+    split ; apply _.
+Defined.

@@ -5,7 +5,8 @@ From GR.bicategories Require Import
      lax_functor.lax_functor.
 
 Section ApFunctor.
-  Context {X Y : 2 -Type}.
+  Context `{Univalence}
+          {X Y : 2 -Type}.
   Variable (f : X -> Y).
 
   Definition ap_functor_d
@@ -49,7 +50,7 @@ Section ApFunctor.
   Qed.
 
   Definition lax_ap_functor
-    : LaxFunctor (path_bigroupoid X) (path_bigroupoid Y)
+    : PseudoFunctor (path_bigroupoid X) (path_bigroupoid Y)
     := Build_PseudoFunctor ap_functor_d ap_functor_is_pseudo.
 
   Global Instance lax_ap_functor_pseudo
