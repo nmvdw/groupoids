@@ -1,34 +1,10 @@
 Require Import HoTT.
 From HoTT.Categories Require Import
      Category Functor NaturalTransformation FunctorCategory.
-From GR.bicategories.bicategory Require Import
-     bicategory
-     examples.lax_functors_bicat
-     adjoint
-     equivalence
-     examples.full_sub.
-From GR.bicategories.lax_functor Require Import
-     lax_functor
-     examples.restriction
-     examples.factor_full_sub
-     examples.identity
-     examples.composition.
-From GR.bicategories.lax_transformation Require Import
-     lax_transformation
-     examples.whisker_L
-     examples.whisker_R
-     examples.right_identity
-     examples.left_identity
-     examples.associativity
-     examples.right_identity_inv
-     examples.left_identity_inv
-     examples.associativity_inv
-     examples.restriction
-     examples.identity
-     examples.composition.
-From GR.bicategories.modification Require Import
-     modification
-     examples.composition.
+Require Import GR.bicategories.bicategories.
+Require Import GR.bicategories.lax_functors.
+Require Import GR.bicategories.lax_transformations.
+Require Import GR.bicategories.modifications.
 
 Record BiAdjunction_d
        `{Funext}

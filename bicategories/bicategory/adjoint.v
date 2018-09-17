@@ -1,7 +1,6 @@
 Require Import HoTT.
 From GR.bicategories Require Import
      general_category
-     bicategory.bicategory
      bicategory.bicategory_laws
      equivalence.
 

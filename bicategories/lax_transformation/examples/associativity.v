@@ -1,6 +1,6 @@
 Require Import HoTT.
+Require Import HoTT.Categories.Functor.
 From GR.bicategories Require Import
-     bicategory.bicategory
      bicategory.bicategory_laws
      lax_functor.lax_functor
      lax_functor.examples.composition
@@ -8,8 +8,6 @@ From GR.bicategories Require Import
      lax_transformation.lax_transformation
      lax_transformation.examples.identity
      general_category.
-From HoTT.Categories Require Import
-     Category Functor NaturalTransformation FunctorCategory.
 
 Section LaxAssociativity.
   Context `{Funext}

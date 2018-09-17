@@ -1,6 +1,4 @@
 Require Import HoTT.
-From HoTT.Categories Require Import
-     Functor NaturalTransformation FunctorCategory.
 From GR.bicategories Require Export
      general_category bicategory.bicategory.
 

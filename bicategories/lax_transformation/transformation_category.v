@@ -5,10 +5,9 @@ From GR.bicategories.bicategory Require Import bicategory univalent bicategory_l
 From GR.bicategories Require Import
      lax_functor.lax_functor
      lax_transformation.lax_transformation.
-From GR.bicategories.modification Require Import
-     modification
-     examples.identity
-     examples.composition.
+Require Import GR.bicategories.modification.modification.
+Require Import GR.bicategories.modification.examples.composition.
+Require Import GR.bicategories.modification.examples.identity.
 
 Section transformation_category.
   Context `{Funext}.

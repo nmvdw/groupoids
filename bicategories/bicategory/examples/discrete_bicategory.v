@@ -1,8 +1,11 @@
 Require Import HoTT.
 From HoTT.Categories Require Import
-     Category Category.Prod NaturalTransformation FunctorCategory DiscreteCategory.
+     DiscreteCategory.
 From GR.bicategories Require Import
-     general_category bicategory.bicategory bicategory.univalent.
+     general_category
+     bicategory.bicategory
+     bicategory.adjoint
+     bicategory.univalent.
 
 Section DiscreteBiCategory.
   Variable (C : PreCategory).
@@ -79,23 +82,17 @@ Section DiscreteBiCategory.
   Global Instance locally_univalent_discrete_bicategory
     : LocallyUnivalent discrete_bicategory.
   Proof.
-    intros X Y f g.
-    cbn in *.
-    apply isequiv_biinv.
-    split.
-    - simple refine (_;_).
-      + intros iso.
-        apply iso.
-      + intro p ; cbn in *.
-        induction p ; simpl.
-        reflexivity.
-    - simple refine (_;_).
-      + intros iso.
-        apply iso.
-      + intro iso ; cbn in *.
-        destruct iso as [p Hp] ; cbn in *.
-        apply path_isomorphic ; cbn.
-        induction p ; cbn.
-        reflexivity.
+    intros X Y f g ; cbn in *.
+    simple refine (isequiv_adjointify _ _ _ _).
+    - intros iso.
+      apply iso.
+    - intro iso ; cbn in *.
+      destruct iso as [p Hp] ; cbn in *.
+      apply path_isomorphic ; cbn.
+      induction p ; cbn.
+      reflexivity.
+    - intro p ; cbn in *.
+      induction p ; simpl.
+      reflexivity.
   Qed.
 End DiscreteBiCategory.

@@ -1,0 +1,13 @@
+Require Export GR.bicategories.lax_transformation.lax_transformation.
+Require Export GR.bicategories.lax_transformation.examples.associativity_inv.
+Require Export GR.bicategories.lax_transformation.examples.associativity.
+Require Export GR.bicategories.lax_transformation.examples.composition.
+Require Export GR.bicategories.lax_transformation.examples.factor_full_sub.
+Require Export GR.bicategories.lax_transformation.examples.identity.
+Require Export GR.bicategories.lax_transformation.examples.left_identity_inv.
+Require Export GR.bicategories.lax_transformation.examples.left_identity.
+Require Export GR.bicategories.lax_transformation.examples.restriction.
+Require Export GR.bicategories.lax_transformation.examples.right_identity_inv.
+Require Export GR.bicategories.lax_transformation.examples.right_identity.
+Require Export GR.bicategories.lax_transformation.examples.whisker_L.
+Require Export GR.bicategories.lax_transformation.examples.whisker_R.

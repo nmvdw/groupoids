@@ -1,10 +1,12 @@
 Require Import HoTT.
-From HoTT.Categories Require Import
-     Category Functor NaturalTransformation FunctorCategory.
 From GR.bicategories Require Import
      general_category.
 From GR.bicategories.bicategory Require Import
-     bicategory bicategory_laws univalent.
+     bicategory
+     adjoint
+     adjoint_unique
+     bicategory_laws
+     univalent.
 
 Section OpBiCategory.
   Variable (C : BiCategory).
@@ -73,10 +75,11 @@ Section OpBiCategory.
   Definition op : BiCategory
     := Build_BiCategory op_d op_is_bicategory.
 
-  Definition locally_univalent_op {HC : LocallyUnivalent C}
+  Global Instance locally_univalent_op
+         `{LocallyUnivalent C}
     : LocallyUnivalent op.
   Proof.
     intros X Y f g ; cbn in *.
-    apply (HC Y X).
+    apply _.
   Qed.
 End OpBiCategory.

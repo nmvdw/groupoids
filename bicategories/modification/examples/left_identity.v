@@ -1,15 +1,11 @@
 Require Import HoTT.
-From HoTT.Categories Require Import
-     Category Functor NaturalTransformation FunctorCategory.
 From GR.bicategories Require Import
-     bicategory.bicategory
      bicategory.bicategory_laws
      lax_functor.lax_functor
      lax_transformation.lax_transformation
      lax_transformation.examples.identity
      lax_transformation.examples.composition
-     modification.modification
-     general_category.
+     modification.modification.
 
 Section LeftIdentity.
   Context `{Funext}

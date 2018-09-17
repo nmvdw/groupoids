@@ -1,7 +1,7 @@
 Require Import HoTT.
-From HoTT.Categories Require Import
-     Category Functor NaturalTransformation FunctorCategory.
+Require Import HoTT.Categories.Functor.
 From GR.bicategories Require Import
+     general_category
      bicategory.bicategory
      bicategory.examples.full_sub
      lax_functor.lax_functor.
@@ -17,8 +17,8 @@ Section RestrictionFunctor.
     - exact (fun X => Fobj F X.1).
     - intros ; simpl in *.
       exact (Fmor F X.1 Y.1).
-    - intros X Y Z g f ; simpl in *.
-      exact (Fcomp F X.1 Y.1 Z.1 (g,f)).
+    - intros X Y Z g f ; cbn in *.      
+      exact (Fcomp₁ F g f).
     - intros ; simpl.
       exact (Fid F X.1).
   Defined.

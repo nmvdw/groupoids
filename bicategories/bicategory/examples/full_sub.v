@@ -1,6 +1,6 @@
 Require Import HoTT.
 From HoTT.Categories Require Import
-     Category Functor NaturalTransformation.
+     Functor.
 From GR Require Import
      bicategory.bicategory
      bicategory.univalent

@@ -1,8 +1,10 @@
 Require Import HoTT.
 From HoTT.Categories Require Import
-     Category Functor NaturalTransformation FunctorCategory.
+     Functor NaturalTransformation FunctorCategory.
 From GR.bicategories Require Import
-     bicategory.bicategory lax_functor.lax_functor general_category.
+     general_category
+     bicategory.bicategory
+     lax_functor.lax_functor.
 
 Definition postcomp
            {C : BiCategory}

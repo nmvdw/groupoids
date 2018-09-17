@@ -4,22 +4,19 @@ From GR.bicategories Require Import
      lax_functor.lax_functor
      lax_transformation.lax_transformation
      lax_transformation.transformation_category
-     lax_transformation.examples.identity
-     lax_transformation.examples.composition
-     modification.modification
-     modification.examples.identity
-     modification.examples.composition
-     modification.examples.left_identity
-     modification.examples.left_identity_inv
-     modification.examples.right_identity
-     modification.examples.right_identity_inv
-     modification.examples.associativity
-     modification.examples.associativity_inv
-     modification.examples.whisker_L
-     modification.examples.whisker_R
-     general_category.
-From HoTT.Categories Require Import
-     Category Functor NaturalTransformation FunctorCategory.
+     modification.modification.
+Require Import GR.bicategories.lax_transformation.examples.composition.
+Require Import GR.bicategories.lax_transformation.examples.identity.
+Require Import GR.bicategories.modification.examples.associativity_inv.
+Require Import GR.bicategories.modification.examples.associativity.
+Require Import GR.bicategories.modification.examples.composition.
+Require Import GR.bicategories.modification.examples.identity.
+Require Import GR.bicategories.modification.examples.left_identity_inv.
+Require Import GR.bicategories.modification.examples.left_identity.
+Require Import GR.bicategories.modification.examples.right_identity_inv.
+Require Import GR.bicategories.modification.examples.right_identity.
+Require Import GR.bicategories.modification.examples.whisker_L.
+Require Import GR.bicategories.modification.examples.whisker_R.
 
 Section LaxFunctors.
   Context `{Funext}.

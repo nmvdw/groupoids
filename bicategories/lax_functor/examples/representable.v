@@ -1,11 +1,10 @@
 Require Import HoTT.
+Require Import HoTT.Categories.Functor HoTT.Categories.NaturalTransformation.
 From GR.bicategories Require Import
      bicategory.bicategory
      bicategory.bicategory_laws
      lax_functor.lax_functor
      general_category.
-From HoTT.Categories Require Import
-     Category Functor NaturalTransformation FunctorCategory.
 From GR.bicategories.bicategory.examples Require Import
      precat
      opposite.

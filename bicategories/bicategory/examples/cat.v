@@ -2,7 +2,11 @@ Require Import HoTT.
 From HoTT.Categories Require Import
      Category Functor NaturalTransformation FunctorCategory.
 From GR.bicategories Require Import
-     general_category bicategory.bicategory bicategory.univalent adjoint adjoint_unique.
+     general_category
+     bicategory.bicategory
+     bicategory.univalent
+     adjoint
+     adjoint_unique.
 From GR.bicategories.bicategory.examples Require Import
      precat full_sub.
 

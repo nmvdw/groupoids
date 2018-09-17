@@ -1,10 +1,9 @@
 Require Import HoTT.
-From HoTT.Categories Require Import
-     Category Functor NaturalTransformation FunctorCategory.
 From GR.bicategories Require Import
      general_category.
 From GR.bicategories.bicategory Require Import
-     bicategory bicategory_laws univalent.
+     bicategory
+     bicategory_laws.
 
 Section OpBiCategory.
   Variable (C : BiCategory).

@@ -1,6 +1,4 @@
 Require Import HoTT.
-From HoTT.Categories Require Import
-     Category Functor NaturalTransformation FunctorCategory.
 From GR.bicategories Require Import
      bicategory.bicategory lax_functor.lax_functor.
 
