@@ -1,39 +1,60 @@
 (** A 2-category is a bicategory in which every Hom-set is a Category.
     In a 2-category the axioms for composition hold "on the nose". *)
 Require Import HoTT.
+Require Import GR.bicategories.general_category.
 From GR.bicategories Require Import bicategory.bicategory.
-From HoTT.Categories Require Import Category.Univalent.
 
-Notation Is2Category B := (forall s d : Obj B, IsCategory (Hom _ s d)).
+Record IsStrict (C : BiCategory) :=
+    Build_Strict {
+        strict_left_unit :
+          forall {X Y : C} (f : C⟦X,Y⟧),
+            id₁ Y · f = f ;
+        strict_right_unit :
+          forall {X Y : C} (f : C⟦X,Y⟧),
+            f · id₁ X = f ;
+        strict_assoc :
+          forall {W X Y Z : C}
+                 (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧),
+            (h · g) · f = h · (g · f) ;
+        strict_triangle_r :
+          forall {X Y Z : C}
+                 (g : C⟦Y,Z⟧)
+                 (f : C⟦X,Y⟧),
+            ap (fun z => z · f) (strict_right_unit g)
+            =
+            strict_assoc g (id₁ Y) f @ ap (fun z => g · z) (strict_left_unit f) ;
+        strict_pentagon :
+          forall {V W X Y Z : C}
+                 (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
+                 (g : C⟦W,X⟧) (f : C⟦V,W⟧),
+            strict_assoc (k · h) g f @ strict_assoc k h (g · f)
+            = (ap (fun z => z · f) (strict_assoc k h g))
+                @ ((strict_assoc k (h · g) f)
+                     @ ap (fun z => k · z) (strict_assoc h g f)) ;
+        idtoiso_strict_left_unit :
+          forall {X Y : C} (f : C⟦X,Y⟧),
+            @morphism_isomorphic _ _ _ (idtoiso _ (strict_left_unit f))
+            =
+            left_unit f ;
+        idtoiso_strict_right_unit :
+          forall {X Y : C} (f : C⟦X,Y⟧),
+            @morphism_isomorphic _ _ _ (idtoiso _ (strict_right_unit f))
+            =
+            right_unit f ;
+        idtoiso_strict_assoc :
+          forall {W X Y Z : C}
+                 (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧),
+            @morphism_isomorphic _ _ _ (idtoiso _ (strict_assoc h g f))
+            =
+            assoc h g f ;
+      }.
 
-Section TwoCategoryAxioms.
-  Context `{Univalence}.
-  Local Open Scope bicategory_scope.
+Arguments Build_Strict {C} _ _ _ _ _ _ _ _.
 
-  Variable (B : BiCategory).
-  Context `{Is2Category B}.
+Ltac make_strict := simple refine (Build_Strict _ _ _ _ _ _ _ _).
 
-  Lemma un_l_eq {X Y : B} (f : Hom _ X Y) :
-    id_m Y ⋅ f = f.
-  Proof.
-    apply (isotoid (Hom _ X Y) _ _).
-    simple refine {| morphism_isomorphic := un_l X Y f |}.
-  Defined.
-
-  Lemma un_r_eq {X Y : B} (f : Hom _ X Y) :
-    f ⋅ id_m X = f.
-  Proof.
-    apply (isotoid (Hom _ X Y) _ _).
-    simple refine {| morphism_isomorphic := un_r X Y f |}.
-  Defined.
-
-  Lemma asssoc_eq {W X Y Z : B}
-          (f : Hom _ W X)
-          (g : Hom _ X Y)
-          (h : Hom _ Y Z) :
-    (h ⋅ g) ⋅ f = h ⋅ (g ⋅ f).
-  Proof.
-    apply (isotoid (Hom _ W Z) _ _).
-    simple refine {| morphism_isomorphic := assoc (h, g, f) |}.
-  Defined.
-End TwoCategoryAxioms.
+Arguments strict_left_unit {C} _ {X Y} f.
+Arguments strict_right_unit {C} _ {X Y} f.
+Arguments strict_assoc {C} _ {W X Y Z} h g f.
+Arguments strict_triangle_r {C} _ {X Y Z} g f.
+Arguments strict_pentagon {C} _ {V W X Y Z} k h g f.

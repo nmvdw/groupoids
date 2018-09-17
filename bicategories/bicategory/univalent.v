@@ -3,6 +3,7 @@ Require Import HoTT.Categories.Functor.
 From GR.bicategories Require Import
      general_category
      bicategory.bicategory_laws
+     bicategory.strict
      bicategory.adjoint.
 
 Class LocallyUnivalent (C : BiCategory)
@@ -61,42 +62,6 @@ Proof.
   intros X Y.
   rewrite (path_universe (id_to_adjequiv X Y)).
   apply _.
-Defined.
-
-Definition strict_left_unit
-           `{Univalence}
-           {C : BiCategory}
-           `{LocallyUnivalent C}
-           {X Y : C}
-           (f : C⟦X, Y⟧)
-  : id₁ Y · f = f.
-Proof.
-  apply (isotoid (C⟦X,Y⟧) _ _).
-  exact {| morphism_isomorphic := left_unit f |}.
-Defined.
-
-Definition strict_right_unit
-           `{Univalence}
-           {C : BiCategory}
-           `{LocallyUnivalent C}
-           {X Y : C}
-           (f : C⟦X, Y⟧)
-  : f · id₁ X = f.
-Proof.
-  apply (isotoid (C⟦X,Y⟧) _ _).
-  exact {| morphism_isomorphic := right_unit f |}.
-Defined.
-
-Definition strict_assoc
-           `{Univalence}
-           {C : BiCategory}
-           `{LocallyUnivalent C}
-           {W X Y Z : C}
-           (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
-  : (h · g) · f = h · (g · f).
-Proof.
-  apply (isotoid (C⟦W,Z⟧) _ _).
-  exact {| morphism_isomorphic := assoc h g f |}.
 Defined.
 
 Definition whisker_l_functor
@@ -196,41 +161,42 @@ Proof.
   reflexivity.
 Qed.
 
-Definition strict_triangle_r
+Definition locally_univalent_to_strict
            `{Univalence}
-           {C : BiCategory}
+           (C : BiCategory)
            `{LocallyUnivalent C}
-           {X Y Z : C}
-           (g : C⟦Y,Z⟧)
-           (f : C⟦X,Y⟧)
-  : ap (fun z => z · f) (strict_right_unit g)
-    =
-    strict_assoc g (id₁ Y) f @ ap (fun z => g · z) (strict_left_unit f).
+  : IsStrict C.
 Proof.
-  rewrite transport_whisker_l, transport_whisker_r.
-  unfold strict_assoc.
-  rewrite <- isotoid_compose.
-  f_ap.
-  apply path_isomorphic ; cbn.
-  apply triangle_r.
-Qed.
-
-Definition strict_pentagon
-           `{Univalence}
-           {C : BiCategory}
-           `{LocallyUnivalent C}
-           {V W X Y Z : C}
-           (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
-           (g : C⟦W,X⟧) (f : C⟦V,W⟧)
-  : strict_assoc (k · h) g f @ strict_assoc k h (g · f)
-    = (ap (fun z => z · f) (strict_assoc k h g))
-        @ ((strict_assoc k (h · g) f)
-             @ ap (fun z => k · z) (strict_assoc h g f)).
-Proof.
-  rewrite transport_whisker_l, transport_whisker_r.
-  unfold strict_assoc.
-  rewrite <- !isotoid_compose.
-  f_ap.
-  apply path_isomorphic ; cbn.
-  apply pentagon.
+  make_strict.
+  - intros X Y f.
+    apply (isotoid (C⟦X,Y⟧) _ _).
+    exact {| morphism_isomorphic := left_unit f |}.
+  - intros X Y f.
+    apply (isotoid (C⟦X,Y⟧) _ _).
+    exact {| morphism_isomorphic := right_unit f |}.
+  - intros W X Y Z h g f.
+    apply (isotoid (C⟦W,Z⟧) _ _).
+    exact {| morphism_isomorphic := assoc h g f |}.
+  - intros X Y Z g f ; simpl.
+    rewrite transport_whisker_l, transport_whisker_r.
+    rewrite <- isotoid_compose.
+    f_ap.
+    apply path_isomorphic ; cbn.
+    apply triangle_r.
+  - intros V W X Y Z k h g f.
+    rewrite transport_whisker_l, transport_whisker_r.
+    unfold strict_assoc.
+    rewrite <- !isotoid_compose.
+    f_ap.
+    apply path_isomorphic ; cbn.
+    apply pentagon.
+  - intros X Y f ; cbn.
+    rewrite eisretr.
+    reflexivity.
+  - intros X Y f ; cbn.
+    rewrite eisretr.
+    reflexivity.
+  - intros W X Y Z h g f.
+    rewrite eisretr.
+    reflexivity.
 Qed.
