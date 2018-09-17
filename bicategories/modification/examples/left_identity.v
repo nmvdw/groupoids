@@ -8,19 +8,18 @@ From GR.bicategories Require Import
      modification.modification.
 
 Section LeftIdentity.
-  Context `{Funext}
+  Context `{Univalence}
           {C D : BiCategory}
           {F₁ F₂ : LaxFunctor C D}.
   Variable (η : LaxTransformation F₁ F₂).
 
-  Definition left_identity_mod_d
-    : modification_d (compose η (identity_transformation F₂)) η
-    := fun A => left_unit (η A).
+  Local Notation left_identity_mod_d
+    := (fun (A : C) => left_unit (η A) : (compose η (identity_transformation F₂) A) ==> η A).
 
   Definition left_identity_is_mod : is_modification left_identity_mod_d.
   Proof.
     intros A B f ; cbn in *.
-    unfold bc_whisker_l, bc_whisker_r, left_identity_mod_d.
+    unfold bc_whisker_l, bc_whisker_r.
     rewrite !vcomp_assoc.
     rewrite <- (vcomp_left_identity (id₂ (η A))).
     rewrite interchange.
@@ -54,12 +53,11 @@ Section LeftIdentity.
   Qed.
 
   Definition left_identity_mod
-    : modification (composition.compose η (identity_transformation F₂)) η
-    := Build_Modification left_identity_mod_d left_identity_is_mod.
-
-  Global Instance left_identity_mod_pseudo
-    : is_pseudo_modification left_identity_mod.
+    : PseudoModification (composition.compose η (identity_transformation F₂)) η.
   Proof.
-    split ; apply _.
+    make_pseudo_modification.
+    - exact (Build_Modification left_identity_mod_d left_identity_is_mod).
+    - intros X ; cbn.
+      apply _.
   Defined.
 End LeftIdentity.

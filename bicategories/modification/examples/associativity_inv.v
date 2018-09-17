@@ -7,23 +7,22 @@ From GR.bicategories Require Import
      modification.modification.
 
 Section AssociativityInverse.
-  Context `{Funext}
+  Context `{Univalence}
           {C D : BiCategory}
           {F₁ F₂ F₃ F₄ : LaxFunctor C D}.
   Variable (η₁ : LaxTransformation F₃ F₄)
            (η₂ : LaxTransformation F₂ F₃)
            (η₃ : LaxTransformation F₁ F₂).
 
-  Definition assoc_inv_mod_d
-    : modification_d
-        (composition.compose (composition.compose η₃ η₂) η₁)
-        (composition.compose η₃ (composition.compose η₂ η₁))
-    := fun A => assoc_inv (η₁ A) (η₂ A) (η₃ A).
+  Local Notation assoc_inv_mod_d
+    := (fun (A : C) =>
+          assoc_inv (η₁ A) (η₂ A) (η₃ A)
+          : compose (compose η₃ η₂) η₁ A ==> compose η₃ (compose η₂ η₁) A).
 
   Definition assoc_inv_d_is_modification : is_modification assoc_inv_mod_d.
   Proof.
     intros A B f ; cbn in *.
-    unfold assoc_inv_mod_d, bc_whisker_l, bc_whisker_r.
+    unfold bc_whisker_l, bc_whisker_r.
     rewrite !vcomp_assoc.
     repeat (rewrite <- (vcomp_left_identity (id₂ (η₁ B)))
             ; rewrite interchange
@@ -67,8 +66,13 @@ Section AssociativityInverse.
   Qed.
 
   Definition assoc_inv_mod
-    : modification
+    : PseudoModification
         (composition.compose (composition.compose η₃ η₂) η₁)
-        (composition.compose η₃ (composition.compose η₂ η₁))
-    := Build_Modification assoc_inv_mod_d assoc_inv_d_is_modification.
+        (composition.compose η₃ (composition.compose η₂ η₁)).
+  Proof.
+    make_pseudo_modification.
+    - exact (Build_Modification assoc_inv_mod_d assoc_inv_d_is_modification).
+    - intros X ; cbn.
+      apply _.
+  Defined.
 End AssociativityInverse.

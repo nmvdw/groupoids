@@ -80,16 +80,55 @@ Class is_pseudo_modification
       {F G : LaxFunctor C D}
       {σ₁ σ₂ : LaxTransformation F G}
       (m : modification σ₁ σ₂)
-  := { mc_iso : forall (A : C),
-         IsIsomorphism (mod_component m A)
-     }.
+  := mc_iso : forall (A : C),
+      IsIsomorphism (mod_component m A).
 
-Global Instance mod_component_is_iso_pseudo
+Global Instance is_hprop_is_pseudo_modification
+       `{Univalence}
        {C D : BiCategory}
        {F G : LaxFunctor C D}
        {σ₁ σ₂ : LaxTransformation F G}
        (m : modification σ₁ σ₂)
-       `{is_pseudo_modification _ _ _ _ _ _ m}
+  : IsHProp (is_pseudo_modification m).
+Proof.
+  unfold is_pseudo_modification.
+  apply _.
+Qed.
+
+Definition PseudoModification
+           `{Univalence}
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           (σ₁ σ₂ : LaxTransformation F G)
+  : Type
+  := {m : modification σ₁ σ₂ & is_pseudo_modification m}.
+
+Ltac make_pseudo_modification := simple refine (_;_).
+
+Coercion pseudo_modification_to_modification
+         `{Univalence}
+         {C D : BiCategory}
+         {F G : LaxFunctor C D}
+         {σ₁ σ₂ : LaxTransformation F G}
+         (m : PseudoModification σ₁ σ₂)
+  : modification σ₁ σ₂
+  := m.1.
+
+Global Instance is_pseudo_pseudo_modification
+       `{Univalence}
+       {C D : BiCategory}
+       {F G : LaxFunctor C D}
+       {σ₁ σ₂ : LaxTransformation F G}
+       (m : PseudoModification σ₁ σ₂)
+  : is_pseudo_modification m
+  := m.2.
+
+Global Instance mod_component_is_iso_pseudo
+       `{Univalence}
+       {C D : BiCategory}
+       {F G : LaxFunctor C D}
+       {σ₁ σ₂ : LaxTransformation F G}
+       (m : PseudoModification σ₁ σ₂)
        (A : C)
   : IsIsomorphism (mod_component m A)
   := mc_iso A.

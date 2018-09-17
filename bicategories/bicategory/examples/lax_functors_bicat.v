@@ -19,7 +19,7 @@ Require Import GR.bicategories.modification.examples.whisker_L.
 Require Import GR.bicategories.modification.examples.whisker_R.
 
 Section LaxFunctors.
-  Context `{Funext}.
+  Context `{Univalence}.
   Variable (C D : BiCategory).
 
   Definition lax_functors_d : BiCategory_d.
@@ -30,7 +30,7 @@ Section LaxFunctors.
     - intros F ; cbn.
       exact (identity_transformation F).
     - intros F₁ F₂ F₃ [η₂ η₁] ; cbn in *.
-      exact (composition.compose η₁ η₂).
+      exact (compose η₁ η₂).
     - intros F₁ F₂ F₃ [η₁ η₂] [ε₁ ε₂] [m₁ m₂] ; cbn in *.
       exact (comp_modification (whisker_R_mod m₂ ε₁) (whisker_L_mod η₂ m₁)).
     - intros F₁ F₂ η ; cbn in *.
@@ -53,8 +53,6 @@ Section LaxFunctors.
     - intros X Y Z [g f] ; simpl in *.
       apply path_modification.
       funext x ; cbn.
-      unfold comp_modification_d, whisker_R_mod, whisker_L_mod, id_modification ; cbn.
-      unfold whisker_R_mod_d, whisker_L_mod_d, id_modification_d ; cbn.
       unfold bc_whisker_l, bc_whisker_r.
       rewrite !hcomp_id₂.
       rewrite vcomp_left_identity.
@@ -62,29 +60,20 @@ Section LaxFunctors.
     - intros X Y Z [f₁ f₂] [g₁ g₂] [h₁ h₂] [η₁ η₂] [ε₁ ε₂] ; simpl in *.
       apply path_modification.
       funext x ; cbn.
-      unfold comp_modification_d, whisker_R_mod, whisker_L_mod, id_modification ; cbn.
-      unfold whisker_R_mod_d, whisker_L_mod_d, id_modification_d, comp_modification_d ; cbn.
-      unfold comp_modification_d, bc_whisker_l, bc_whisker_r.
+      unfold bc_whisker_l, bc_whisker_r.
       rewrite <- !interchange.
       rewrite !vcomp_left_identity, !vcomp_right_identity.
       reflexivity.
     - intros X Y f g η ; simpl in *.
       apply path_modification.
       funext x ; cbn.
-      unfold comp_modification_d ; cbn.
-      unfold left_identity_mod_d, comp_modification_d, id_modification ; cbn.
-      unfold whisker_R_mod_d, whisker_L_mod_d, id_modification_d ; cbn.
       unfold bc_whisker_l, bc_whisker_r.
-      unfold left_identity_mod_d ; cbn.
       rewrite hcomp_id₂.
       rewrite !vcomp_right_identity.
       apply left_unit_natural.
     - intros X Y f g η ; simpl in *.
       apply path_modification.
       funext x ; cbn.
-      unfold comp_modification_d ; cbn.
-      unfold left_identity_inv_mod_d, comp_modification_d, id_modification ; cbn.
-      unfold whisker_R_mod_d, whisker_L_mod_d, id_modification_d ; cbn.
       unfold bc_whisker_l, bc_whisker_r.
       rewrite hcomp_id₂.
       rewrite !vcomp_right_identity.
@@ -92,9 +81,6 @@ Section LaxFunctors.
     - intros X Y f g η ; simpl in *.
       apply path_modification.
       funext x ; cbn.
-      unfold comp_modification_d ; cbn.
-      unfold right_identity_mod_d, comp_modification_d, id_modification ; cbn.
-      unfold whisker_R_mod_d, whisker_L_mod_d, id_modification_d ; cbn.
       unfold bc_whisker_l, bc_whisker_r.
       rewrite hcomp_id₂.
       rewrite !vcomp_left_identity.
@@ -102,9 +88,6 @@ Section LaxFunctors.
     - intros X Y f g η ; simpl in *.
       apply path_modification.
       funext x ; cbn.
-      unfold comp_modification_d ; cbn.
-      unfold right_identity_inv_mod_d, comp_modification_d, id_modification ; cbn.
-      unfold whisker_R_mod_d, whisker_L_mod_d, id_modification_d ; cbn.
       unfold bc_whisker_l, bc_whisker_r.
       rewrite hcomp_id₂.
       rewrite !vcomp_left_identity.
@@ -128,10 +111,6 @@ Section LaxFunctors.
     - intros W X Y Z h₁ h₂ g₁ g₂ f₁ f₂ m₁ m₂ m₃ ; simpl in *.
       apply path_modification.
       funext x ; cbn.
-      repeat (unfold comp_modification_d ; cbn).
-      unfold whisker_R_mod_d, whisker_L_mod_d ; cbn.
-      unfold comp_modification_d ; cbn.
-      unfold whisker_R_mod_d, whisker_L_mod_d ; cbn.
       unfold bc_whisker_l, bc_whisker_r.
       rewrite <- !interchange.
       rewrite !vcomp_left_identity, !vcomp_right_identity.
@@ -139,10 +118,6 @@ Section LaxFunctors.
     - intros W X Y Z h₁ h₂ g₁ g₂ f₁ f₂ m₁ m₂ m₃ ; simpl in *.
       apply path_modification.
       funext x ; cbn.
-      repeat (unfold comp_modification_d ; cbn).
-      unfold whisker_R_mod_d, whisker_L_mod_d ; cbn.
-      unfold comp_modification_d ; cbn.
-      unfold whisker_R_mod_d, whisker_L_mod_d ; cbn.
       unfold bc_whisker_l, bc_whisker_r.
       rewrite <- !interchange.
       rewrite !vcomp_left_identity, !vcomp_right_identity.
@@ -158,10 +133,7 @@ Section LaxFunctors.
     - intros X Y Z g f ; cbn in *.
       apply path_modification.
       funext x ; cbn.
-      unfold comp_modification_d ; cbn.
-      unfold whisker_R_mod_d, whisker_L_mod_d, comp_modification_d ; cbn.
-      unfold id_modification_d, right_identity_mod_d, whisker_R_mod_d, whisker_L_mod_d ; cbn.
-      unfold id_modification_d, left_identity_mod_d, bc_whisker_l, bc_whisker_r ; cbn.
+      unfold bc_whisker_l, bc_whisker_r ; cbn.
       rewrite !hcomp_id₂.
       rewrite !vcomp_left_identity, !vcomp_right_identity.
       rewrite triangle_r.
@@ -169,9 +141,7 @@ Section LaxFunctors.
     - intros V W X Y Z k h g f ; cbn in *.
       apply path_modification.
       funext x ; cbn.
-      repeat (unfold comp_modification_d ; cbn).
-      unfold whisker_R_mod_d, whisker_L_mod_d ; cbn.
-      unfold id_modification_d, bc_whisker_l, bc_whisker_r ; cbn.
+      unfold bc_whisker_l, bc_whisker_r ; cbn.
       rewrite pentagon.
       rewrite !vcomp_assoc.
       rewrite hcomp_id₂, !vcomp_left_identity, hcomp_id₂.

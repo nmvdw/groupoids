@@ -225,13 +225,17 @@ Section Composition.
   Definition compose
     : LaxTransformation F₁ F₃
     := Build_LaxTransformation compose_d compose_d_is_lax.
-
-  Global Instance compose_is_pseudo
-         `{is_pseudo_transformation _ _ _ _ σ₁}
-         `{is_pseudo_transformation _ _ _ _ σ₂}
-    : is_pseudo_transformation compose.
-  Proof.
-    split.
-    apply _.
-  Defined.
 End Composition.
+
+Definition compose_pseudo
+           `{Univalence}
+           {C D : BiCategory}
+          {F₁ F₂ F₃ : LaxFunctor C D}
+          (σ₁ : PseudoTransformation F₁ F₂) (σ₂ : PseudoTransformation F₂ F₃)
+  : PseudoTransformation F₁ F₃.
+Proof.
+  make_pseudo_transformation_lax.
+  - exact (compose σ₁ σ₂).
+  - intros X Y f ; cbn.
+    apply _.
+Defined.

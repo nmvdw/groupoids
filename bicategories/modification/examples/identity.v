@@ -6,28 +6,28 @@ From GR.bicategories Require Import
      modification.modification.
 
 Section IdModification.
-  Context {C D : BiCategory}
+  Context `{Univalence}
+          {C D : BiCategory}
           {F G : LaxFunctor C D}.
   Variable (η : LaxTransformation F G).
 
-  Definition id_modification_d : modification_d η η
-    := fun A => id₂ (η A).
+  Local Notation id_modification_d
+    := (fun A => id₂ (η A)).
 
   Definition id_modification_is_modification : is_modification id_modification_d.
   Proof.
     intros A B f.
-    unfold id_modification_d, bc_whisker_r, bc_whisker_l ; cbn.
+    unfold bc_whisker_r, bc_whisker_l ; cbn.
     rewrite !hcomp_id₂.
     rewrite vcomp_left_identity, vcomp_right_identity.
     reflexivity.
   Qed.
 
-  Definition id_modification : modification η η
-    := Build_Modification id_modification_d id_modification_is_modification.
-
-  Global Instance id_modification_is_pseudo
-    : is_pseudo_modification id_modification.
+  Definition id_modification : PseudoModification η η.
   Proof.
-    split ; apply _.
+    make_pseudo_modification.
+    - exact (Build_Modification id_modification_d id_modification_is_modification).
+    - intros X ; cbn.
+      apply _.
   Defined.
 End IdModification.

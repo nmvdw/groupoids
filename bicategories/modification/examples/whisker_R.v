@@ -13,16 +13,15 @@ Section WhiskerR.
           {ε₁ ε₂ : LaxTransformation F₁ F₂}.
   Variable (m : modification ε₁ ε₂)
            (η : LaxTransformation F₂ F₃).
-
-  Definition whisker_R_mod_d
-    : modification_d (composition.compose ε₁ η) (composition.compose ε₂ η)
-    := fun A => η A ◅ m A.
+  
+  Local Notation whisker_R_mod_d
+    := (fun (A : C) => η A ◅ m A : compose ε₁ η A ==> compose ε₂ η A).
 
   Definition whisker_R_is_mod
     : is_modification whisker_R_mod_d.
   Proof.
     intros A B f ; cbn in *.
-    unfold whisker_R_mod_d, bc_whisker_l, bc_whisker_r.
+    unfold bc_whisker_l, bc_whisker_r.
     rewrite <- !vcomp_assoc.
     rewrite <- assoc_inv_natural.
     rewrite !vcomp_assoc.
@@ -56,13 +55,21 @@ Section WhiskerR.
   Qed.
 
   Definition whisker_R_mod
-    : modification (composition.compose ε₁ η) (composition.compose ε₂ η)
+    : modification (compose ε₁ η) (compose ε₂ η)
     := Build_Modification whisker_R_mod_d whisker_R_is_mod.
-
-  Global Instance whisker_R_mod_pseudo
-         `{is_pseudo_modification _ _ _ _ _ _ m}
-    : is_pseudo_modification whisker_R_mod.
-  Proof.
-    split ; apply _.
-  Defined.
 End WhiskerR.
+
+Definition pseudo_whisker_R_mod
+           `{Univalence}
+           {C D : BiCategory}
+           {F₁ F₂ F₃ : LaxFunctor C D}
+           {ε₁ ε₂ : LaxTransformation F₁ F₂}
+           (m : PseudoModification ε₁ ε₂)
+           (η : LaxTransformation F₂ F₃)
+  : PseudoModification (compose ε₁ η) (compose ε₂ η).
+Proof.
+  make_pseudo_modification.
+  - exact (whisker_R_mod m η).
+  - intros X ; cbn.
+    apply _.
+Defined.

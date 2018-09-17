@@ -7,23 +7,22 @@ From GR.bicategories Require Import
      modification.modification.
 
 Section Associativity.
-  Context `{Funext}
+  Context `{Univalence}
           {C D : BiCategory}
           {F₁ F₂ F₃ F₄ : LaxFunctor C D}.
   Variable (η₁ : LaxTransformation F₃ F₄)
            (η₂ : LaxTransformation F₂ F₃)
            (η₃ : LaxTransformation F₁ F₂).
 
-  Definition assoc_mod_d
-    : modification_d
-        (composition.compose η₃ (composition.compose η₂ η₁))
-        (composition.compose (composition.compose η₃ η₂) η₁)
-    := fun A => assoc (η₁ A) (η₂ A) (η₃ A).
+  Local Notation assoc_mod_d
+    := (fun (A : C) =>
+          assoc (η₁ A) (η₂ A) (η₃ A)
+          : compose η₃ (compose η₂ η₁) A ==> compose (compose η₃ η₂) η₁ A).
 
   Definition assoc_d_is_modification : is_modification assoc_mod_d.
   Proof.
     intros A B f ; cbn in *.
-    unfold assoc_d, bc_whisker_l, bc_whisker_r.
+    unfold bc_whisker_l, bc_whisker_r.
     rewrite !vcomp_assoc.
     repeat (rewrite <- (vcomp_left_identity (id₂ (η₁ B)))
             ; rewrite interchange
@@ -66,8 +65,13 @@ Section Associativity.
   Qed.
 
   Definition assoc_mod
-    : modification
+    : PseudoModification
         (composition.compose η₃ (composition.compose η₂ η₁))
-        (composition.compose (composition.compose η₃ η₂) η₁)
-    := Build_Modification assoc_mod_d assoc_d_is_modification.
+        (composition.compose (composition.compose η₃ η₂) η₁).
+  Proof.
+    make_pseudo_modification.
+    - exact (Build_Modification assoc_mod_d assoc_d_is_modification).
+    - intros X ; cbn.
+      apply _.
+  Defined.
 End Associativity.

@@ -62,13 +62,18 @@ Section WhiskerR.
   Definition whisker_R
     : LaxTransformation (lax_comp G₁ F) (lax_comp G₂ F)
     := Build_LaxTransformation whisker_R_d whisker_R_d_is_lax.
-
-  Global Instance whisker_R_is_pseudo
-         `{is_pseudo_transformation _ _ _ _ σ}
-    : is_pseudo_transformation whisker_R.
-  Proof.
-    split.
-    intros X Y f ; cbn in *.
-    apply _.
-  Defined.
 End WhiskerR.
+
+Definition whisker_R_pseudo
+           `{Univalence}
+           {C D E : BiCategory}
+          {G₁ G₂ : LaxFunctor D E}
+          (F : LaxFunctor C D)
+          (σ : PseudoTransformation G₁ G₂)
+  : PseudoTransformation (lax_comp G₁ F) (lax_comp G₂ F).
+Proof.
+  make_pseudo_transformation_lax.
+  - exact (whisker_R F σ).
+  - intros X Y f ; cbn.
+    apply _.
+Defined.

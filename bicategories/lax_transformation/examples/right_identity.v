@@ -87,10 +87,6 @@ Section LaxRightIdentity.
   Qed.
 
   Definition lax_right_identity
-    : LaxTransformation (lax_comp F (lax_id_functor C)) F
+    : PseudoTransformation (lax_comp F (lax_id_functor C)) F
     := Build_PseudoTransformation lax_right_identity_d is_lax_right_d.
-
-  Global Instance right_identity_pseudo
-    : is_pseudo_transformation lax_right_identity
-    := _.
 End LaxRightIdentity.

@@ -10,7 +10,7 @@ Require Import GR.bicategories.modification.examples.composition.
 Require Import GR.bicategories.modification.examples.identity.
 
 Section transformation_category.
-  Context `{Funext}.
+  Context `{Univalence}.
 
   Definition transformation_category
              {C D : BiCategory}
@@ -69,20 +69,21 @@ Section transformation_category.
     - simpl. simple refine (Build_Modification _ _).
       + intro A. apply ((m A)^-1).
       + intros A B f. simpl.
-        Unset Printing Notations.
-        Set Printing All.
         pose (α := (G ₁ f) ◅ m A).
         (* for this we need: whisker with an isomorphism => isomorphism *)
         (* 1) precompose both side with Gf ◅ mA
-           2) postcompose both sides with mA ▻ Ff *) admit.
-    - simpl. apply path_modification. funext x. (* confusing notation *)
-      simpl. unfold comp_modification_d, id_modification_d. simpl.
-      pose (HmA x). unfold vcomp.
-      rewrite left_inverse. reflexivity.
-    - simpl. apply path_modification. funext x. (* confusing notation *)
-      simpl. unfold comp_modification_d, id_modification_d. simpl.
-      pose (HmA x). unfold vcomp.
-      rewrite right_inverse. reflexivity.
+           2) postcompose both sides with mA ▻ Ff *)
+        admit.
+    - simpl.
+      apply path_modification.
+      funext x ; simpl.
+      rewrite vcomp_left_inverse.
+      reflexivity.
+    - simpl.
+      apply path_modification.
+      funext x ; simpl.
+      rewrite vcomp_right_inverse.
+      reflexivity.
   Admitted.
 
   Lemma transformations_category_isomorphic {C D : BiCategory}

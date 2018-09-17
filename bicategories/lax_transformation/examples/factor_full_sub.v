@@ -34,11 +34,20 @@ Section Factor.
     := Build_LaxTransformation
          lax_factor_transformation_d
          lax_factor_transformation_is_lax.
-
-  Definition lax_factor_is_pseudo
-             `{is_pseudo_transformation _ _ _ _ η}
-    : is_pseudo_transformation lax_factor_transformation.
-  Proof.
-    split ; intros ; cbn ; apply _.
-  Defined.
 End Factor.
+
+Definition pseudo_factor_transformation
+           `{Univalence}
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           (P : D -> hProp)
+           (η : PseudoTransformation F G)
+           (FH : forall (X : C), P (F X))
+           (GH : forall (X : C), P (G X))
+  : PseudoTransformation (lax_factor F P FH) (lax_factor G P GH).
+Proof.
+  make_pseudo_transformation_lax.
+  - exact (lax_factor_transformation P η FH GH).
+  - intros X Y f ; cbn.
+    apply _.
+Defined.

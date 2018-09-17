@@ -95,10 +95,6 @@ Section LaxAssociativityInv.
   Qed.
   
   Definition lax_associativity_inv
-    : LaxTransformation (lax_comp F₃ (lax_comp F₂ F₁)) (lax_comp (lax_comp F₃ F₂) F₁)
+    : PseudoTransformation (lax_comp F₃ (lax_comp F₂ F₁)) (lax_comp (lax_comp F₃ F₂) F₁)
     := Build_PseudoTransformation lax_associativity_inv_d is_lax_associativity_inv_d.
-
-  Global Instance lax_associativity_inv_pseudo
-    : is_pseudo_transformation lax_associativity_inv
-    := _.
 End LaxAssociativityInv.
