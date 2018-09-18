@@ -28,6 +28,16 @@ Section ProdFunctor.
     := Build_LaxFunctor lax_prod_d lax_prod_d_is_lax.
 End ProdFunctor.
 
+Global Instance prod_is_pseudo
+           `{Univalence}
+           {C D₁ D₂ : BiCategory}
+           (F₁ : LaxFunctor C D₁) (F₂ : LaxFunctor C D₂)
+           `{is_pseudo _ _ F₁} `{is_pseudo _ _ F₂}
+  : is_pseudo (lax_prod F₁ F₂).
+Proof.
+  split ; apply _.
+Defined.
+
 Definition pseudo_prod
            `{Univalence}
            {C D₁ D₂ : BiCategory}
@@ -36,6 +46,5 @@ Definition pseudo_prod
 Proof.
   make_pseudo_functor_lax.
   - exact (lax_prod F₁ F₂).
-  - simpl.
-    split ; apply _.
+  - exact (prod_is_pseudo F₁ F₂).
 Defined.

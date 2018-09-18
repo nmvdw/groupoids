@@ -12,7 +12,7 @@ Section WhiskerL.
           {F₁ F₂ F₃ : LaxFunctor C D}
           {η₁ η₂ : LaxTransformation F₂ F₃}.
   Variable (ε : LaxTransformation F₁ F₂)
-           (m : modification η₁ η₂).
+           (m : Modification η₁ η₂).
 
   Local Notation whisker_L_mod_d
     := (fun (A : C) => m A ▻ ε A : compose ε η₁ A ==> compose ε η₂ A).
@@ -54,21 +54,33 @@ Section WhiskerL.
   Qed.
 
   Definition whisker_L_mod
-    : modification (compose ε η₁) (compose ε η₂)
+    : Modification (compose ε η₁) (compose ε η₂)
     := Build_Modification whisker_L_mod_d whisker_L_is_mod.
 End WhiskerL.
 
-Definition pseudo_whisker_L_mod
+Definition whisker_L_mod_is_iso
            `{Univalence}
            {C D : BiCategory}
            {F₁ F₂ F₃ : LaxFunctor C D}
            {η₁ η₂ : LaxTransformation F₂ F₃}
            (ε : LaxTransformation F₁ F₂)
-           (m : PseudoModification η₁ η₂)
-  : PseudoModification (compose ε η₁) (compose ε η₂).
+           (m : IsoModification η₁ η₂)
+  : iso_modification (whisker_L_mod ε m).
 Proof.
-  make_pseudo_modification.
+  intros X ; cbn.
+  apply _.
+Qed.
+
+Definition iso_whisker_L_mod
+           `{Univalence}
+           {C D : BiCategory}
+           {F₁ F₂ F₃ : LaxFunctor C D}
+           {η₁ η₂ : LaxTransformation F₂ F₃}
+           (ε : LaxTransformation F₁ F₂)
+           (m : IsoModification η₁ η₂)
+  : IsoModification (compose ε η₁) (compose ε η₂).
+Proof.
+  make_iso_modification.
   - exact (whisker_L_mod ε m).
-  - intros X ; cbn.
-    apply _.
+  - exact (whisker_L_mod_is_iso ε m).
 Defined.

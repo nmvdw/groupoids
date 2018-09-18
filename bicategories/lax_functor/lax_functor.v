@@ -266,9 +266,9 @@ Global Instance ise_pseudo_pseudo_functor
   := F.2.
 
 Global Instance Fcomp₁_is_iso
-       `{Univalence}
        {C D : BiCategory}
-       (F : PseudoFunctor C D)
+       (F : LaxFunctor C D)
+       `{is_pseudo _ _ F}
        {X Y Z : C}
        (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
   : IsIsomorphism (Fcomp₁ F g f).
@@ -278,8 +278,8 @@ Defined.
 
 Definition Fcomp₁_inv
            {C D : BiCategory}
-           `{Univalence}
-           (F : PseudoFunctor C D)
+           (F : LaxFunctor C D)
+           `{is_pseudo _ _ F}
            {X Y Z : C}
            (g : C⟦Y,Z⟧) (f : C⟦X,Y⟧)
   : (F ₁ (g · f)) ==> (F ₁ g) · (F ₁ f).
@@ -288,9 +288,10 @@ Proof.
 Defined.
 
 Global Instance Fcomp_is_iso
-       `{Univalence}
+       `{Funext}
        {C D : BiCategory}
-       (F : PseudoFunctor C D)
+       (F : LaxFunctor C D)
+       `{is_pseudo _ _ F}
        {X Y Z : C}
   : @IsIsomorphism (_ -> _) _ _ (Fcomp F X Y Z).
 Proof.
@@ -299,9 +300,10 @@ Proof.
 Defined.
 
 Definition Fcomp₁_inv_naturality
-           `{Univalence}
+           `{Funext}
            {C D : BiCategory}
-           (F : PseudoFunctor C D)
+           (F : LaxFunctor C D)
+           `{is_pseudo _ _ F}
            {X Y Z : C}
            {g₁ g₂ : C⟦Y,Z⟧} {f₁ f₂ : C⟦X,Y⟧}
            (ηg : g₁ ==> g₂) (ηf : f₁ ==> f₂)
@@ -311,9 +313,9 @@ Definition Fcomp₁_inv_naturality
   := commutes (@morphism_inverse (_ -> _) _ _ (Fcomp F X Y Z) _) (g₁,f₁) (g₂,f₂) (ηg,ηf).
 
 Global Instance Fid_is_iso
-       `{Univalence}
        {C D : BiCategory}
-       (F : PseudoFunctor C D)
+       (F : LaxFunctor C D)
+       `{is_pseudo _ _ F}
        {X : C}
   : IsIsomorphism (Fid F X).
 Proof.
@@ -321,9 +323,9 @@ Proof.
 Defined.
 
 Definition Fid_inv
-           `{Univalence}
            {C D : BiCategory}
-           (F : PseudoFunctor C D)
+           (F : LaxFunctor C D)
+           `{is_pseudo _ _ F}
            (X : C)
   : (F ₁ (id₁ X)) ==> id₁ (F X).
 Proof.
@@ -331,9 +333,10 @@ Proof.
 Defined.
 
 Definition F_left_unit_inv
-           `{Univalence}
+           `{Funext}
            {C D : BiCategory}
-           (F : PseudoFunctor C D)
+           (F : LaxFunctor C D)
+           `{is_pseudo _ _ F}
            {X Y : C}
            (f : C⟦X,Y⟧)
   : left_unit_inv (F ₁ f)
@@ -354,9 +357,9 @@ Proof.
 Qed.
 
 Definition F_right_unit_inv
-           `{Univalence}
            {C D : BiCategory}
-           (F : PseudoFunctor C D)
+           (F : LaxFunctor C D)
+           `{is_pseudo _ _ F}
            {X Y : C}
            (f : C⟦X,Y⟧)
   : right_unit_inv (F ₁ f)

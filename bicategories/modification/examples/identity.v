@@ -23,11 +23,19 @@ Section IdModification.
     reflexivity.
   Qed.
 
-  Definition id_modification : PseudoModification η η.
+  Definition id_modification : Modification η η
+    := Build_Modification id_modification_d id_modification_is_modification.
+
+  Definition id_modification_is_iso : iso_modification id_modification.
   Proof.
-    make_pseudo_modification.
-    - exact (Build_Modification id_modification_d id_modification_is_modification).
-    - intros X ; cbn.
-      apply _.
+    intros X ; cbn.
+    apply _.
+  Qed.
+
+  Definition id_iso_modification : IsoModification η η.
+  Proof.
+    make_iso_modification.
+    - exact id_modification.
+    - exact id_modification_is_iso.
   Defined.
 End IdModification.

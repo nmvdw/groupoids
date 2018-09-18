@@ -18,7 +18,7 @@ Section transformation_category.
     : PreCategory.
   Proof.
     simple refine (@Build_PreCategory (LaxTransformation F G)
-                                      (fun x y => modification x y) _ _ _ _ _ _).
+                                      (fun x y => Modification x y) _ _ _ _ _ _).
     - apply id_modification.
     - cbn ; intros ? ? ? p q.
       apply (comp_modification p q).
@@ -42,7 +42,7 @@ Section transformation_category.
   Global Instance modification_isomorphism_1 {C D : BiCategory}
         {F G : LaxFunctor C D}
         {η₁ η₂ : LaxTransformation F G}
-        (m : modification η₁ η₂) :
+        (m : Modification η₁ η₂) :
     @IsIsomorphism (transformation_category F G) _ _ m ->
     forall A, IsIsomorphism (m A).
   Proof.
@@ -60,7 +60,7 @@ Section transformation_category.
   Global Instance modification_isomorphism_2 {C D : BiCategory}
         {F G : LaxFunctor C D}
         {η₁ η₂ : LaxTransformation F G}
-        (m : modification η₁ η₂) :
+        (m : Modification η₁ η₂) :
     (forall A, IsIsomorphism (m A)) ->
     @IsIsomorphism (transformation_category F G) _ _ m.
   Proof.

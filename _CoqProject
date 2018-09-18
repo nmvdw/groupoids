@@ -17,6 +17,7 @@ bicategories/bicategory/adjoint_unique.v
 bicategories/bicategory/examples/two_type.v
 bicategories/bicategory/examples/one_types.v
 bicategories/bicategory/examples/full_sub.v
+bicategories/bicategory/examples/arrow_subcategory.v
 bicategories/bicategory/examples/precat.v
 bicategories/bicategory/examples/cat.v
 bicategories/bicategory/examples/prod.v
@@ -65,6 +66,7 @@ bicategories/modification/examples/whisker_R.v
 bicategories/lax_transformation/transformation_category.v
 bicategories/bicategory/examples/lax_functors_bicat.v
 bicategories/bicategory/examples/oplax_functors_bicat.v
+bicategories/bicategory/examples/pseudo_functors_bicat.v
 bicategories/bicategory/examples/comonad.v
 bicategories/bicategory/examples/image.v
 bicategories/lax_functor/examples/image_restriction.v
@@ -73,6 +75,7 @@ bicategories/lax_functors.v
 bicategories/lax_transformations.v
 bicategories/modifications.v
 bicategories/biadjunction/biadjunction.v
+bicategories/biadjunction/examples/restriction.v
 setoid/setoid.v
 setoid/squot_properties.v
 setoid/setoid_adjunction.v
@@ -95,8 +98,8 @@ groupoid/groupoid_quotient/properties/gquot_poly.v
 groupoid/groupoid_quotient/properties/gquot_encode_decode.v
 groupoid/groupoid_quotient/properties/gquot_general.v
 groupoid/adjunction/unit.v
-groupoid/adjunction/unit_inv.v
 groupoid/adjunction/counit.v
-groupoid/adjunction/counit_inv.v
 groupoid/adjunction/gquot_biadjunction.v
+groupoid/adjunction/unit_inv.v
+groupoid/adjunction/counit_inv.v
 groupoid/adjunction/univalent_gquot_biadjunction.v

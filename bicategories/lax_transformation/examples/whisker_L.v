@@ -8,9 +8,9 @@ From GR.bicategories Require Import
      general_category.
 
 Lemma F_assoc_inv₁
-      `{Univalence}
-      {C D : BiCategory}
-      {F : PseudoFunctor C D}
+       {C D : BiCategory}
+       (F : LaxFunctor C D)
+       `{is_pseudo _ _ F}
       {W X Y Z : C}
       (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
   : Fcomp₁_inv F h (g · f) ∘ (F ₂ assoc h g f)
@@ -29,9 +29,9 @@ Proof.
 Qed.
 
 Lemma F_assoc_inv₂
-      `{Univalence}
-      {C D : BiCategory}
-      {F : PseudoFunctor C D}
+       {C D : BiCategory}
+       (F : LaxFunctor C D)
+       `{is_pseudo _ _ F}
       {W X Y Z : C}
       (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
   : (Fcomp₁_inv F (h · g) f)
@@ -52,8 +52,9 @@ Section WhiskerL.
   Context `{Univalence}
           {C D E : BiCategory}
           {F₁ F₂ : LaxFunctor C D}.
-  Variable (G : PseudoFunctor D E)
+  Variable (G : LaxFunctor D E)
            (σ : LaxTransformation F₁ F₂).
+  Context `{is_pseudo _ _ G}.
 
   Definition whisker_L_d
     : LaxTransformation_d (lax_comp G F₁) (lax_comp G F₂).
@@ -179,6 +180,20 @@ Section WhiskerL.
     := Build_LaxTransformation whisker_L_d whisker_L_d_is_lax.
 End WhiskerL.
 
+Global Instance whisker_L_is_pseudo
+       `{Univalence}
+       {C D E : BiCategory}
+       {F₁ F₂ : LaxFunctor C D}
+       (G : LaxFunctor D E)
+       `{is_pseudo _ _ G}
+       (η : LaxTransformation F₁ F₂)
+       `{is_pseudo_transformation _ _ _ _ η}
+  : is_pseudo_transformation (whisker_L G η).
+Proof.
+  intros X Y f ; cbn.
+  apply _.
+Defined.
+
 Definition whisker_L_pseudo
            `{Univalence}
            {C D E : BiCategory}
@@ -189,6 +204,5 @@ Definition whisker_L_pseudo
 Proof.
   make_pseudo_transformation_lax.
   - exact (whisker_L G σ).
-  - intros X Y f ; simpl in *.
-    apply _.
+  - exact (whisker_L_is_pseudo G σ).
 Defined.

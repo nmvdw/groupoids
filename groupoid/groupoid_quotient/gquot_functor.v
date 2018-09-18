@@ -1,14 +1,10 @@
 Require Import HoTT.
 From HoTT.Categories Require Import
      Functor NaturalTransformation.
+Require Import GR.bicategories.bicategories.
+Require Import GR.bicategories.lax_functors.
 From GR.basics Require Import
      general.
-From GR.bicategories.bicategory Require Import
-     bicategory.
-From GR.bicategories.bicategory.examples Require Import
-     one_types precat.
-From GR.bicategories.lax_functor Require Import
-     lax_functor.
 From GR.groupoid.groupoid_quotient Require Export
      gquot.
 From GR.groupoid Require Import
@@ -16,7 +12,7 @@ From GR.groupoid Require Import
      groupoid_quotient.gquot_principles.
 
 Section GQuotFunctor.
-  Context `{Funext}.
+  Context `{Univalence}.
   
   Definition gquot_functor_obj (G : groupoid)
     : 1 -Type
@@ -243,10 +239,6 @@ Section GQuotFunctor.
   Qed.
 
   Definition gquot_functor
-    : LaxFunctor grpd one_types
+    : PseudoFunctor grpd one_types
     := Build_PseudoFunctor gquot_functor_rd gquot_functor_rd_is_pseudo.
-
-  Global Instance gquot_functor_pseudo
-    : is_pseudo gquot_functor
-    := _.
 End GQuotFunctor.

@@ -7,6 +7,7 @@ From GR.bicategories.bicategory Require Export
      equiv_to_adjequiv
      equivalence
      univalent
+     examples.arrow_subcategory
      examples.cat
      examples.comonad
      examples.discrete_bicategory
@@ -16,6 +17,7 @@ From GR.bicategories.bicategory Require Export
      examples.oplax_functors_bicat
      examples.opposite_2
      examples.opposite
+     examples.pseudo_functors_bicat
      examples.precat
      examples.terminal
      examples.two_type.

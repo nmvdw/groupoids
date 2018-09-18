@@ -102,6 +102,16 @@ Definition laxnaturality_of
   : (G ₁ f) · laxcomponent_of η X ==> laxcomponent_of η Y · (F ₁ f)
   := laxnaturality_of_d η.1 f.
 
+Definition laxnaturality_of_build
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           (η : LaxTransformation_d F G)
+           (Hη : is_lax_transformation η)
+           {X Y : C}
+           (f : C⟦X,Y⟧)
+  : laxnaturality_of (Build_LaxTransformation η Hη) f = laxnaturality_of_d η f
+  := idpath.
+
 Definition laxnaturality_natural
            {C D : BiCategory}
            {F G : LaxFunctor C D}
@@ -204,20 +214,21 @@ Global Instance is_pseudo_pseudo_transformation
   := η.2.
 
 Global Instance laxnaturality_of_is_iso
-       `{Univalence}
        {C D : BiCategory}
        {F G : LaxFunctor C D}
-       (η : PseudoTransformation F G)
+       (η : LaxTransformation F G)
+       `{is_pseudo_transformation _ _ _ _ η}
        {X Y : C}
        (f : C⟦X,Y⟧)
   : IsIsomorphism (laxnaturality_of η f)
   := laxnaturality_of_iso f.
 
 Global Instance laxnaturality_transformationis_iso
-       `{Univalence}
+       `{Funext}
        {C D : BiCategory}
        {F G : LaxFunctor C D}
-       (η : PseudoTransformation F G)
+       (η : LaxTransformation F G)
+       `{is_pseudo_transformation _ _ _ _ η}
        (X Y : C)
   : @IsIsomorphism (_ -> _) _ _ (laxnaturality_transformation η X Y).
 Proof.
@@ -284,6 +295,39 @@ Record is_pseudo_transformation_p
 
 Arguments Build_is_pseudo_transformation_p {C D F G η} _ _ _ _ _.
 Ltac make_is_pseudo_transformation := simple refine (Build_is_pseudo_transformation_p _ _ _ _ _).
+(*
+Definition Build_PseudoTransformation_lax
+           `{Univalence}
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           (η : PseudoTransformation_d F G)
+           (Hη : is_pseudo_transformation_p η)
+  : LaxTransformation F G.
+Proof.
+  simple refine (Build_LaxTransformation _ _).
+  - make_lax_transformation.
+    + exact (laxcomponent_of_pd η).
+    + intros X Y f.
+      exact (laxnaturality_of_pd η f).
+  - make_is_lax_transformation ; apply Hη.
+Defined.
+
+Definition Build_PseudoTransformation_is_pseudo
+           `{Univalence}
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           (η : PseudoTransformation_d F G)
+           (Hη : is_pseudo_transformation_p η)
+  : is_pseudo_transformation (Build_PseudoTransformation_lax η Hη).
+Proof.
+  simpl.
+  intros X Y f.
+  simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+  - exact (laxnaturality_of_inv_pd η f).
+  - apply Hη.
+  - apply Hη.
+Qed.
+*)
 
 Definition Build_PseudoTransformation
            `{Univalence}

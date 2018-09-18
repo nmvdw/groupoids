@@ -227,6 +227,19 @@ Section Composition.
     := Build_LaxTransformation compose_d compose_d_is_lax.
 End Composition.
 
+Global Instance compose_is_pseudo
+           `{Univalence}
+           {C D : BiCategory}
+           {F₁ F₂ F₃ : LaxFunctor C D}
+           (σ₁ : LaxTransformation F₁ F₂) (σ₂ : LaxTransformation F₂ F₃)
+           `{is_pseudo_transformation _ _ _ _ σ₁}
+           `{is_pseudo_transformation _ _ _ _ σ₂}
+  : is_pseudo_transformation (compose σ₁ σ₂).
+Proof.
+  intros X Y f ; cbn.
+  apply _.
+Defined.
+
 Definition compose_pseudo
            `{Univalence}
            {C D : BiCategory}
@@ -236,6 +249,5 @@ Definition compose_pseudo
 Proof.
   make_pseudo_transformation_lax.
   - exact (compose σ₁ σ₂).
-  - intros X Y f ; cbn.
-    apply _.
+  - exact (compose_is_pseudo σ₁ σ₂).
 Defined.

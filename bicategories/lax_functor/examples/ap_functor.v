@@ -52,8 +52,4 @@ Section ApFunctor.
   Definition lax_ap_functor
     : PseudoFunctor (path_bigroupoid X) (path_bigroupoid Y)
     := Build_PseudoFunctor ap_functor_d ap_functor_is_pseudo.
-
-  Global Instance lax_ap_functor_pseudo
-    : is_pseudo lax_ap_functor
-    := _.
 End ApFunctor.

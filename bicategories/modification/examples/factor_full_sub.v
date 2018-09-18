@@ -14,12 +14,12 @@ Section Factor.
           {F G : LaxFunctor C D}
           {η₁ η₂ : LaxTransformation F G}.
   Variable (P : D -> hProp)
-           (σ : modification η₁ η₂)
+           (σ : Modification η₁ η₂)
            (FH : forall (X : C), P (F X))
            (GH : forall (X : C), P (G X)).
 
   Definition factor_modification
-    : modification
+    : Modification
         (lax_factor_transformation P η₁ FH GH)
         (lax_factor_transformation P η₂ FH GH)
     := Build_Modification

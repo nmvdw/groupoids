@@ -50,12 +50,22 @@ Section LeftIdentityInv.
     reflexivity.
   Qed.
 
-  Definition left_identity_inv_mod
-    : PseudoModification η (compose η (identity_transformation F₂)).
+  Definition left_identity_inv_modification
+    : Modification η (compose η (identity_transformation F₂))
+    := Build_Modification left_identity_inv_mod_d left_identity_inv_is_mod.
+
+  Definition left_identity_inv_modification_is_iso
+    : iso_modification left_identity_inv_modification.
   Proof.
-    make_pseudo_modification.
-    - exact (Build_Modification left_identity_inv_mod_d left_identity_inv_is_mod).
-    - intros X ; cbn.
-      apply _.
+    intros X ; cbn.
+    apply _.
+  Qed.
+
+  Definition left_identity_inv_mod
+    : IsoModification η (compose η (identity_transformation F₂)).
+  Proof.
+    make_iso_modification.
+    - exact left_identity_inv_modification.
+    - exact left_identity_inv_modification_is_iso.
   Defined.
 End LeftIdentityInv.

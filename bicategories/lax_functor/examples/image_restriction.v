@@ -34,6 +34,16 @@ Section ImageRestriction.
     := Build_LaxFunctor restrict_image_d restrict_image_is_lax.
 End ImageRestriction.
 
+Global Instance restrict_image_is_pseudo
+           `{Univalence}
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           `{is_pseudo _ _ F}
+  : is_pseudo (restrict_image F).
+Proof.
+  split ; cbn ; apply _.
+Defined.
+
 Definition restrict_image_pseudo
            `{Univalence}
            {C D : BiCategory}
@@ -42,6 +52,5 @@ Definition restrict_image_pseudo
 Proof.
   make_pseudo_functor_lax.
   - exact (restrict_image F).
-  - simpl.
-    split ; apply _.
+  - exact (restrict_image_is_pseudo F).
 Defined.

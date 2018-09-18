@@ -1,15 +1,8 @@
 Require Import HoTT.
 From HoTT.Categories Require Import Category Functor NaturalTransformation.
-From GR.bicategories Require Import
-     general_category
-     bicategory.bicategory
-     bicategory.examples.one_types
-     bicategory.examples.full_sub
-     bicategory.examples.precat
-     lax_functor.lax_functor
-     lax_functor.examples.identity
-     lax_functor.examples.composition
-     lax_transformation.lax_transformation.
+Require Import GR.bicategories.bicategories.
+Require Import GR.bicategories.lax_functors.
+Require Import GR.bicategories.lax_transformations.
 From GR.groupoid Require Import
      groupoid_quotient.gquot
      groupoid_quotient.gquot_functor
@@ -20,7 +13,7 @@ From GR.basics Require Import
      general.
 
 Section Unit.
-  Context `{Funext}.
+  Context `{Univalence}.
 
   Definition unit_map (G : groupoid)
     : grpd⟦G,path_groupoid(gquot_functor G)⟧.
@@ -85,8 +78,7 @@ Section Unit.
     make_is_pseudo_transformation.
     - intros G₁ G₂ F₁ F₂ α.
       apply path_natural_transformation.
-      intros x.
-      unfold hcomp ; simpl in *.
+      intros x ; simpl.
       rewrite ap10_path_forall.
       rewrite !concat_1p, !concat_p1.
       reflexivity.
@@ -112,12 +104,8 @@ Section Unit.
   Qed.
 
   Definition unit_gq
-    : LaxTransformation
+    : PseudoTransformation
         (lax_id_functor grpd)
         (lax_comp path_groupoid_functor gquot_functor)
     := Build_PseudoTransformation unit_gq_d unit_gq_is_lax.
-
-  Global Instance unit_pseudo
-    : is_pseudo_transformation unit_gq
-    := _.
 End Unit.

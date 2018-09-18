@@ -33,6 +33,18 @@ Section Restriction.
                                lax_restriction_transformation_is_lax.
 End Restriction.
 
+Global Instance restriction_transformation_is_pseudo
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           (P : C -> hProp)
+           (η : LaxTransformation F G)
+           `{is_pseudo_transformation _ _ _ _ η}
+  : is_pseudo_transformation (lax_restriction_transformation P η).
+Proof.
+  intros X Y f ; cbn.
+  apply _.
+Defined.
+
 Definition pseudo_restriction_transformation
            `{Univalence}
            {C D : BiCategory}
@@ -43,6 +55,5 @@ Definition pseudo_restriction_transformation
 Proof.
   make_pseudo_transformation_lax.
   - exact (lax_restriction_transformation P η).
-  - intros X Y f ; cbn.
-    apply _.
+  - exact (restriction_transformation_is_pseudo P η).
 Defined.

@@ -39,12 +39,22 @@ Section RightIdentityInv.
     reflexivity.
   Qed.
 
-  Definition right_identity_inv_mod
-    : PseudoModification η (composition.compose (identity_transformation F₁) η).
+  Definition right_identity_inv_modification
+    : Modification η (compose (identity_transformation F₁) η)
+    := Build_Modification right_identity_inv_mod_d right_identity_inv_is_mod.
+
+  Definition right_identity_inv_is_iso
+    : iso_modification right_identity_inv_modification.
   Proof.
-    make_pseudo_modification.
-    - exact (Build_Modification right_identity_inv_mod_d right_identity_inv_is_mod).
-    - intros X ; cbn.
-      apply _.
+    intros X ; cbn.
+    apply _.
+  Qed.
+
+  Definition right_identity_inv_mod
+    : IsoModification η (composition.compose (identity_transformation F₁) η).
+  Proof.
+    make_iso_modification.
+    - exact right_identity_inv_modification.
+    - exact right_identity_inv_is_iso.
   Defined.
 End RightIdentityInv.

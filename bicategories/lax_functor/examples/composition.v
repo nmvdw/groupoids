@@ -110,6 +110,16 @@ Section FunctorComposition.
     := Build_LaxFunctor lax_comp_d comp_is_lax.
 End FunctorComposition.
 
+Global Instance lax_comp_is_pseudo
+           `{Univalence}
+           {C D E : BiCategory}
+           (G : LaxFunctor D E) (F : LaxFunctor C D)
+           `{is_pseudo _ _ G} `{is_pseudo _ _ F}
+  : is_pseudo (lax_comp G F).
+Proof.
+  split ; apply _.
+Defined.
+  
 Definition pseudo_comp
            `{Univalence}
            {C D E : BiCategory}
@@ -118,6 +128,5 @@ Definition pseudo_comp
 Proof.
   make_pseudo_functor_lax.
   - exact (lax_comp G F).
-  - simpl.
-    split ; apply _.
+  - exact (lax_comp_is_pseudo G F).
 Defined.

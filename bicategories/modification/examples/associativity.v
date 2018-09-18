@@ -64,14 +64,26 @@ Section Associativity.
     reflexivity.
   Qed.
 
-  Definition assoc_mod
-    : PseudoModification
-        (composition.compose η₃ (composition.compose η₂ η₁))
-        (composition.compose (composition.compose η₃ η₂) η₁).
+  Definition assoc_modification
+    : Modification
+        (compose η₃ (compose η₂ η₁))
+        (compose (compose η₃ η₂) η₁)
+    := Build_Modification assoc_mod_d assoc_d_is_modification.
+
+  Definition assoc_modification_is_iso
+    : iso_modification assoc_modification.
   Proof.
-    make_pseudo_modification.
-    - exact (Build_Modification assoc_mod_d assoc_d_is_modification).
-    - intros X ; cbn.
-      apply _.
+    intros X ; cbn.
+    apply _.
+  Qed.
+  
+  Definition assoc_mod
+    : IsoModification
+        (compose η₃ (compose η₂ η₁))
+        (compose (compose η₃ η₂) η₁).
+  Proof.
+    make_iso_modification.
+    - exact assoc_modification.
+    - exact assoc_modification_is_iso.
   Defined.
 End Associativity.

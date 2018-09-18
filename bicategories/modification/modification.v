@@ -3,7 +3,7 @@ From HoTT.Categories Require Import Category Functor.
 From GR.bicategories Require Import
      bicategory.bicategory lax_functor.lax_functor lax_transformation.lax_transformation.
 
-Definition modification_d
+Definition Modification_d
            {C D : BiCategory}
            {F G : LaxFunctor C D}
            (η₁ η₂ : LaxTransformation F G)
@@ -14,43 +14,43 @@ Definition is_modification
            {C D : BiCategory}
            {F G : LaxFunctor C D}
            {η₁ η₂ : LaxTransformation F G}
-           (σ : modification_d η₁ η₂)
+           (σ : Modification_d η₁ η₂)
   : Type
   := forall (A B : C) (f : C⟦A,B⟧),
     laxnaturality_of η₂ f ∘ ((G ₁ f) ◅ σ A)
     =
     (σ B ▻ (F ₁ f)) ∘ laxnaturality_of η₁ f.
 
-Definition modification
+Definition Modification
        {C D : BiCategory}
        {F G : LaxFunctor C D}
        (η₁ η₂ : LaxTransformation F G)
-  := {m : modification_d η₁ η₂ & is_modification m}.
+  := {m : Modification_d η₁ η₂ & is_modification m}.
 
 Definition Build_Modification
            {C D : BiCategory}
            {F G : LaxFunctor C D}
            {η₁ η₂ : LaxTransformation F G}
-           (mc : modification_d η₁ η₂)
+           (mc : Modification_d η₁ η₂)
            (mn : is_modification mc)
-  : modification η₁ η₂
+  : Modification η₁ η₂
   := (mc;mn).
 
 Definition mod_component
            {C D : BiCategory}
            {F G : LaxFunctor C D}
            {η₁ η₂ : LaxTransformation F G}
-           (m : modification η₁ η₂)
+           (m : Modification η₁ η₂)
   : forall (A : C), η₁ A ==> η₂ A
   := m.1.
 
-Coercion mod_component : modification >-> Funclass.
+Coercion mod_component : Modification >-> Funclass.
 
 Definition mod_commute
            {C D : BiCategory}
            {F G : LaxFunctor C D}
            {η₁ η₂ : LaxTransformation F G}
-           (m : modification η₁ η₂)
+           (m : Modification η₁ η₂)
   : forall {A B : C} (f : C⟦A,B⟧),
     laxnaturality_of η₂ f ∘ ((G ₁ f) ◅ m A)
     =
@@ -62,7 +62,7 @@ Definition path_modification
            {C D : BiCategory}
            {F G : LaxFunctor C D}
            {σ₁ σ₂ : LaxTransformation F G}
-           {p q : modification σ₁ σ₂}
+           {p q : Modification σ₁ σ₂}
            (r : mod_component p = mod_component q)
   : p = q
   := path_sigma_hprop _ _ r.
@@ -72,63 +72,63 @@ Global Instance modification_hset
        {C D : BiCategory}
        {F G : LaxFunctor C D}
        {σ₁ σ₂ : LaxTransformation F G}
-  : IsHSet (modification σ₁ σ₂)
+  : IsHSet (Modification σ₁ σ₂)
   := _.
 
-Class is_pseudo_modification
+Class iso_modification
       {C D : BiCategory}
       {F G : LaxFunctor C D}
       {σ₁ σ₂ : LaxTransformation F G}
-      (m : modification σ₁ σ₂)
+      (m : Modification σ₁ σ₂)
   := mc_iso : forall (A : C),
       IsIsomorphism (mod_component m A).
 
-Global Instance is_hprop_is_pseudo_modification
+Global Instance is_hprop_iso_modification
        `{Univalence}
        {C D : BiCategory}
        {F G : LaxFunctor C D}
        {σ₁ σ₂ : LaxTransformation F G}
-       (m : modification σ₁ σ₂)
-  : IsHProp (is_pseudo_modification m).
+       (m : Modification σ₁ σ₂)
+  : IsHProp (iso_modification m).
 Proof.
-  unfold is_pseudo_modification.
+  unfold iso_modification.
   apply _.
 Qed.
 
-Definition PseudoModification
+Definition IsoModification
            `{Univalence}
            {C D : BiCategory}
            {F G : LaxFunctor C D}
            (σ₁ σ₂ : LaxTransformation F G)
   : Type
-  := {m : modification σ₁ σ₂ & is_pseudo_modification m}.
+  := {m : Modification σ₁ σ₂ & iso_modification m}.
 
-Ltac make_pseudo_modification := simple refine (_;_).
+Ltac make_iso_modification := simple refine (_;_).
 
-Coercion pseudo_modification_to_modification
+Coercion iso_modification_to_modification
          `{Univalence}
          {C D : BiCategory}
          {F G : LaxFunctor C D}
          {σ₁ σ₂ : LaxTransformation F G}
-         (m : PseudoModification σ₁ σ₂)
-  : modification σ₁ σ₂
+         (m : IsoModification σ₁ σ₂)
+  : Modification σ₁ σ₂
   := m.1.
 
-Global Instance is_pseudo_pseudo_modification
+Global Instance is_iso_iso_modification
        `{Univalence}
        {C D : BiCategory}
        {F G : LaxFunctor C D}
        {σ₁ σ₂ : LaxTransformation F G}
-       (m : PseudoModification σ₁ σ₂)
-  : is_pseudo_modification m
+       (m : IsoModification σ₁ σ₂)
+  : iso_modification m
   := m.2.
 
-Global Instance mod_component_is_iso_pseudo
+Global Instance iso_mod_component_is_iso
        `{Univalence}
        {C D : BiCategory}
        {F G : LaxFunctor C D}
        {σ₁ σ₂ : LaxTransformation F G}
-       (m : PseudoModification σ₁ σ₂)
+       (m : IsoModification σ₁ σ₂)
        (A : C)
   : IsIsomorphism (mod_component m A)
   := mc_iso A.

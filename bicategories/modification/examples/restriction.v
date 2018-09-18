@@ -14,10 +14,10 @@ Section Restriction.
           {F G : LaxFunctor C D}
           {η₁ η₂ : LaxTransformation F G}.
   Variable (P : C -> hProp)
-           (σ : modification η₁ η₂).
+           (σ : Modification η₁ η₂).
 
   Definition lax_restriction_modification
-    : modification
+    : Modification
         (lax_restriction_transformation P η₁)
         (lax_restriction_transformation P η₂).
   Proof.

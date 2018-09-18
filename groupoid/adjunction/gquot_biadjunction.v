@@ -1,30 +1,10 @@
 Require Import HoTT.
 From HoTT.Categories Require Import Category Functor NaturalTransformation.
-From GR.bicategories Require Import
-     general_category
-     bicategory.bicategory
-     bicategory.examples.one_types
-     bicategory.equivalence
-     biadjunction.biadjunction
-     lax_functor.lax_functor
-     lax_functor.examples.identity
-     lax_functor.examples.composition
-     lax_transformation.lax_transformation
-     lax_transformation.transformation_category
-     lax_transformation.examples.identity
-     lax_transformation.examples.composition
-     lax_transformation.examples.right_identity
-     lax_transformation.examples.left_identity
-     lax_transformation.examples.associativity
-     lax_transformation.examples.right_identity_inv
-     lax_transformation.examples.left_identity_inv
-     lax_transformation.examples.associativity_inv
-     lax_transformation.examples.whisker_R
-     lax_transformation.examples.whisker_L.
-From GR.bicategories Require Import
-     modification.modification
-     modification.examples.identity
-     modification.examples.composition.
+Require Import GR.bicategories.bicategories.
+Require Import GR.bicategories.lax_functors.
+Require Import GR.bicategories.lax_transformations.
+Require Import GR.bicategories.modifications.
+Require Import GR.bicategories.biadjunction.biadjunction.
 From GR.groupoid Require Import
      groupoid_quotient.gquot
      groupoid_quotient.gquot_functor
@@ -32,17 +12,22 @@ From GR.groupoid Require Import
      grpd_bicategory.grpd_bicategory
      path_groupoid.path_groupoid
      adjunction.unit
-     adjunction.counit
-     adjunction.counit_inv.
+     adjunction.counit.
 From GR.basics Require Import
      general.
 
 Section BiAdjunction.
-  Context `{Funext}.
+  Context `{Univalence}.
 
   Definition gquot_biadjunction_d
     : BiAdjunction_d grpd one_types
-    := Build_BiAdjunction_d gquot_functor _ path_groupoid_functor _ unit_gq counit_gq.
+    := Build_BiAdjunction_d
+         gquot_functor
+         _
+         path_groupoid_functor
+         _
+         unit_gq
+         counit_gq.
   
   Definition gquot_triangle_l_map_help
              {G : groupoid}
@@ -75,7 +60,7 @@ Section BiAdjunction.
   Defined.
 
   Definition gquot_triangle_l_d
-    : modification_d
+    : Modification_d
         (triangle_l_lhs gquot_biadjunction_d)
         (identity_transformation gquot_functor).
   Proof.
@@ -92,7 +77,7 @@ Section BiAdjunction.
     rewrite !concat_1p, !concat_p1.
     rewrite <- !path_forall_pp.
     f_ap.
-    funext x ; revert x.
+    refine (path_forall _ _ _).
     simple refine (gquot_ind_prop _ _ _).
     intros a ; simpl.
     rewrite !concat_1p, !ap10_path_forall.
@@ -103,22 +88,31 @@ Section BiAdjunction.
     reflexivity.
   Qed.
 
-  Definition gquot_triangle_l
-    : modification
+  Definition gquot_triangle_l_modification
+    : Modification
         (triangle_l_lhs gquot_biadjunction_d)
         (identity_transformation gquot_functor)
     := Build_Modification gquot_triangle_l_d gquot_triangle_l_is_modification.
 
-  Global Instance gquot_triangle_l_is_pseudo
-    : is_pseudo_modification gquot_triangle_l.
+  Definition gquot_triangle_l_is_iso
+    : iso_modification gquot_triangle_l_modification.
   Proof.
-    split.
-    intros ; cbn.
+    intros X ; cbn.
     apply one_types_is_21.
+  Defined.
+
+  Definition gquot_triangle_l
+    : IsoModification
+        (triangle_l_lhs gquot_biadjunction_d)
+        (identity_transformation gquot_functor).
+  Proof.
+    make_iso_modification.
+    - exact gquot_triangle_l_modification.
+    - exact gquot_triangle_l_is_iso.
   Defined.
   
   Definition gquot_triangle_r_d
-    : modification_d
+    : Modification_d
         (triangle_r_lhs gquot_biadjunction_d)
         (identity_transformation path_groupoid_functor).
   Proof.
@@ -143,24 +137,33 @@ Section BiAdjunction.
     reflexivity.
   Qed.
 
-  Definition gquot_triangle_r
-    : modification
+  Definition gquot_triangle_r_modification
+    : Modification
         (triangle_r_lhs gquot_biadjunction_d)
         (identity_transformation path_groupoid_functor)
     := Build_Modification gquot_triangle_r_d gquot_triangle_r_is_modification.
 
-  Global Instance gquot_triangle_r_is_pseudo
-    : is_pseudo_modification gquot_triangle_r.
+  Global Instance gquot_triangle_r_is_iso
+    : iso_modification gquot_triangle_r_modification.
   Proof.
-    split.
     intros A ; simpl.
     unfold gquot_triangle_r_d ; simpl.
     apply _.
   Defined.
+
+  Definition gquot_triangle_r
+    : IsoModification
+        (triangle_r_lhs gquot_biadjunction_d)
+        (identity_transformation path_groupoid_functor).
+  Proof.
+    make_iso_modification.
+    - exact gquot_triangle_r_modification.
+    - exact gquot_triangle_r_is_iso.
+  Defined.
   
   Definition gquot_is_biadjunction
     : is_biadjunction gquot_biadjunction_d
-    := Build_is_biadjunction _ _ gquot_triangle_l _ gquot_triangle_r _.
+    := Build_is_biadjunction _ _ gquot_triangle_l gquot_triangle_r.
 
   Definition gquot_biadjunction
     : BiAdjunction grpd one_types

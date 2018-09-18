@@ -65,14 +65,26 @@ Section AssociativityInverse.
     reflexivity.
   Qed.
 
-  Definition assoc_inv_mod
-    : PseudoModification
-        (composition.compose (composition.compose η₃ η₂) η₁)
-        (composition.compose η₃ (composition.compose η₂ η₁)).
+  Definition assoc_inv_modification
+    : Modification
+        (compose (compose η₃ η₂) η₁)
+        (compose η₃ (compose η₂ η₁))
+    := Build_Modification assoc_inv_mod_d assoc_inv_d_is_modification.
+
+  Definition assoc_inv_modification_is_iso
+    : iso_modification assoc_inv_modification.
   Proof.
-    make_pseudo_modification.
-    - exact (Build_Modification assoc_inv_mod_d assoc_inv_d_is_modification).
-    - intros X ; cbn.
-      apply _.
+    intros X ; cbn.
+    apply _.
+  Qed.
+
+  Definition assoc_inv_mod
+    : IsoModification
+        (compose (compose η₃ η₂) η₁)
+        (compose η₃ (compose η₂ η₁)).
+  Proof.
+    make_iso_modification.
+    - exact assoc_inv_modification.
+    - exact assoc_inv_modification_is_iso.
   Defined.
 End AssociativityInverse.

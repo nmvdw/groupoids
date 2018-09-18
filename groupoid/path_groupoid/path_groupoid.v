@@ -1,12 +1,8 @@
 Require Import HoTT.
 From HoTT.Categories Require Import
      Category Functor NaturalTransformation.
-From GR.bicategories.bicategory Require Import
-     bicategory.
-From GR.bicategories.bicategory.examples Require Import
-     one_types precat.
-From GR.bicategories.lax_functor Require Import
-     lax_functor.
+Require Import GR.bicategories.bicategories.
+Require Import GR.bicategories.lax_functors.
 From GR.groupoid.grpd_bicategory Require Import
      grpd_bicategory.
 
@@ -33,10 +29,10 @@ Proof.
 Defined.
 
 Section PathGroupoidFunctor.
-  Context `{Funext}.
+  Context `{Univalence}.
   
   Definition ap_functor {X Y : 1 -Type}
-    : one_types ⟦ X, Y ⟧ -> grpd ⟦ path_groupoid X, path_groupoid Y ⟧
+    : one_types ⟦X,Y⟧ -> grpd⟦path_groupoid X,path_groupoid Y⟧
     := fun f =>
          Build_Functor
            (path_groupoid X).1
@@ -116,6 +112,19 @@ Section PathGroupoidFunctor.
       refine (concat_p1 _ @ _ @ (concat_1p _)^).
       apply ap_idmap.
   Defined.
+  
+  Definition ap_functor_natural
+             {X Y : one_types}
+             {f g : one_types⟦X,Y⟧}
+             (p : f ==> g)
+    : NaturalTransformation (ap_functor f) (ap_functor g).
+  Proof.
+    simple refine (Build_NaturalTransformation _ _ _ _) ; simpl.
+    - exact (ap10 p).
+    - intros x y q ; simpl.
+      induction p, q.
+      reflexivity.
+  Defined.
 
   Definition path_functor_rd
     : PseudoFunctor_d one_types grpd.
@@ -123,12 +132,7 @@ Section PathGroupoidFunctor.
     make_pseudo_functor.
     - exact path_groupoid.
     - exact path_groupoid_map.
-    - intros X Y f g p ; cbn.
-      simple refine (Build_NaturalTransformation _ _ _ _) ; simpl.
-      + exact (ap10 p).
-      + intros x y q ; simpl.
-        induction p, q.
-        reflexivity.
+    - exact @ap_functor_natural.
     - intros X Y Z.
       exact path_groupoid_map_compose.
     - exact path_groupoid_map_id.
@@ -178,10 +182,6 @@ Section PathGroupoidFunctor.
   Qed.
 
   Definition path_groupoid_functor
-    : LaxFunctor one_types grpd
+    : PseudoFunctor one_types grpd
     := Build_PseudoFunctor path_functor_rd path_functor_rd_is_pseudo.
-
-  Global Instance path_groupoid_pseudo
-    : is_pseudo path_groupoid_functor
-    := _.
 End PathGroupoidFunctor.

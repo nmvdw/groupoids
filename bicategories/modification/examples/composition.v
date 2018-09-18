@@ -11,8 +11,8 @@ Section CompositionModification.
   Context {C D : BiCategory}
           {F G : LaxFunctor C D}
           {η₁ η₂ η₃ : LaxTransformation F G}.
-  Variable (σ₂ : modification η₂ η₃)
-           (σ₁ : modification η₁ η₂).
+  Variable (σ₂ : Modification η₂ η₃)
+           (σ₁ : Modification η₁ η₂).
 
   Local Notation comp_modification_d
     := (fun A => σ₂ A ∘ σ₁ A).
@@ -33,21 +33,33 @@ Section CompositionModification.
     reflexivity.
   Qed.
 
-  Definition comp_modification : modification η₁ η₃
+  Definition comp_modification : Modification η₁ η₃
     := Build_Modification comp_modification_d comp_modification_is_modification.
 End CompositionModification.
 
-Definition pseudo_comp_modification
+Definition comp_modification_is_iso
            `{Univalence}
            {C D : BiCategory}
            {F G : LaxFunctor C D}
            {η₁ η₂ η₃ : LaxTransformation F G}
-           (σ₂ : PseudoModification η₂ η₃)
-           (σ₁ : PseudoModification η₁ η₂)
-  : PseudoModification η₁ η₃.
+           (σ₂ : IsoModification η₂ η₃)
+           (σ₁ : IsoModification η₁ η₂)
+  : iso_modification (comp_modification σ₂ σ₁).
 Proof.
-  make_pseudo_modification.
+  intros X ; cbn.
+  apply _.
+Qed.
+
+Definition comp_iso_modification
+           `{Univalence}
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           {η₁ η₂ η₃ : LaxTransformation F G}
+           (σ₂ : IsoModification η₂ η₃)
+           (σ₁ : IsoModification η₁ η₂)
+  : IsoModification η₁ η₃.
+Proof.
+  make_iso_modification.
   - exact (comp_modification σ₂ σ₁).
-  - intros X ; simpl.
-    apply _.
+  - exact (comp_modification_is_iso σ₂ σ₁).
 Defined.
