@@ -1,15 +1,17 @@
 Require Import HoTT.
-Require Import HoTT.Categories.Functor HoTT.Categories.NaturalTransformation.
+From HoTT.Categories Require Import Functor NaturalTransformation.
 From GR.bicategories Require Import
-     bicategory.bicategory
+     bicategory.univalent
      bicategory.bicategory_laws
      lax_functor.lax_functor
      general_category.
 From GR.bicategories.bicategory.examples Require Import
      precat
+     cat
      opposite.
+Require Import GR.bicategories.lax_functor.examples.factor_full_sub.
 
-Definition representable_d
+Definition representable0_d
            `{Funext}
            {C : BiCategory}
            (X : C)
@@ -74,11 +76,11 @@ Proof.
       apply right_unit_natural.
 Defined.
 
-Definition representable_d_is_pseudo
+Definition representable0_d_is_pseudo
            `{Univalence}
            {C : BiCategory}
            (X : C)
-  : is_pseudo_functor_p (representable_d X).
+  : is_pseudo_functor_p (representable0_d X).
 Proof.
   make_is_pseudo.
   - intros Y₁ Y₂ f.
@@ -149,9 +151,21 @@ Proof.
     apply right_unit_left.
 Qed.
 
-Definition representable
+Definition representable0
            `{Univalence}
            {C : BiCategory}
            (X : C)
   : PseudoFunctor (op C) PreCat
-  := Build_PseudoFunctor (representable_d X) (representable_d_is_pseudo X).
+  := Build_PseudoFunctor (representable0_d X) (representable0_d_is_pseudo X).
+
+Definition univalent_representable0
+           `{Univalence}
+           {C : BiCategory}
+           `{LocallyUnivalent C}
+           (X : C)
+  : PseudoFunctor (op C) Cat.
+Proof.
+  simple refine (pseudo_factor (representable0 X) _ _).
+  intros Y ; cbn.
+  apply _.
+Defined.

@@ -13,3 +13,4 @@ Require Export GR.bicategories.lax_functor.examples.identity.
 Require Export GR.bicategories.lax_functor.examples.image_restriction.
 Require Export GR.bicategories.lax_functor.examples.prod.
 Require Export GR.bicategories.lax_functor.examples.restriction.
+Require Export GR.bicategories.lax_functor.examples.yoneda.

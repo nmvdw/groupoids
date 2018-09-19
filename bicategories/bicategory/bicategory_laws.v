@@ -86,6 +86,22 @@ Section laws.
     apply pentagon.
   Qed.
 
+  Definition inverse_pentagon_6
+             {V W X Y Z : C}
+             (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)
+             (g : C⟦W,X⟧) (f : C⟦V,W⟧)
+    : assoc_inv k (h · g) f ∘ id₂ k * assoc_inv h g f
+      =
+      assoc k h g * id₂ f ∘ assoc_inv (k · h) g f ∘ assoc_inv k h (g · f).
+  Proof.
+    unfold vcomp, id₂.
+    rewrite !associativity.
+    refine (Morphisms.iso_moveL_Mp _ _ _) ; simpl.
+    symmetry.
+    rewrite <- !associativity.
+    apply inverse_pentagon.
+  Qed.
+
   Definition pentagon_2
              {V W X Y Z : C}
              (k : C⟦Y,Z⟧) (h : C⟦X,Y⟧)

@@ -295,39 +295,6 @@ Record is_pseudo_transformation_p
 
 Arguments Build_is_pseudo_transformation_p {C D F G η} _ _ _ _ _.
 Ltac make_is_pseudo_transformation := simple refine (Build_is_pseudo_transformation_p _ _ _ _ _).
-(*
-Definition Build_PseudoTransformation_lax
-           `{Univalence}
-           {C D : BiCategory}
-           {F G : LaxFunctor C D}
-           (η : PseudoTransformation_d F G)
-           (Hη : is_pseudo_transformation_p η)
-  : LaxTransformation F G.
-Proof.
-  simple refine (Build_LaxTransformation _ _).
-  - make_lax_transformation.
-    + exact (laxcomponent_of_pd η).
-    + intros X Y f.
-      exact (laxnaturality_of_pd η f).
-  - make_is_lax_transformation ; apply Hη.
-Defined.
-
-Definition Build_PseudoTransformation_is_pseudo
-           `{Univalence}
-           {C D : BiCategory}
-           {F G : LaxFunctor C D}
-           (η : PseudoTransformation_d F G)
-           (Hη : is_pseudo_transformation_p η)
-  : is_pseudo_transformation (Build_PseudoTransformation_lax η Hη).
-Proof.
-  simpl.
-  intros X Y f.
-  simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-  - exact (laxnaturality_of_inv_pd η f).
-  - apply Hη.
-  - apply Hη.
-Qed.
-*)
 
 Definition Build_PseudoTransformation
            `{Univalence}

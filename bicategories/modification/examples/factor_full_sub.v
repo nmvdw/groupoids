@@ -9,20 +9,17 @@ From GR.bicategories Require Import
      modification.modification
      general_category.
 
-Section Factor.
-  Context {C D : BiCategory}
-          {F G : LaxFunctor C D}
-          {η₁ η₂ : LaxTransformation F G}.
-  Variable (P : D -> hProp)
+Definition factor_modification
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           {η₁ η₂ : LaxTransformation F G}
+           (P : D -> hProp)
            (σ : Modification η₁ η₂)
            (FH : forall (X : C), P (F X))
-           (GH : forall (X : C), P (G X)).
-
-  Definition factor_modification
-    : Modification
-        (lax_factor_transformation P η₁ FH GH)
-        (lax_factor_transformation P η₂ FH GH)
-    := Build_Modification
-         (fun A => mod_component σ A)
-         (fun A B f => mod_commute σ f).
-End Factor.
+           (GH : forall (X : C), P (G X))
+  : Modification
+      (lax_factor_transformation P η₁ FH GH)
+      (lax_factor_transformation P η₂ FH GH)
+  := Build_Modification
+       (fun A => mod_component σ A)
+       (fun A B f => mod_commute σ f).
