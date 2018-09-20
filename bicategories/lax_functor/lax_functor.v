@@ -102,7 +102,7 @@ Definition Fmor
   : Functor (C⟦X,Y⟧) (D⟦F X, F Y⟧)
   := Fmor_d F.1 X Y.
 
-Notation "F '₁' f" := (Fmor F _ _ f) (at level 40) : bicategory_scope.
+Notation "F '₁' f" := (object_of (Fmor F _ _) f) (at level 40) : bicategory_scope.
 Notation "F '₂' η" := (morphism_of (Fmor F _ _) η) (at level 40) : bicategory_scope.
 
 Definition Fmor₂_id₂

@@ -1,5 +1,4 @@
 Require Import HoTT.
-Require Import HoTT.Categories.Functor.
 From GR.bicategories Require Import
      bicategory.bicategory_laws
      lax_functor.lax_functor
