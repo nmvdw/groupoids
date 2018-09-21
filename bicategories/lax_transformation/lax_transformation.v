@@ -236,6 +236,16 @@ Proof.
   apply _.
 Defined.
 
+Definition laxnaturality_of_inv
+           `{Univalence}
+           {C D : BiCategory}
+           {F G : LaxFunctor C D}
+           (η : PseudoTransformation F G)
+           {X Y : C}
+           (f : C⟦X,Y⟧)
+  : laxcomponent_of η Y · (F ₁ f) ==> (G ₁ f) · laxcomponent_of η X
+  := (laxnaturality_of η f)^-1.
+
 Record PseudoTransformation_d
        {C D : BiCategory}
        (F G : LaxFunctor C D)

@@ -13,6 +13,20 @@ Definition const_functor
                    (fun _ _ _ _ _ => (left_identity _ _ _ _)^)
                    (fun _ => idpath).
 
+Definition apply_functor
+           `{Funext}
+           {C : PreCategory}
+           (D : PreCategory)
+           (X : C)
+  : Functor (C -> D) D.
+Proof.
+  simple refine (Build_Functor _ _ _ _ _ _).
+  - exact (fun F => object_of F X).
+  - exact (fun F G η => η X).
+  - reflexivity.
+  - reflexivity.
+Defined.
+
 Definition assoc_prod (C D E : PreCategory)
   : Functor ((C * D) * E) (C * (D * E))
   := fst o fst * (snd o fst * snd).

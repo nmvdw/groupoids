@@ -72,6 +72,7 @@ bicategories/modification/examples/representable.v
 bicategories/modification/examples/representable_id.v
 bicategories/modification/examples/representable_comp.v
 bicategories/lax_functor/examples/yoneda.v
+bicategories/yoneda_lemma.v
 bicategories/bicategory/examples/comonad.v
 bicategories/bicategory/examples/image.v
 bicategories/lax_functor/examples/image_restriction.v

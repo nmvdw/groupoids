@@ -4,6 +4,9 @@ From HoTT.Categories Require Import
      NaturalTransformation
      FunctorCategory.
 From GR.bicategories Require Import
+     bicategory.equivalence
+     bicategory.adjoint
+     bicategory.equiv_to_adjequiv
      bicategory.univalent
      bicategory.bicategory_laws
      lax_functor.lax_functor
@@ -23,65 +26,6 @@ From GR.bicategories.bicategory.examples Require Import
      cat
      opposite
      pseudo_functors_bicat.
-
-Definition apply_functor
-           `{Funext}
-           {C : PreCategory}
-           (D : PreCategory)
-           (X : C)
-  : Functor (C -> D) D.
-Proof.
-  simple refine (Build_Functor _ _ _ _ _ _).
-  - exact (fun F => object_of F X).
-  - exact (fun F G η => η X).
-  - reflexivity.
-  - reflexivity.
-Defined.
-
-Definition F_assoc_inv
-           {C D : BiCategory}
-           (F : LaxFunctor C D)
-           {W X Y Z : C}
-           (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
-  : (Fcomp₁ F (h · g) f)
-      ∘ ((Fcomp₁ F h g) * (id₂ (F ₁ f)))
-      ∘ assoc_inv (F ₁ h) (F ₁ g) (F ₁ f)
-    =
-    (F ₂ (assoc_inv h g f))
-      ∘ Fcomp₁ F h (g · f)
-      ∘ ((id₂ (F ₁ h)) * (Fcomp₁ F g f)).
-Proof.
-  rewrite !vcomp_assoc.
-  refine (vcomp_move_L_Mp _ _ _ _) ; simpl.
-  rewrite <- !vcomp_assoc.
-  refine (vcomp_move_R_pM _ _ _ _) ; simpl.
-  exact (F_assoc F h g f)^.
-Defined.
-
-Definition F_left_unit_inv_2
-           `{Funext}
-           {C D : BiCategory}
-           (F : LaxFunctor C D)
-           `{is_pseudo _ _ F}
-           {X Y : C}
-           (f : C⟦X,Y⟧)
-  : F ₂ (left_unit_inv f)
-    =
-    (Fcomp₁ F (id₁ _) f)
-      ∘ ((Fid F _) * (id₂ (F ₁ f)))
-      ∘ left_unit_inv (F ₁ f).
-Proof.
-  rewrite (F_left_unit_inv F f).
-  rewrite !vcomp_assoc.
-  rewrite !(ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
-  rewrite <- interchange ; simpl.
-  rewrite vcomp_right_inverse, vcomp_right_identity.
-  rewrite hcomp_id₂, vcomp_left_identity.
-  rewrite <- !vcomp_assoc.
-  rewrite vcomp_right_inverse.
-  rewrite vcomp_left_identity.
-  reflexivity.
-Qed.
 
 Section YonedaLemma.
   Context `{Univalence}
@@ -318,6 +262,15 @@ Section YonedaLemma.
     intros Y ; cbn.
     exact (equiv_path_natural_transformation _ _ (vcomp_right_inverse (Fid F X)) Y).
   Qed.
+
+  Global Instance iso_presheaf_to_yoneda_to_presheaf
+    : @IsIsomorphism (_ -> _) _ _ presheaf_to_yoneda_to_presheaf.
+  Proof.
+    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+    - exact presheaf_to_yoneda_to_presheaf_inv.
+    - exact presheaf_to_yoneda_to_presheaf_sect.
+    - exact presheaf_to_yoneda_to_presheaf_retr.
+  Defined.
 
   Opaque representable0.
 
@@ -560,4 +513,26 @@ Section YonedaLemma.
     rewrite iso_component.
     apply left_inverse.
   Qed.
+
+  Global Instance iso_yoneda_to_presheaf_to_yoneda
+    : @IsIsomorphism (_ -> _) _ _ yoneda_to_presheaf_to_yoneda.
+  Proof.
+    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+    - exact yoneda_to_presheaf_to_yoneda_inv.
+    - exact yoneda_to_presheaf_to_yoneda_sect.
+    - exact yoneda_to_presheaf_to_yoneda_retr.
+  Defined.
+
+  Definition yoneda_lemma
+    : @adjoint_equivalence PreCat (Pseudo (op C) PreCat⟦representable0 X,F⟧) (F X).
+  Proof.
+    simple refine (equiv_to_adjequiv _ _).
+    - exact yoneda_to_presheaf.
+    - simple refine (@Build_IsEquivalence
+                       PreCat
+                       _
+                       _
+                       _
+                       presheaf_to_yoneda _ _ _ _).
+  Defined.
 End YonedaLemma.

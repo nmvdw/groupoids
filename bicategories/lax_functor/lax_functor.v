@@ -332,6 +332,26 @@ Proof.
   exact (Fid F X)^-1.
 Defined.
 
+Definition F_assoc_inv
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           {W X Y Z : C}
+           (h : C⟦Y,Z⟧) (g : C⟦X,Y⟧) (f : C⟦W,X⟧)
+  : (Fcomp₁ F (h · g) f)
+      ∘ ((Fcomp₁ F h g) * (id₂ (F ₁ f)))
+      ∘ assoc_inv (F ₁ h) (F ₁ g) (F ₁ f)
+    =
+    (F ₂ (assoc_inv h g f))
+      ∘ Fcomp₁ F h (g · f)
+      ∘ ((id₂ (F ₁ h)) * (Fcomp₁ F g f)).
+Proof.
+  rewrite !vcomp_assoc.
+  refine (vcomp_move_L_Mp _ _ _ _) ; simpl.
+  rewrite <- !vcomp_assoc.
+  refine (vcomp_move_R_pM _ _ _ _) ; simpl.
+  exact (F_assoc F h g f)^.
+Defined.
+
 Definition F_left_unit_inv
            `{Funext}
            {C D : BiCategory}
@@ -354,6 +374,31 @@ Proof.
   apply path_inverse_2cell.
   rewrite <- !vcomp_assoc.
   apply F_left_unit.
+Qed.
+
+Definition F_left_unit_inv_2
+           `{Funext}
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+           `{is_pseudo _ _ F}
+           {X Y : C}
+           (f : C⟦X,Y⟧)
+  : F ₂ (left_unit_inv f)
+    =
+    (Fcomp₁ F (id₁ _) f)
+      ∘ ((Fid F _) * (id₂ (F ₁ f)))
+      ∘ left_unit_inv (F ₁ f).
+Proof.
+  rewrite (F_left_unit_inv F f).
+  rewrite !vcomp_assoc.
+  rewrite !(ap (fun z => _ ∘ z) (vcomp_assoc _ _ _)^).
+  rewrite <- interchange ; simpl.
+  rewrite vcomp_right_inverse, vcomp_right_identity.
+  rewrite hcomp_id₂, vcomp_left_identity.
+  rewrite <- !vcomp_assoc.
+  rewrite vcomp_right_inverse.
+  rewrite vcomp_left_identity.
+  reflexivity.
 Qed.
 
 Definition F_right_unit_inv
