@@ -8,6 +8,7 @@ basics/polynomial.v
 bicategories/general_category.v
 bicategories/bicategory/bicategory.v
 bicategories/bicategory/strict.v
+bicategories/bicategory/prestrict.v
 bicategories/bicategory/bicategory_laws.v
 bicategories/bicategory/equivalence.v
 bicategories/bicategory/adjoint.v
@@ -19,6 +20,7 @@ bicategories/bicategory/examples/one_types.v
 bicategories/bicategory/examples/full_sub.v
 bicategories/bicategory/examples/arrow_subcategory.v
 bicategories/bicategory/examples/precat.v
+bicategories/bicategory/examples/strict_precat.v
 bicategories/bicategory/examples/cat.v
 bicategories/bicategory/examples/prod.v
 bicategories/bicategory/examples/terminal.v

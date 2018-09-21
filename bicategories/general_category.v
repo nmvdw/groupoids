@@ -119,3 +119,44 @@ Definition iso_component
 Proof.
   reflexivity.
 Defined.
+
+Definition nice_path_functor'
+           `{Funext}
+           {C D : PreCategory}
+           {F G : Functor C D}
+           (FGO : object_of F = G)
+           (FGM : forall {X Y : C} (f : morphism C X Y),
+               ((@morphism_isomorphic _ _ _ (Category.Morphisms.idtoiso D (ap10 FGO Y)))
+                 o (morphism_of F f)
+                 o morphism_inverse (Category.Morphisms.idtoiso D (ap10 FGO X)))%morphism
+           = morphism_of G f)
+  : F = G.
+Proof.
+  simple refine (path_functor _ _ _ _).
+  - exact FGO.
+  - funext X Y f.
+    destruct F, G.
+    cbn in *.
+    induction FGO ; simpl in *.
+    specialize (FGM X Y f).
+    rewrite left_identity, right_identity in FGM.
+    exact FGM.
+Defined.
+
+Definition nice_path_functor
+           `{Funext}
+           {C D : PreCategory}
+           {F G : Functor C D}
+           (FGO : forall (X : C), F X = G X)
+           (FGM : forall {X Y : C} (f : morphism C X Y),
+               ((@morphism_isomorphic _ _ _ (Category.Morphisms.idtoiso D (FGO Y)))
+                  o (morphism_of F f)
+                  o morphism_inverse (Category.Morphisms.idtoiso D (FGO X)))%morphism
+               = morphism_of G f)
+  : F = G.
+Proof.
+  simple refine (nice_path_functor' (path_forall _ _ FGO) _).
+  intros X Y f.
+  rewrite !ap10_path_forall.
+  apply FGM.
+Defined.

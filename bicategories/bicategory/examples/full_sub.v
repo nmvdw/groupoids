@@ -3,6 +3,7 @@ From HoTT.Categories Require Import
      Functor.
 From GR Require Import
      bicategory.bicategory
+     bicategory.strict
      bicategory.univalent
      bicategory.adjoint
      bicategory.adjoint_unique.
@@ -37,6 +38,12 @@ Section FullSub.
     := Build_BiCategory
          full_sub_d
          full_sub_d_is_bicategory.
+
+  Definition full_sub_strict (SC : IsStrict C)
+    : IsStrict full_sub.
+  Proof.
+    make_strict ; intros ; cbn in * ; apply SC.
+  Defined.
 
   Global Instance locally_univalent_full_sub
          `{Univalence}
