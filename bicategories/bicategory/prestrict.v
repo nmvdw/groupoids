@@ -276,4 +276,24 @@ Section Build2Category.
 
   Definition Build_2Category : BiCategory
     := Build_BiCategory Build_2Category_d Build_2Category_is_bicategory.
+
+  Global Instance Build_2Category_is_2category
+    : is_2category Build_2Category.
+  Proof.
+    split.
+    - intros X Y.
+      apply (Hom X Y).
+    - make_strict.
+      + intros X Y f.
+        exact (ap10 (ap object_of (left_unitor X Y)) f).
+      + intros X Y f.
+        exact (ap10 (ap object_of (right_unitor X Y)) f).
+      + intros W X Y Z h g f.
+        exact (ap10 (ap object_of (associator W X Y Z)^) (h,(g,f))).
+      + intros ; apply path_ishprop.
+      + intros ; apply path_ishprop.
+      + reflexivity.
+      + reflexivity.
+      + reflexivity.
+  Defined.
 End Build2Category.
