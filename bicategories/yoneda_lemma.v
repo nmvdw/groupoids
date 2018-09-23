@@ -536,3 +536,142 @@ Section YonedaLemma.
                        presheaf_to_yoneda _ _ _ _).
   Defined.
 End YonedaLemma.
+
+Section YonedaLocalEquivalence.
+  Context `{Univalence}
+          {C : BiCategory}.
+  Variable (X Y : C).
+
+  Definition yoneda_to_presheaf_representable_m_d
+             (f : C⟦X,Y⟧)
+    : Modification_d (yoneda C ₁ f).1 (presheaf_to_yoneda (representable0 Y) X f).1.
+  Proof.
+    intros Z.
+    simple refine (Build_NaturalTransformation _ _ _ _).
+    - intros h ; cbn in *.
+      apply id₂.
+    - intros ; cbn.
+      unfold id₂.
+      rewrite left_identity, right_identity.
+      reflexivity.
+  Defined.
+
+  Definition yoneda_to_presheaf_representable_is_modification
+             (f : C⟦X,Y⟧)
+    : is_modification (yoneda_to_presheaf_representable_m_d f).
+  Proof.
+    intros Z₁ Z₂ h.
+    apply path_natural_transformation.
+    intros q.
+    cbn in *.
+    unfold id₂, bc_whisker_l, bc_whisker_r.
+    rewrite !hcomp_id₂, !left_identity, right_identity.
+    reflexivity.
+  Qed.
+
+  Definition yoneda_to_presheaf_representable_m
+             (f : C⟦X,Y⟧)
+    : Modification (yoneda C ₁ f).1 (presheaf_to_yoneda (representable0 Y) X f).1
+    := Build_Modification
+         (yoneda_to_presheaf_representable_m_d f)
+         (yoneda_to_presheaf_representable_is_modification f).
+
+  Definition yoneda_to_presheaf_representable
+    : NaturalTransformation (Fmor (yoneda C) X Y) (presheaf_to_yoneda (representable0 Y) X).
+  Proof.
+    simple refine (Build_NaturalTransformation _ _ _ _).
+    - exact yoneda_to_presheaf_representable_m.
+    - intros Z₁ Z₂ h.
+      apply path_modification.
+      funext Z₃.
+      apply path_natural_transformation.
+      intros g ; cbn.
+      rewrite left_identity, right_identity.
+      reflexivity.
+  Defined.
+
+  (* TODO: slow when reading definition *)
+  Definition presheaf_representable_to_yoneda_m_d
+             (f : C⟦X,Y⟧)
+    : Modification_d (presheaf_to_yoneda (representable0 Y) X f).1 (yoneda C ₁ f).1.
+  Proof.
+    intros Z.
+    simple refine (Build_NaturalTransformation _ _ _ _).
+    - intros h ; cbn in *.
+      apply id₂.
+    - intros ; cbn.
+      unfold id₂.
+      rewrite left_identity, right_identity.
+      reflexivity.
+  Defined.
+
+  Definition presheaf_representable_to_yoneda_is_modification
+             (f : C⟦X,Y⟧)
+    : is_modification (presheaf_representable_to_yoneda_m_d f).
+  Proof.
+    intros Z₁ Z₂ h.
+    apply path_natural_transformation.
+    intros q.
+    cbn in *.
+    unfold id₂, bc_whisker_l, bc_whisker_r.
+    rewrite !hcomp_id₂, !left_identity, right_identity.
+    reflexivity.
+  Qed.
+
+  (* TODO: slow when reading definition *)
+  Definition presheaf_representable_to_yoneda_m
+             (f : C⟦X,Y⟧)
+    := Build_Modification
+         (presheaf_representable_to_yoneda_m_d f)
+         (presheaf_representable_to_yoneda_is_modification f).
+
+  Definition presheaf_representable_to_yoneda
+    : NaturalTransformation (presheaf_to_yoneda (representable0 Y) X) (Fmor (yoneda C) X Y).
+  Proof.
+    simple refine (Build_NaturalTransformation _ _ _ _).
+    - exact presheaf_representable_to_yoneda_m.
+    - intros Z₁ Z₂ h.
+      apply path_modification.
+      funext Z₃.
+      apply path_natural_transformation.
+      intros g ; cbn.
+      rewrite left_identity, right_identity.
+      reflexivity.
+  Defined.
+
+  Global Instance iso_presheaf_representable_to_yoneda
+    : @IsIsomorphism (_ -> _) _ _ presheaf_representable_to_yoneda.
+  Proof.
+    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+    - exact yoneda_to_presheaf_representable.
+    - apply path_natural_transformation.
+      intros f.
+      apply path_modification.
+      funext Z.
+      apply path_natural_transformation.
+      intros g ; cbn.
+      apply left_identity.
+    - apply path_natural_transformation.
+      intros f.
+      apply path_modification.
+      funext Z.
+      apply path_natural_transformation.
+      intros g ; cbn.
+      apply left_identity.
+  Defined.
+  
+  Definition yoneda_local_equivalence
+    : @is_equivalence PreCat _ _ (Fmor (yoneda C) X Y).
+  Proof.
+    refine (@iso_equiv PreCat
+                       (C ⟦ X, Y ⟧)
+                       (Pseudo (op C) PreCat ⟦ (yoneda C) X, (yoneda C) Y ⟧)
+                       (presheaf_to_yoneda (representable0 Y) X)
+                       (Fmor (yoneda C) X Y)                    
+                       _
+                       presheaf_representable_to_yoneda
+                       _).
+    apply (adjoint_equivalence_is_equivalence
+             (inv_equivalence (yoneda_lemma (representable0 Y) X))).
+  Defined.
+End YonedaLocalEquivalence.

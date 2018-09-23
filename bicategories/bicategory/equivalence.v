@@ -141,3 +141,19 @@ Proof.
   destruct Heq.
   exact (id_equiv X).
 Defined.
+
+Definition iso_equiv
+           {C : BiCategory}
+           {X Y : C}
+           {f g : C⟦X,Y⟧}
+           (Hf : is_equivalence f)
+           (α : f ==> g)
+           `{IsIsomorphism _ _ _ α}
+  : is_equivalence g.
+Proof.
+  pose (ginv := equiv_inv Hf).
+  exact (Build_IsEquivalence
+           ginv
+           (retr f Hf ∘ α^-1 ▻ ginv)
+           (sect f Hf ∘ ginv ◅ α^-1)).
+Defined.
