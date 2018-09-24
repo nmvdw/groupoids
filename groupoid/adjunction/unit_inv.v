@@ -4,12 +4,8 @@ From GR.bicategories Require Import
      general_category
      bicategory.bicategory
      bicategory.examples.one_types
-     lax_functor.lax_functor
-     lax_functor.examples.identity
-     lax_functor.examples.composition
-     lax_functor.examples.restriction
-     lax_functor.examples.factor_full_sub
-     lax_transformation.lax_transformation.
+     lax_functors
+     lax_transformations.
 From GR.groupoid Require Import
      groupoid_quotient.gquot
      groupoid_quotient.gquot_functor
@@ -197,13 +193,13 @@ Proof.
   reflexivity.
 Qed.
 
-Definition univalent_gquot `{Funext}
+Definition univalent_gquot `{Univalence}
   : LaxFunctor univalent_grpd one_types
   := lax_restriction
        gquot_functor
        (fun G => BuildhProp (is_univalent G)).
 
-Definition univalent_path_groupoid `{Funext}
+Definition univalent_path_groupoid `{Univalence}
   : LaxFunctor one_types univalent_grpd
   := lax_factor
        path_groupoid_functor
@@ -211,7 +207,7 @@ Definition univalent_path_groupoid `{Funext}
        path_groupoid_univalent.
 
 Section UnitInv.
-  Context `{Funext}.
+  Context `{Univalence}.
 
   Definition unit_inv_map_one (G : groupoid) `{is_univalent G}
     : gquot G -> G.
@@ -435,8 +431,8 @@ Section UnitInv.
       apply path_natural_transformation.
       intro x ; revert x.
       simple refine (gquot_ind_prop _ _ _).
-      intro a ; simpl.
-      rewrite identity_of, !right_identity, !left_identity.
+      intro a ; cbn.
+      rewrite identity_of, !right_identity, !left_identity.      
       rewrite ap10_path_forall.
       unfold unit_inv_map_two ; simpl.
       rewrite transport_morphism_FlFr.
@@ -449,7 +445,7 @@ Section UnitInv.
       apply path_natural_transformation.
       intros x ; revert x.
       simple refine (gquot_ind_prop _ _ _).
-      intro a ; simpl.
+      intro a ; cbn.
       rewrite !left_identity, !right_identity, concat_1p.
       rewrite ap10_path_forall.
       reflexivity.
@@ -457,7 +453,7 @@ Section UnitInv.
       apply path_natural_transformation.
       intro x ; revert x.
       refine (@gquot_ind_prop _ _ _ (fun a => istrunc_paths _ _ _ _)).
-      intro a ; simpl.
+      intro a ; cbn.
       rewrite !right_identity, !left_identity.
       rewrite !identity_of, !concat_1p, ap10_path_forall.
       simpl.

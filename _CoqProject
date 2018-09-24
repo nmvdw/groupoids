@@ -108,6 +108,6 @@ groupoid/groupoid_quotient/properties/gquot_general.v
 groupoid/adjunction/unit.v
 groupoid/adjunction/counit.v
 groupoid/adjunction/gquot_biadjunction.v
-groupoid/adjunction/unit_inv.v
 groupoid/adjunction/counit_inv.v
+groupoid/adjunction/unit_inv.v
 groupoid/adjunction/univalent_gquot_biadjunction.v

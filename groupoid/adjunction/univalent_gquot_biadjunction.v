@@ -2,30 +2,12 @@ Require Import HoTT.
 From HoTT.Categories Require Import Category Functor NaturalTransformation.
 From GR.bicategories Require Import
      general_category
-     bicategory.bicategory
-     bicategory.examples.one_types
-     bicategory.examples.lax_functors_bicat
-     bicategory.adjoint
-     bicategory.equivalence
+     bicategories
+     lax_functors
+     lax_transformations
+     modifications
      biadjunction.biadjunction
-     lax_functor.lax_functor
-     lax_functor.examples.identity
-     lax_functor.examples.composition
-     lax_transformation.lax_transformation
-     lax_transformation.transformation_category
-     lax_transformation.examples.identity
-     lax_transformation.examples.composition
-     lax_transformation.examples.right_identity
-     lax_transformation.examples.left_identity
-     lax_transformation.examples.associativity
-     lax_transformation.examples.right_identity_inv
-     lax_transformation.examples.left_identity_inv
-     lax_transformation.examples.associativity_inv
-     lax_transformation.examples.whisker_R
-     lax_transformation.examples.whisker_L
-     modification.modification
-     modification.examples.identity
-     modification.examples.composition.
+     biadjunction.examples.restriction.
 From GR.groupoid Require Import
      groupoid_quotient.gquot
      groupoid_quotient.gquot_functor
@@ -35,13 +17,12 @@ From GR.groupoid Require Import
      adjunction.unit
      adjunction.unit_inv
      adjunction.counit
-     adjunction.counit_inv
      adjunction.gquot_biadjunction.
 From GR.basics Require Import
      general.
 
 Section UnivalentGQuotAdjunction.
-  Context `{Funext}.
+  Context `{Univalence}.
 
   Definition univalent_gquot_biadjunction
     : BiAdjunction univalent_grpd one_types.
@@ -139,7 +120,7 @@ Section UnivalentGQuotAdjunction.
     Qed.
 
     Definition unit_sect_d
-      : modification_d
+      : Modification_d
           (compose unit_inv unit_ugq)
           (identity_transformation
              (lax_comp (right_adjoint_d univalent_gquot_biadjunction.1)
@@ -164,7 +145,7 @@ Section UnivalentGQuotAdjunction.
     Qed.
 
     Definition unit_sect
-      : modification
+      : Modification
           (compose unit_inv unit_ugq)
           (identity_transformation
              (lax_comp (right_adjoint_d univalent_gquot_biadjunction.1)
@@ -199,11 +180,11 @@ Section UnivalentGQuotAdjunction.
     Qed.
 
     Definition unit_retr_d
-      : modification_d
+      : Modification_d
           (compose unit_ugq unit_inv)
           (identity_transformation (lax_id_functor univalent_grpd)).
     Proof.
-      intros A ; simpl.
+      intros A.
       destruct A as [A UA].
       simple refine (Build_NaturalTransformation _ _ _ _).
       - intros a ; simpl in *.
@@ -229,7 +210,7 @@ Section UnivalentGQuotAdjunction.
     Qed.
 
     Definition unit_retr
-      : modification
+      : Modification
           (compose unit_ugq unit_inv)
           (identity_transformation (lax_id_functor univalent_grpd))
       := Build_Modification unit_retr_d unit_retr_is_modification.
@@ -288,7 +269,7 @@ Section UnivalentGQuotAdjunction.
     Qed.
 
     Definition unit_sect_inv_d
-      : modification_d
+      : Modification_d
           (identity_transformation
              (lax_comp (right_adjoint_d univalent_gquot_biadjunction.1)
                        (left_adjoint_d univalent_gquot_biadjunction.1)))
@@ -308,12 +289,12 @@ Section UnivalentGQuotAdjunction.
       apply path_natural_transformation.
       simple refine (gquot_ind_prop _ _ _).
       intros a ; simpl in *.
-      rewrite !ge ; simpl.
+      rewrite !ge.
       reflexivity.
     Qed.
 
     Definition unit_sect_inv
-      : modification
+      : Modification
           (identity_transformation
              (lax_comp (right_adjoint_d univalent_gquot_biadjunction.1)
                        (left_adjoint_d univalent_gquot_biadjunction.1)))
@@ -341,11 +322,11 @@ Section UnivalentGQuotAdjunction.
     Qed.
 
     Definition unit_retr_inv_d
-      : modification_d
+      : Modification_d
           (identity_transformation (lax_id_functor univalent_grpd))
           (compose unit_ugq unit_inv).
     Proof.
-      intros [A UA] ; simpl.
+      intros [A UA].
       simple refine (Build_NaturalTransformation _ _ _ _).
       - intros a ; cbn in *.
         apply unit_retr_transformation_d.
@@ -364,7 +345,7 @@ Section UnivalentGQuotAdjunction.
     Qed.
 
     Definition unit_retr_inv
-      : modification
+      : Modification
           (identity_transformation (lax_id_functor univalent_grpd))
           (compose unit_ugq unit_inv)        
       := Build_Modification unit_retr_inv_d unit_retr_inv_is_modification.
@@ -394,7 +375,7 @@ Section UnivalentGQuotAdjunction.
       - apply path_modification.
         funext [A UA].
         apply path_natural_transformation.
-        intros x ; simpl.
+        intros x ; cbn.
         rewrite !ge.
         reflexivity.
     Qed.
@@ -413,12 +394,12 @@ Section UnivalentGQuotAdjunction.
         + apply path_modification.
           funext G.
           apply path_natural_transformation.
-          intros X ; simpl in *.
+          intros X.
           apply left_identity.
         + apply path_modification.
           funext G.
           apply path_natural_transformation.
-          intros X ; simpl in *.
+          intros X.
           apply left_identity.
       - simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
         + exact unit_sect_inv.
@@ -427,53 +408,75 @@ Section UnivalentGQuotAdjunction.
           apply path_natural_transformation.
           intros x ; revert x.          
           simple refine (gquot_ind_prop _ _ _).
-          intros a ; simpl.
+          intros a.
           reflexivity.
         + apply path_modification.
           funext G.
           apply path_natural_transformation.
-          simpl in *.
           simple refine (gquot_ind_prop _ _ _).
-          intros a ; simpl.
+          intros a.
           reflexivity.
     Defined.
   End UnitEquivalence.
 
   Section CounitEquivalence.
     Definition counit_ugq_inv_d
-    : LaxTransformation_d
+    : PseudoTransformation_d
         (lax_id_functor one_types)
         (lax_comp (left_adjoint_d univalent_gquot_biadjunction.1)
                   (right_adjoint_d univalent_gquot_biadjunction.1)).
     Proof.
-      make_lax_transformation.
-      - intros X ; simpl.
-        apply counit_inv.
-      - intros X Y f ; simpl.
-        exact (laxnaturality_of counit_inv f).
+      make_pseudo_transformation.
+      - intros X ; cbn.
+        exact (gcl (path_groupoid X)).
+      - reflexivity.
+      - reflexivity.
     Defined.
 
-    Definition counit_ugq_inv_is_lax
-      : is_lax_transformation counit_ugq_inv_d.
+    Definition counit_ugq_inv_is_pseudo
+      : is_pseudo_transformation_p counit_ugq_inv_d.
     Proof.
-      make_is_lax_transformation.
-      - intros X Y f g α ; simpl.
-        exact (laxnaturality_natural counit_inv α).
-      - intros X ; simpl.
-        exact (transformation_unit counit_inv X).
-      - intros X Y Z f g ; simpl.
-        exact (transformation_assoc counit_inv f g).
+      make_is_pseudo_transformation.
+      - intros X Y f g α.
+        induction α.
+        cbn.
+        rewrite !concat_1p, concat_p1.
+        f_ap.
+        funext x.
+        rewrite ap10_path_forall ; simpl.
+        rewrite ge.
+        reflexivity.
+      - intros X.
+        cbn.
+        rewrite !concat_1p, !concat_p1.
+        f_ap.
+        funext x.
+        rewrite concat_p1, <- path_forall_pp.
+        rewrite ap10_path_forall ; simpl.
+        rewrite ge.
+        reflexivity.
+      - intros X Y Z f g.
+        cbn.
+        rewrite !concat_p1, !concat_1p.
+        rewrite <- !path_forall_pp.
+        f_ap.
+        funext x.
+        rewrite ap10_path_forall ; simpl.
+        rewrite ge.
+        reflexivity.
+      - reflexivity.
+      - reflexivity.
     Qed.
 
     Definition counit_ugq_inv
-      : LaxTransformation
+      : PseudoTransformation
           (lax_id_functor one_types)
           (lax_comp (left_adjoint_d univalent_gquot_biadjunction.1)
                     (right_adjoint_d univalent_gquot_biadjunction.1))
-      := Build_LaxTransformation counit_ugq_inv_d counit_ugq_inv_is_lax.
+      := Build_PseudoTransformation counit_ugq_inv_d counit_ugq_inv_is_pseudo.
     
     Definition counit_sect_d
-      : modification_d
+      : Modification_d
           (compose counit_ugq_inv counit_ugq)
           (identity_transformation (lax_id_functor one_types))
       := fun _ => idpath.
@@ -492,13 +495,13 @@ Section UnivalentGQuotAdjunction.
     Qed.
 
     Definition counit_sect
-      : modification
+      : Modification
           (compose counit_ugq_inv counit_ugq)
           (identity_transformation (lax_id_functor one_types))
       := Build_Modification counit_sect_d counit_sect_is_modification.
 
     Definition counit_sect_inv_d
-      : modification_d
+      : Modification_d
           (identity_transformation (lax_id_functor one_types))
           (compose counit_ugq_inv counit_ugq)
       := fun _ => idpath.
@@ -517,7 +520,7 @@ Section UnivalentGQuotAdjunction.
     Qed.
 
     Definition counit_sect_inv
-      : modification
+      : Modification
           (identity_transformation (lax_id_functor one_types))
           (compose counit_ugq_inv counit_ugq)
       := Build_Modification counit_sect_inv_d counit_sect_inv_is_modification.
@@ -527,7 +530,7 @@ Section UnivalentGQuotAdjunction.
                {a₁ a₂ : path_groupoid A}
                (g : a₁ = a₂)
       : path_over
-          (fun h : gquot (path_groupoid A) => counit_inv_map A (counit_map A h) = h)
+          (fun h : gquot (path_groupoid A) => gcl (path_groupoid A) (counit_map A h) = h)
           (gcleq (path_groupoid A) g)
           1%path
           1%path.
@@ -540,7 +543,7 @@ Section UnivalentGQuotAdjunction.
                 idpath
                 _).
       - refine (_ @ (ap_compose _ _ _)^).
-        exact (ap (ap (counit_inv_map A)) (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _)^).
+        exact (ap (ap _) (gquot_rec_beta_gcleq _ _ _ _ _ _ _ _ _ _)^).
       - apply path_to_square ; simpl.
         refine (concat_p1 _ @ _ @ (concat_1p _)^).
         induction g ; simpl.
@@ -548,7 +551,7 @@ Section UnivalentGQuotAdjunction.
     Qed.
       
     Definition counit_retr_d
-      : modification_d
+      : Modification_d
           (compose counit_ugq counit_ugq_inv)
           (identity_transformation
              (lax_comp (left_adjoint_d univalent_gquot_biadjunction.1)
@@ -576,7 +579,7 @@ Section UnivalentGQuotAdjunction.
     Qed.
 
     Definition counit_retr
-      : modification
+      : Modification
           (compose counit_ugq counit_ugq_inv)
           (identity_transformation
              (lax_comp (left_adjoint_d univalent_gquot_biadjunction.1)
@@ -584,7 +587,7 @@ Section UnivalentGQuotAdjunction.
       := Build_Modification counit_retr_d counit_retr_is_modification.
 
     Definition counit_retr_inv_d
-      : modification_d
+      : Modification_d
           (identity_transformation
              (lax_comp (left_adjoint_d univalent_gquot_biadjunction.1)
                        (right_adjoint_d univalent_gquot_biadjunction.1)))
@@ -601,13 +604,13 @@ Section UnivalentGQuotAdjunction.
       funext x ; revert x.
       simple refine (gquot_ind_prop _ _ _).
       intros a ; simpl.
-      unfold counit_retr_inv_d, counit_retr_d ; simpl.
-      rewrite !concat_1p, !concat_p1, <- !path_forall_V, !ap10_path_forall ; cbn.
+      unfold counit_retr_inv_d, counit_retr_d ; cbn.
+      rewrite !concat_1p, !concat_p1, <- !path_forall_V, !ap10_path_forall.
       reflexivity.
     Qed.
 
     Definition counit_retr_inv
-      : modification
+      : Modification
           (identity_transformation
              (lax_comp (left_adjoint_d univalent_gquot_biadjunction.1)
                        (right_adjoint_d univalent_gquot_biadjunction.1)))
@@ -618,7 +621,7 @@ Section UnivalentGQuotAdjunction.
       : @is_left_adjoint_d (Lax one_types one_types) _ _ counit_ugq.
     Proof.
       make_is_left_adjoint.
-      - exact counit_ugq_inv.
+      - exact counit_ugq_inv.1.
       - exact counit_retr_inv.
       - exact counit_sect.
     Defined.
@@ -677,4 +680,14 @@ Section UnivalentGQuotAdjunction.
           reflexivity.
     Defined.
   End CounitEquivalence.
+
+  Definition one_types_grpd_equiv
+    : BiEquivalence univalent_grpd one_types.
+  Proof.
+    make_biequivalence.
+    - exact univalent_gquot_biadjunction.
+    - make_is_biequivalence.
+      + exact unit_univalent_gquot_biadjunction_equiv.
+      + exact counit_univalent_gquot_biadjunction_equiv.
+  Defined.
 End UnivalentGQuotAdjunction.

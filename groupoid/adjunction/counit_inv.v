@@ -1,12 +1,8 @@
 Require Import HoTT.
-From GR.bicategories Require Import
-     general_category
-     bicategory.bicategory
-     bicategory.examples.one_types
-     lax_functor.lax_functor
-     lax_functor.examples.identity
-     lax_functor.examples.composition
-     lax_transformation.lax_transformation.
+Require Import HoTT.Categories.Functor.
+Require Import GR.bicategories.bicategories.
+Require Import GR.bicategories.lax_functors.
+Require Import GR.bicategories.lax_transformations.
 From GR.groupoid Require Import
      groupoid_quotient.gquot
      groupoid_quotient.gquot_functor
@@ -17,7 +13,7 @@ From GR.basics Require Import
      general.
 
 Section CounitInverse.
-  Context `{Funext}.
+  Context `{Univalence}.
 
   Definition counit_inv_map (A : 1 -Type)
     : one_types⟦A,gquot_functor(path_groupoid A)⟧
@@ -39,8 +35,7 @@ Section CounitInverse.
   Proof.
     make_is_pseudo_transformation.
     - intros X Y f g α.
-      induction α.
-      cbn.
+      induction α ; cbn.
       rewrite concat_1p, concat_p1.
       f_ap.
       funext x.
