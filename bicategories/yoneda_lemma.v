@@ -10,6 +10,7 @@ From GR.bicategories Require Import
      bicategory.univalent
      bicategory.bicategory_laws
      lax_functor.lax_functor
+     lax_functor.weak_equivalence
      lax_transformation.lax_transformation
      modification.modification
      general_category
@@ -660,7 +661,7 @@ Section YonedaLocalEquivalence.
       apply left_identity.
   Defined.
   
-  Definition yoneda_local_equivalence
+  Definition yoneda_local_equivalence_help
     : @is_equivalence PreCat _ _ (Fmor (yoneda C) X Y).
   Proof.
     refine (@iso_equiv PreCat
@@ -675,3 +676,12 @@ Section YonedaLocalEquivalence.
              (inv_equivalence (yoneda_lemma (representable0 Y) X))).
   Defined.
 End YonedaLocalEquivalence.
+
+Definition yoneda_local_equivalence
+           `{Univalence}
+           (C : BiCategory)
+  : local_equivalence (yoneda C)
+  := fun X Y =>
+       (@equiv_to_adjequiv _ PreCat _ _
+                           (Fmor (yoneda C) X Y)
+                           (yoneda_local_equivalence_help X Y)).2.

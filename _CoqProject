@@ -8,10 +8,11 @@ basics/polynomial.v
 bicategories/general_category.v
 bicategories/bicategory/bicategory.v
 bicategories/bicategory/strict.v
-bicategories/bicategory/prestrict.v
+bicategories/bicategory/locally_strict.v
 bicategories/bicategory/bicategory_laws.v
 bicategories/bicategory/equivalence.v
 bicategories/bicategory/adjoint.v
+bicategories/bicategory/transport_laws.v
 bicategories/bicategory/univalent.v
 bicategories/bicategory/equiv_to_adjequiv.v
 bicategories/bicategory/adjoint_unique.v
@@ -37,6 +38,7 @@ bicategories/lax_functor/examples/restriction.v
 bicategories/lax_functor/examples/inclusion.v
 bicategories/lax_functor/examples/factor_full_sub.v
 bicategories/lax_functor/examples/composition.v
+bicategories/lax_functor/weak_equivalence.v
 bicategories/lax_functor/oplax_functor.v
 bicategories/lax_transformation/lax_transformation.v
 bicategories/lax_transformation/examples/identity.v

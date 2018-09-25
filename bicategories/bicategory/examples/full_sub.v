@@ -2,6 +2,7 @@ Require Import HoTT.
 From HoTT.Categories Require Import
      Functor.
 From GR Require Import
+     general_category
      bicategory.bicategory
      bicategory.strict
      bicategory.univalent
@@ -104,4 +105,30 @@ Section FullSub.
   Proof.
     split ; apply _.
   Defined.
+
+  Definition adjoint_to_full_sub
+             {X Y : C}
+             (HX : P X)
+             (HY : P Y)
+             (f : C⟦X,Y⟧)
+             (Hf : @is_left_adjoint C _ _ f)
+    : @is_left_adjoint full_sub (X;HX) (Y;HY) f
+    := Hf.
+
+  Definition adjoint_equivalence_to_full_sub
+             {X Y : C}
+             (HX : P X)
+             (HY : P Y)
+             (f : C⟦X,Y⟧)
+             (Hf : @is_adjoint_equivalence C _ _ f)
+    : @is_adjoint_equivalence full_sub (X;HX) (Y;HY) f
+    := Hf.
+
+  Definition adjoint_equivalent_to_full_sub
+             {X Y : C}
+             (HX : P X)
+             (HY : P Y)
+             (f : X ≃ Y)
+    : @adjoint_equivalence full_sub (X;HX) (Y;HY)
+    := f.
 End FullSub.

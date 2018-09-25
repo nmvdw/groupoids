@@ -4,21 +4,21 @@ Require Import GR.bicategories.general_category.
 Require Import GR.bicategories.bicategory.bicategory.
 Require Import GR.bicategories.bicategory.strict.
 
-Class prestrict (C : BiCategory) :=
+Class LocallyStrict (C : BiCategory) :=
   set_mor : forall (X Y : C), IsStrictCategory (C⟦X,Y⟧).
 
 Global Instance is_hprop_prestrict
        `{Funext}
        (C : BiCategory)
-  : IsHProp (prestrict C).
+  : IsHProp (LocallyStrict C).
 Proof.
-  unfold prestrict.
+  unfold LocallyStrict.
   apply _.
 Qed.
 
 Global Instance is_hset_mor_prestrict
        (C : BiCategory)
-       `{prestrict C}
+       `{LocallyStrict C}
        (X Y : C)
   : IsHSet (C⟦X,Y⟧)
   := set_mor X Y.
@@ -26,7 +26,7 @@ Global Instance is_hset_mor_prestrict
 Global Instance is_hprop_is_strict
        `{Funext}
        (C : BiCategory)
-       `{prestrict C}
+       `{LocallyStrict C}
   : IsHProp (IsStrict C).
 Proof.
   apply hprop_allpath.
@@ -70,7 +70,7 @@ Qed.
 
 Class is_2category (C : BiCategory) :=
   {
-    cat2_is_prestrict : prestrict C ;
+    cat2_is_prestrict : LocallyStrict C ;
     cat2_is_strict : IsStrict C
   }.
 

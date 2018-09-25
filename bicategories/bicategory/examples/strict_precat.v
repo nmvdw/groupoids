@@ -4,7 +4,7 @@ From HoTT.Categories Require Import
 From GR.bicategories Require Import
      general_category
      bicategory.bicategory
-     bicategory.prestrict
+     bicategory.locally_strict
      bicategory.strict
      adjoint
      adjoint_unique.
@@ -14,8 +14,8 @@ From GR.bicategories.bicategory.examples Require Import
 Definition StrictCat `{Funext} : BiCategory
   := full_sub PreCat (fun C => BuildhProp (IsStrictCategory C)).
 
-Global Instance prestrict_strict_cat `{Funext}
-  : prestrict StrictCat.
+Global Instance LocallyStrict_strict_cat `{Funext}
+  : LocallyStrict StrictCat.
 Proof.
   intros [C SC] [Y SY].
   apply _.

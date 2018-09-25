@@ -200,3 +200,66 @@ Proof.
     rewrite eisretr.
     reflexivity.
 Qed.
+
+Global Instance is_hprop_isstrict_locally_univalent
+       `{Univalence}
+       (C : BiCategory)
+       `{LocallyUnivalent C}
+  : IsHProp (IsStrict C).
+Proof.
+  apply hprop_allpath.
+  intros S₁ S₂.
+  destruct S₁ as [S₁l S₁r S₁a S₁t S₁p S₁il S₁ir S₁ia].
+  destruct S₂ as [S₂l S₂r S₂a S₂t S₂p S₂il S₂ir S₂ia].
+  assert (S₁l = S₂l) as ->.
+  {
+    funext X Y f.
+    rewrite <- (eissect (@idtoiso (C⟦X,Y⟧) _ _) (S₁l X Y f)).
+    rewrite <- (eissect (@idtoiso (C⟦X,Y⟧) _ _) (S₂l X Y f)).
+    f_ap.
+    apply path_isomorphic.
+    rewrite S₁il, S₂il.
+    reflexivity.
+  }
+  assert (S₁r = S₂r) as ->.
+  {
+    funext X Y f.
+    rewrite <- (eissect (@idtoiso (C⟦X,Y⟧) _ _) (S₁r X Y f)).
+    rewrite <- (eissect (@idtoiso (C⟦X,Y⟧) _ _) (S₂r X Y f)).
+    f_ap.
+    apply path_isomorphic.
+    rewrite S₁ir, S₂ir.
+    reflexivity.
+  }
+  assert (S₁a = S₂a) as ->.
+  {
+    funext W X Y Z f g ; funext h.
+    rewrite <- (eissect (@idtoiso (C⟦W,Z⟧) _ _) (S₁a W X Y Z f g h)).
+    rewrite <- (eissect (@idtoiso (C⟦W,Z⟧) _ _) (S₂a W X Y Z f g h)).
+    f_ap.
+    apply path_isomorphic.
+    rewrite S₁ia, S₂ia.
+    reflexivity.
+  }
+  assert (S₁t = S₂t) as ->.
+  {
+    apply path_ishprop.
+  }
+  assert (S₁p = S₂p) as ->.
+  {
+    apply path_ishprop.
+  }
+  assert (S₁il = S₂il) as ->.
+  {
+    apply path_ishprop.
+  }
+  assert (S₁ir = S₂ir) as ->.
+  {
+    apply path_ishprop.
+  }
+  assert (S₁ia = S₂ia) as ->.
+  {
+    apply path_ishprop.
+  }
+  reflexivity.
+Qed.
