@@ -1,6 +1,7 @@
 Require Import HoTT.
 From GR.bicategories Require Import
      bicategory.bicategory
+     bicategory.univalent
      lax_functor.lax_functor
      lax_transformation.lax_transformation
      lax_transformation.transformation_category
@@ -151,4 +152,9 @@ Section LaxFunctors.
 
   Definition Lax : BiCategory
     := Build_BiCategory lax_functors_d lax_functors_is_bicategory.
+
+  Global Instance locally_univalent_Lax
+         `{LocallyUnivalent D}
+    : LocallyUnivalent Lax
+    := fun _ _ => _.
 End LaxFunctors.

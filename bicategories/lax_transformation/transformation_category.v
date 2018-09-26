@@ -35,77 +35,92 @@ Section transformation_category.
       funext x.
       apply right_identity.
   Defined.
+End transformation_category.
 
-  (** If a modification `m` is an isomorphism in the category of lax
+(** If a modification `m` is an isomorphism in the category of lax
       transformations, then each 2-cell `m_A` is an isomorphism
       in D  *)
-  Global Instance modification_isomorphism_1 {C D : BiCategory}
-        {F G : LaxFunctor C D}
-        {η₁ η₂ : LaxTransformation F G}
-        (m : Modification η₁ η₂) :
-    @IsIsomorphism (transformation_category F G) _ _ m ->
-    forall A, IsIsomorphism (m A).
+Global Instance modification_isomorphism_1 {C D : BiCategory}
+       `{Univalence}
+       {F G : LaxFunctor C D}
+       {η₁ η₂ : LaxTransformation F G}
+       (m : Modification η₁ η₂)
+       (m_iso : @IsIsomorphism (transformation_category F G) _ _ m)
+  : forall A, IsIsomorphism (m A).
+Proof.
+  intros A.
+  destruct m_iso as [mV Hsect Hretr] ; cbn in *.
+  simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+  - apply (mV A).
+  - assert ((comp_modification mV m) A = (mV A o m A))%morphism as <-.
+    { reflexivity. }
+    rewrite Hsect.
+    reflexivity.
+  - assert ((comp_modification m mV) A = (m A o mV A))%morphism as <-.
+    { reflexivity. }
+    rewrite Hretr.
+    reflexivity.
+Defined.
+
+Section transformation_category_univalent.
+  Context `{Univalence}
+          {C D : BiCategory}
+          `{LocallyUnivalent D}.
+  Variable (F G : LaxFunctor C D).
+
+  Definition iso_modification_to_path
+             {η₁ η₂ : LaxTransformation F G}
+    : @Isomorphic (transformation_category F G) η₁ η₂ -> η₁ = η₂.
   Proof.
-    intros [mV Hsect Hretr] A. simpl in *.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    - apply (mV A).
-    - assert ((comp_modification mV m) A = (mV A o m A))%morphism as <-
-          by reflexivity.
-      rewrite Hsect. reflexivity.
-    - assert ((comp_modification m mV) A = (m A o mV A))%morphism as <-
-          by reflexivity.
-      rewrite Hretr. reflexivity.
+    intros [m m_iso] ; cbn in *.
+    simple refine (path_laxtransformation _ _).
+    - intros X.
+      apply (isotoid _ _ _).
+      refine (@Build_Isomorphic _ _ _ (m X) _).
+    - intros A B f ; cbn.
+      rewrite !eisretr ; simpl.
+      apply m.
   Defined.
 
-  Global Instance modification_isomorphism_2 {C D : BiCategory}
-        {F G : LaxFunctor C D}
-        {η₁ η₂ : LaxTransformation F G}
-        (m : Modification η₁ η₂) :
-    (forall A, IsIsomorphism (m A)) ->
-    @IsIsomorphism (transformation_category F G) _ _ m.
+  Definition mod_component_idtoiso
+             {η₁ η₂ : LaxTransformation F G}
+             (p : η₁ = η₂)
+             (X : C)
+    : mod_component
+        (@morphism_isomorphic
+           _ _ _
+           (Category.Morphisms.idtoiso (transformation_category F G) p)) X
+      =
+      @morphism_isomorphic
+        _ _ _
+        (Category.Morphisms.idtoiso _ (ap (fun f => laxcomponent_of f X) p)).
   Proof.
-    intros HmA.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    - simpl. simple refine (Build_Modification _ _).
-      + intro A. apply ((m A)^-1).
-      + intros A B f. simpl.
-        pose (α := (G ₁ f) ◅ m A).
-        (* for this we need: whisker with an isomorphism => isomorphism *)
-        (* 1) precompose both side with Gf ◅ mA
-           2) postcompose both sides with mA ▻ Ff *)
-        admit.
-    - simpl.
-      apply path_modification.
-      funext x ; simpl.
-      rewrite vcomp_left_inverse.
-      reflexivity.
-    - simpl.
-      apply path_modification.
-      funext x ; simpl.
-      rewrite vcomp_right_inverse.
-      reflexivity.
-  Admitted.
+    induction p ; cbn.
+    reflexivity.
+  Qed.
 
-  Lemma transformations_category_isomorphic {C D : BiCategory}
-        (F G : LaxFunctor C D) (η₁ η₂ : LaxTransformation F G) :
-    @Isomorphic (transformation_category F G) η₁ η₂ ->
-    forall x, (η₁ x <~=~> η₂ x)%category.
+  Global Instance is_category_transformation_category
+    : IsCategory (transformation_category F G).
   Proof.
-    intros [m Hm] A.
-    simpl in *.
-    simple refine (@Build_Isomorphic _ _ _ (m A) _).
-  Defined.
-
-  (* Global Instance transformation_isunivalent {C D : BiCategory} *)
-  (*        (F G : LaxFunctor C D) : *)
-  (*   IsCategory (transformation_category F G). *)
-  (* Proof. *)
-  (*   intros η₁ η₂ . simpl in *.     *)
-  (*   simple refine (isequiv_adjointify _ _ _ _). *)
-  (*   - intros [f [g Hgf Hfg]]. simpl in *. *)
-  (*     simple refine (path_sigma' _ _ _). *)
-  (*     + assert (forall x, η₁.1 x = η₂.1 x) as Hobj. *)
-  (*       { admit. } *)
-  (*       Set Printing All. *)
-  (*     + admit. (* TODO: change the record into a sigma-type *) *)
-End transformation_category.
+    intros η₁ η₂.
+    simple refine (isequiv_adjointify _ _ _ _).
+    - exact iso_modification_to_path.
+    - intro m.
+      apply path_isomorphic.
+      apply path_modification.
+      funext X.
+      rewrite mod_component_idtoiso.
+      rewrite ap_laxcomponent_path_laxtransformation.
+      rewrite eisretr.
+      reflexivity.
+    - intro p.
+      induction p ; simpl.
+      unfold iso_modification_to_path ; simpl.
+      apply path_laxtransformation_1.
+      intros X.
+      rewrite <- (eissect ((@Category.Morphisms.idtoiso _ _ _))).
+      f_ap.
+      apply path_isomorphic ; simpl.
+      reflexivity.
+  Qed.
+End transformation_category_univalent.

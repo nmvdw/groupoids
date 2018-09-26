@@ -73,3 +73,10 @@ Proof.
   intros X Y.
   apply HF.
 Defined.
+
+Definition weak_equivalence
+           `{Funext}
+           {C D : BiCategory}
+           (F : LaxFunctor C D)
+  : Type
+  := local_equivalence F * essentially_surjective F.
