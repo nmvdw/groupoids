@@ -54,13 +54,3 @@ Section RepresentableModification.
     : Modification (representable1 f) (representable1 g)
     := Build_Modification representable2_d representable2_is_modification.
 End RepresentableModification.
-
-Definition univalent_representable2
-           `{Univalence}
-           {C : BiCategory}
-           `{LocallyUnivalent C}
-           {X Y : C}
-           {f g : C⟦X,Y⟧}
-           (α : f ==> g)
-  : Modification (univalent_representable1 f) (univalent_representable1 g)
-  := factor_modification _ (representable2 α) _ _.

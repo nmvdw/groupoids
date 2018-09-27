@@ -1,7 +1,10 @@
 Require Import HoTT.
 From HoTT.Categories Require Import
      Category Functor NaturalTransformation FunctorCategory.
-From GR.bicategories.bicategory Require Import bicategory univalent bicategory_laws.
+From GR.bicategories.bicategory Require Import
+     bicategory_laws
+     univalent
+     locally_strict.
 From GR.bicategories Require Import
      lax_functor.lax_functor
      lax_transformation.lax_transformation.
@@ -62,7 +65,32 @@ Proof.
     reflexivity.
 Defined.
 
-Section transformation_category_univalent.
+Global Instance modification_isomorphism_comp {C D : BiCategory}
+       `{Univalence}
+       {F G : LaxFunctor C D}
+       {η₁ η₂ : LaxTransformation F G}
+       (m : Modification η₁ η₂)
+       (m_comp_iso : forall A, IsIsomorphism (m A))
+  : @IsIsomorphism (transformation_category F G) _ _ m.
+Proof.
+  simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
+  - simple refine (Build_Modification _ _).
+    + intros Z.
+      apply (m Z)^-1.
+    + intros Z₁ Z₂ f ; cbn.
+      refine (vcomp_move_L_Mp _ _ _ _) ; simpl.
+      rewrite <- !vcomp_assoc.
+      refine (vcomp_move_R_pM _ _ _ _) ; simpl.
+      apply (mod_commute m f)^.
+  - apply path_modification.
+    funext Z ; cbn.
+    apply vcomp_left_inverse.
+  - apply path_modification.
+    funext Z ; cbn.
+    apply vcomp_right_inverse.
+Defined.
+
+Section TransformationCategoryUnivalent.
   Context `{Univalence}
           {C D : BiCategory}
           `{LocallyUnivalent D}.
@@ -123,4 +151,15 @@ Section transformation_category_univalent.
       apply path_isomorphic ; simpl.
       reflexivity.
   Qed.
-End transformation_category_univalent.
+End TransformationCategoryUnivalent.
+
+Section TransformationCategoryStrict.
+  Context `{Univalence}
+          {C D : BiCategory}
+          `{LocallyStrict D}.
+  Variable (F₁ F₂ : LaxFunctor C D).
+
+  Global Instance is_strict_transformation_category
+    : IsStrictCategory (transformation_category F₁ F₂)
+    := _.
+End TransformationCategoryStrict.

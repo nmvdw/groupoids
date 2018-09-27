@@ -1,7 +1,11 @@
 Require Import HoTT.
+From HoTT.Categories Require Import
+     Category Functor.
 From GR.bicategories Require Import
-     bicategory.bicategory
+     bicategory.bicategory_laws
      bicategory.univalent
+     bicategory.locally_strict
+     bicategory.strict
      lax_functor.lax_functor
      lax_transformation.lax_transformation
      lax_transformation.transformation_category
@@ -153,8 +157,106 @@ Section LaxFunctors.
   Definition Lax : BiCategory
     := Build_BiCategory lax_functors_d lax_functors_is_bicategory.
 
-  Global Instance locally_univalent_Lax
-         `{LocallyUnivalent D}
-    : LocallyUnivalent Lax
-    := fun _ _ => _.
+  Section StrictFunctors.
+    Variable (HD : is_2category D).
+
+    Definition strict_left_functor
+               {F G : Lax}
+               (η : Lax ⟦F,G⟧)
+      : id₁ G · η = η.
+    Proof.
+      simple refine (path_laxtransformation _ _).
+      - intros Z ; cbn.
+        apply strict_left_unit.
+        apply HD.
+      - intros A B f ; cbn.
+        rewrite !idtoiso_strict_left_unit.
+        apply left_identity_is_mod.
+    Defined.
+
+    Definition strict_right_functor
+               {F G : Lax}
+               (η : Lax ⟦F,G⟧)
+      : η · id₁ F = η.
+    Proof.
+      simple refine (path_laxtransformation _ _).
+      - intros Z ; cbn.
+        apply strict_right_unit.
+        apply HD.
+      - intros A B f ; cbn.
+        rewrite !idtoiso_strict_right_unit.
+        apply right_identity_is_mod.
+    Defined.
+
+    Definition strict_assoc_functor
+               {F₁ F₂ F₃ F₄ : Lax}
+               (η₁ : Lax ⟦F₃,F₄⟧)
+               (η₂ : Lax ⟦F₂,F₃⟧)
+               (η₃ : Lax ⟦F₁,F₂⟧)
+      : η₁ · η₂ · η₃ = η₁ · (η₂ · η₃).
+    Proof.
+      simple refine (path_laxtransformation _ _).
+      - intros Z ; cbn.
+        apply strict_assoc.
+        apply HD.
+      - intros A B f ; cbn.
+        rewrite !idtoiso_strict_assoc.
+        apply assoc_d_is_modification.
+    Defined.
+
+    Definition idtoiso_strict_left_unit_functor
+               {F₁ F₂ : Lax}
+               (η : LaxTransformation F₁ F₂)
+      : @morphism_isomorphic _ _ _ (idtoiso (Lax ⟦F₁,F₂⟧) (strict_left_functor η))
+        =
+        @left_unit Lax _ _ η.
+    Proof.
+      apply path_modification.
+      funext X ; simpl.
+      rewrite mod_component_idtoiso.
+      rewrite ap_laxcomponent_path_laxtransformation.
+      apply idtoiso_strict_left_unit.
+    Qed.
+
+    Definition idtoiso_strict_right_unit_functor
+               {F₁ F₂ : Lax}
+               (η : LaxTransformation F₁ F₂)
+      : @morphism_isomorphic _ _ _ (idtoiso (Lax ⟦F₁,F₂⟧) (strict_right_functor η))
+        =
+        @right_unit Lax _ _ η.
+    Proof.
+      apply path_modification.
+      funext X ; simpl.
+      rewrite mod_component_idtoiso.
+      rewrite ap_laxcomponent_path_laxtransformation.
+      apply idtoiso_strict_right_unit.
+    Qed.
+
+    Definition strict_lax : IsStrict Lax.
+    Proof.
+      make_strict.
+      - exact @strict_left_functor.
+      - exact @strict_right_functor.
+      - exact @strict_assoc_functor.
+      - intros ; apply path_ishprop.
+      - intros ; apply path_ishprop.
+      - exact @idtoiso_strict_left_unit_functor.
+      - exact @idtoiso_strict_right_unit_functor.
+      - intros F₁ F₂ F₃ F₄ η₁ η₂ η₃ ; simpl in *.
+        apply path_modification.
+        funext X ; simpl.
+        rewrite mod_component_idtoiso.
+        rewrite ap_laxcomponent_path_laxtransformation.
+        apply idtoiso_strict_assoc.
+    Defined.
+
+    Global Instance is_2_category_Lax
+      : is_2category Lax.
+    Proof.
+      split.
+      - intros X Y.
+        apply _.
+      - apply strict_lax.
+    Qed.
+  End StrictFunctors.
 End LaxFunctors.

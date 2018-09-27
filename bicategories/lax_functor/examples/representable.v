@@ -8,6 +8,7 @@ From GR.bicategories Require Import
 From GR.bicategories.bicategory.examples Require Import
      precat
      cat
+     strict_precat
      opposite.
 Require Import GR.bicategories.lax_functor.examples.factor_full_sub.
 
@@ -157,15 +158,3 @@ Definition representable0
            (X : C)
   : PseudoFunctor (op C) PreCat
   := Build_PseudoFunctor (representable0_d X) (representable0_d_is_pseudo X).
-
-Definition univalent_representable0
-           `{Univalence}
-           {C : BiCategory}
-           `{LocallyUnivalent C}
-           (X : C)
-  : PseudoFunctor (op C) Cat.
-Proof.
-  simple refine (pseudo_factor (representable0 X) _ _).
-  intros Y ; cbn.
-  apply _.
-Defined.

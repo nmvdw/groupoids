@@ -1,3 +1,4 @@
+
 -R . "GR" COQC = hoqc COQDEP = hoqdep
 basics/general.v
 basics/heterogeneous_equality.v
@@ -52,12 +53,15 @@ bicategories/lax_transformation/examples/associativity.v
 bicategories/lax_transformation/examples/associativity_inv.v
 bicategories/lax_transformation/examples/composition.v
 bicategories/lax_transformation/examples/restriction.v
+bicategories/lax_transformation/examples/inclusion_transformation.v
 bicategories/lax_transformation/examples/factor_full_sub.v
 bicategories/modification/modification.v
 bicategories/modification/examples/identity.v
 bicategories/modification/examples/composition.v
 bicategories/modification/examples/restriction.v
 bicategories/modification/examples/factor_full_sub.v
+bicategories/modification/examples/factor_id_modification.v
+bicategories/modification/examples/factor_comp_modification.v
 bicategories/modification/examples/left_identity.v
 bicategories/modification/examples/left_identity_inv.v
 bicategories/modification/examples/right_identity.v
@@ -70,6 +74,7 @@ bicategories/lax_transformation/transformation_category.v
 bicategories/bicategory/examples/lax_functors_bicat.v
 bicategories/bicategory/examples/oplax_functors_bicat.v
 bicategories/bicategory/examples/pseudo_functors_bicat.v
+bicategories/lax_functor/examples/restrict_image_functor.v
 bicategories/lax_functor/examples/representable.v
 bicategories/lax_transformation/examples/representable.v
 bicategories/modification/examples/representable.v

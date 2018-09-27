@@ -94,12 +94,3 @@ Definition representable1
            (f : C⟦X,Y⟧)
   : PseudoTransformation (representable0 X) (representable0 Y)
   := Build_PseudoTransformation (representable1_d f) (representable1_is_pseudo f).
-
-Definition univalent_representable1
-           `{Univalence}
-           {C : BiCategory}
-           `{LocallyUnivalent C}
-           {X Y : C}
-           (f : C⟦X,Y⟧)
-  : PseudoTransformation (univalent_representable0 X) (univalent_representable0 Y)
-  := pseudo_factor_transformation _ (representable1 f) _ _.

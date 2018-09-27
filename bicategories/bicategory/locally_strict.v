@@ -70,7 +70,7 @@ Qed.
 
 Class is_2category (C : BiCategory) :=
   {
-    cat2_is_prestrict : LocallyStrict C ;
+    cat2_is_locally_strict : LocallyStrict C ;
     cat2_is_strict : IsStrict C
   }.
 
@@ -87,6 +87,12 @@ Proof.
   { apply path_ishprop. }
   reflexivity.
 Qed.
+
+Global Instance locally_strict_is_2category
+       (C : BiCategory)
+       `{is_2category C}
+  : LocallyStrict C
+  := cat2_is_locally_strict.
 
 Definition idtoiso_prod
            {C D : PreCategory}

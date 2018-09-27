@@ -4,6 +4,7 @@ From HoTT.Categories Require Import
 From GR Require Import
      general_category
      bicategory.bicategory
+     bicategory.locally_strict
      bicategory.strict
      bicategory.univalent
      bicategory.adjoint
@@ -106,6 +107,25 @@ Section FullSub.
     split ; apply _.
   Defined.
 
+  Global Instance locally_strict_full_sub
+         `{LocallyStrict C}
+    : LocallyStrict full_sub.
+  Proof.
+    intros X Y ; cbn.
+    apply _.
+  Defined.
+
+  Definition is_2category_full_sub
+             {H : is_2category C}
+    : is_2category full_sub.
+  Proof.
+    destruct H.
+    split.
+    - apply _.
+    - apply full_sub_strict.
+      assumption.
+  Qed.
+
   Definition adjoint_to_full_sub
              {X Y : C}
              (HX : P X)
@@ -131,4 +151,14 @@ Section FullSub.
              (f : X ≃ Y)
     : @adjoint_equivalence full_sub (X;HX) (Y;HY)
     := f.
+
+  Global Instance full_sub_isomorphism
+         {X Y : C}
+         {f g : C⟦X,Y⟧}
+         (HX : P X)
+         (HY : P Y)
+         (α : f ==> g)
+         `{@IsIsomorphism (C⟦X,Y⟧) f g α}
+    : @IsIsomorphism (full_sub⟦(X;HX),(Y;HY)⟧) _ _ α
+    := _.
 End FullSub.
