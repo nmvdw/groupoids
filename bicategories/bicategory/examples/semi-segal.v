@@ -12,7 +12,7 @@ Section SemiSegalType.
            (Hom : Ob -> Ob -> Type)
            (id : forall (X : Ob), Hom X X)
            (comp : forall (X Y Z : Ob), Hom Y Z -> Hom X Y -> Hom X Z).
-  Context `{forall (X Y : Ob), IsHSet (Hom X Y)}.
+  Context `{forall (X Y : Ob), IsTrunc 1 (Hom X Y)}.
 
   Local Notation "f 'oc' g" := (comp _ _ _ f g) (at level 60).
 
@@ -36,7 +36,7 @@ Section SemiSegalType.
                = ap (fun z => k oc z) (α h g f)
                     @ α k (h oc g) f
                     @ ap (fun z => z oc f) (α k h g)).
-
+  
   Definition SemiSegalType_bicat_d : BiCategory_d.
   Proof.
     make_bicategory.
