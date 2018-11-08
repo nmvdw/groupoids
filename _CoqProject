@@ -1,11 +1,5 @@
 
--R . "GR" COQC = hoqc COQDEP = hoqdep
-basics/general.v
-basics/heterogeneous_equality.v
-basics/path_over.v
-basics/square.v
-basics/globe_over.v
-basics/polynomial.v
+-R . "GR" COQC = coqc COQDEP = coqdep
 bicategories/general_category.v
 bicategories/bicategory/bicategory.v
 bicategories/bicategory/strict.v
@@ -55,6 +49,7 @@ bicategories/lax_transformation/examples/composition.v
 bicategories/lax_transformation/examples/restriction.v
 bicategories/lax_transformation/examples/inclusion_transformation.v
 bicategories/lax_transformation/examples/factor_full_sub.v
+bicategories/lax_transformation/examples/ap_transformation.v
 bicategories/modification/modification.v
 bicategories/modification/examples/identity.v
 bicategories/modification/examples/composition.v
@@ -70,6 +65,7 @@ bicategories/modification/examples/associativity.v
 bicategories/modification/examples/associativity_inv.v
 bicategories/modification/examples/whisker_L.v
 bicategories/modification/examples/whisker_R.v
+bicategories/modification/examples/ap_modification.v
 bicategories/lax_transformation/transformation_category.v
 bicategories/bicategory/examples/lax_functors_bicat.v
 bicategories/bicategory/examples/oplax_functors_bicat.v
@@ -92,30 +88,3 @@ bicategories/lax_transformations.v
 bicategories/modifications.v
 bicategories/biadjunction/biadjunction.v
 bicategories/biadjunction/examples/restriction.v
-setoid/setoid.v
-setoid/squot_properties.v
-setoid/setoid_adjunction.v
-groupoid/grpd_bicategory/grpd_bicategory.v
-groupoid/grpd_bicategory/grpd_laws.v
-groupoid/grpd_bicategory/prod_grpd.v
-groupoid/grpd_bicategory/sum_grpd.v
-groupoid/grpd_bicategory/fun_grpd.v
-groupoid/grpd_bicategory/setoid_grpd.v
-groupoid/path_groupoid/path_groupoid.v
-groupoid/path_groupoid/path_space.v
-groupoid/grpd_bicategory/poly_grpd.v
-groupoid/rezk_completion/rezk.v
-groupoid/rezk_completion/rezk_principles.v
-groupoid/rezk_completion/rezk_encode_decode.v
-groupoid/groupoid_quotient/gquot.v
-groupoid/groupoid_quotient/gquot_principles.v
-groupoid/groupoid_quotient/gquot_functor.v
-groupoid/groupoid_quotient/properties/gquot_poly.v
-groupoid/groupoid_quotient/properties/gquot_encode_decode.v
-groupoid/groupoid_quotient/properties/gquot_general.v
-groupoid/adjunction/unit.v
-groupoid/adjunction/counit.v
-groupoid/adjunction/gquot_biadjunction.v
-groupoid/adjunction/counit_inv.v
-groupoid/adjunction/unit_inv.v
-groupoid/adjunction/univalent_gquot_biadjunction.v
