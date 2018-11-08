@@ -1,250 +1,131 @@
-Require Import HoTT.
-From GR.bicategories Require Import
-     general_category
-     bicategory.bicategory
-     bicategory.univalent
-     bicategory.adjoint
-     bicategory.equivalence
-     bicategory.adjoint_unique.
+Require Import UniMath.Foundations.All.
+Require Import UniMath.MoreFoundations.All.
+Require Import UniMath.CategoryTheory.Categories.
+Require Import UniMath.CategoryTheory.functor_categories.
+Require Import UniMath.CategoryTheory.PrecategoryBinProduct.
+Require Import UniMath.CategoryTheory.bicategories.Bicat.
 
-Section OneTypesBiCategory.
-  Context `{Funext}.
-  
-  Definition maps (A B : 1 -Type) : PreCategory.
-  Proof.
-    simple refine (@Build_PreCategory (A -> B) (fun f g => f = g) _ _ _ _ _ _).
-    - reflexivity.
-    - intros ? ? ? p q ; exact (q @ p).
-    - cbn ; intros.
-      apply concat_p_pp.
-    - cbn ; intros.
-      apply concat_p1.
-    - cbn ; intros.
-      apply concat_1p.
-  Defined.
+Open Scope cat.
 
-  Definition maps_cat (A B : 1 -Type) : IsCategory (maps A B).
-  Proof.
-    intros f g ; cbn in *.
-    simple refine (isequiv_adjointify _ _ _ _).
-    - intros α.
-      apply α.
-    - intros α.
-      apply path_isomorphic.
-      destruct α as [α αiso].
-      induction α ; cbn in *.
-      reflexivity.
-    - intros p ; induction p.
-      reflexivity.
-  Defined.
-  
-  Definition one_types_d : BiCategory_d.
-  Proof.
-    make_bicategory.
-    - exact (1 -Type).
-    - exact (fun X Y => maps X Y).
-    - exact (fun _ => idmap).
-    - exact (fun _ _ _ p => Datatypes.fst p o Datatypes.snd p)%function.
-    - intros X Y Z [f₁ f₂] [g₁ g₂] [p₁ p₂] ; cbn in *.
-      funext x.
-      exact (ap10 p₁ (f₂ x) @ ap g₁ (ap10 p₂ x)).
-    - intros X Y f ; simpl in *.
-      reflexivity.
-    - intros X Y f ; simpl in *.
-      reflexivity.
-    - intros X Y f ; simpl in *.
-      reflexivity.
-    - intros X Y f ; simpl in *.
-      reflexivity.
-    - intros W X Y Z f g h ; simpl in *.
-      reflexivity.
-    - intros W X Y Z f g h ; simpl in *.
-      reflexivity.
-  Defined.
-
-  Definition one_types_is_bicategory : is_bicategory one_types_d.
-  Proof.
-    make_is_bicategory.
-    - intros X Y Z [f₁ f₂] ; simpl in *.
-      rewrite path_forall_1.
-      reflexivity.
-    - intros X Y Z [f₁ f₂] [g₁ g₂] [h₁ h₂] [p₁ p₂] [q₁ q₂] ; simpl in *.
-      induction p₁, p₂, q₁, q₂ ; simpl.
-      rewrite path_forall_1.
-      reflexivity.
-    - intros X Y f g p ; simpl in *.
-      induction p ; simpl.
-      rewrite path_forall_1.
-      reflexivity.
-    - intros X Y f g p ; simpl in *.
-      induction p ; simpl.
-      rewrite path_forall_1.
-      reflexivity.
-    - intros X Y f g p ; simpl in *.
-      induction p ; simpl.
-      rewrite path_forall_1.
-      reflexivity.
-    - intros X Y f g p ; simpl in *.
-      induction p ; simpl.
-      rewrite path_forall_1.
-      reflexivity.
-    - reflexivity.
-    - reflexivity.
-    - reflexivity.
-    - reflexivity.
-    - intros W X Y Z h₁ h₂ g₁ g₂ f₁ f₂ ph pg pf ; simpl in *.
-      induction ph, pg, pf ; simpl.
-      rewrite !path_forall_1.
-      reflexivity.
-    - intros W X Y Z h₁ h₂ g₁ g₂ f₁ f₂ ph pg pf ; simpl in *.
-      induction ph, pg, pf ; simpl.
-      rewrite !path_forall_1.
-      reflexivity.
-    - reflexivity.
-    - reflexivity.
-    - intros X Y Z g f ; simpl in *.
-      rewrite path_forall_1.
-      reflexivity.
-    - intros V W X Y Z k h g f ; simpl in *.
-      rewrite path_forall_1.
-      reflexivity.
-  Qed.
-
-  Definition one_types : BiCategory
-    := Build_BiCategory one_types_d one_types_is_bicategory.
-
-  Definition one_types_is_21
-    : is_21 one_types.
-  Proof.
-    intros X Y f g p ; simpl in *.
-    simple refine (Build_IsIsomorphism _ _ _ _ _ _ _).
-    - exact p^.
-    - apply concat_pV.
-    - apply concat_Vp.
-  Defined.
-  
-  Global Instance locally_univalent_one_types
-    : LocallyUnivalent one_types.
-  Proof.
-    intro ; apply _.
-  Qed.
-  
-  Definition one_types_equiv_to_adjequiv_d
-             {X Y : one_types}
-             (f : X <~> Y)
-    : @is_left_adjoint_d one_types _ _ f.
-  Proof.
-    make_is_left_adjoint.
-    - exact (f^-1)%equiv.
-    - funext x ; cbn.
-      symmetry.
-      apply eissect.
-    - funext x ; cbn.
-      apply eisretr.
-  Defined.
-
-  Definition one_types_equiv_to_adjequiv_is_adj
-             {X Y : one_types}
-             (f : X <~> Y)
-    : is_adjunction (one_types_equiv_to_adjequiv_d f).
-  Proof.
-    make_is_adjunction ; cbn.
-    - rewrite !concat_p1, !concat_1p.
-      rewrite <- path_forall_pp.
-      rewrite <- path_forall_1.
-      f_ap.
-      funext x.
-      rewrite concat_1p, !ap10_path_forall, concat_p1 ; cbn.
-      rewrite other_adj.
-      rewrite <- ap_V, <- ap_pp.
-      rewrite concat_Vp ; simpl.
-      reflexivity.
-    - rewrite !concat_p1, !concat_1p.
-      rewrite <- path_forall_pp.
-      rewrite <- path_forall_1.
-      f_ap.
-      funext x.
-      rewrite concat_1p, !ap10_path_forall, concat_p1 ; cbn.
-      rewrite eisadj.
-      rewrite <- ap_pp.
-      rewrite concat_Vp ; simpl.
-      reflexivity.
-  Qed.
-
-  Definition one_types_equiv_to_adjequiv
-             {X Y : one_types}
-             (f : X <~> Y)
-    : X ≃ Y.
-  Proof.
-    simple refine (@Build_adjoint_equivalence one_types X Y f _ _ _).
-    - exact (Build_is_left_adjoint
-               (one_types_equiv_to_adjequiv_d f)
-               (one_types_equiv_to_adjequiv_is_adj f)).
-    - apply one_types_is_21.
-    - apply one_types_is_21.
-  Defined.
-  
-  Lemma equiv_to_adjequiv_path
-        {X Y : one_types}
-        (p : X = Y)
-    : one_types_equiv_to_adjequiv (equiv_path X Y (ap _ p)) = id_to_adjequiv X Y p.
-  Proof.
-    induction p ; cbn.
-    apply path_adjoint_equivalence ; cbn.
-    reflexivity.
-  Qed.
-
-  Instance one_types_equivalence 
-        (X Y : one_types)
-        (f : one_types⟦X,Y⟧)
-    : is_equivalence f -> IsEquiv f.
-  Proof.
-    intros Hf.
-    simple refine (isequiv_adjointify _ _ _ _).
-    - apply (equiv_inv Hf).
-    - intros y.
-      pose (fr := retr f Hf).
-      exact (ap10 fr y).
-    - intros x.
-      pose (fs := sect f Hf).
-      exact (ap10 fs x).
-  Defined.
-
-  Instance isequiv_one_types_equiv_to_adjequiv
-           (X Y : one_types)
-    : IsEquiv (@one_types_equiv_to_adjequiv X Y).
-  Proof.
-    simple refine (isequiv_adjointify _ _ _ _).
-    - intros HXY ; cbn in *.
-      apply adjoint_equivalent_equivalence in HXY.
-      pose (f := equiv_morph HXY) ; cbn in *.
-      exists f.
-      apply one_types_equivalence.
-      apply HXY.
-    - intros α ; simpl.
-      apply path_adjoint_equivalence ; cbn.
-      reflexivity.
-    - intros p.
-      apply path_equiv ; cbn.
-      reflexivity.
-  Defined.
-  
-  Global Instance univalent_0_one_types `{Univalence}
-    : Univalent_0 one_types.
-  Proof.
-    intros X Y.
-    eapply @isequiv_homotopic; [ | intro; apply equiv_to_adjequiv_path ].
-    change (IsEquiv (one_types_equiv_to_adjequiv o (equiv_path X Y o ap trunctype_type))).
-    (* TODO: typeclasses eauto doesn't work here *)
-    eapply (@isequiv_compose _ _ (equiv_path X Y o ap trunctype_type)).
-    - change (IsEquiv (equiv_path X Y o ap trunctype_type)).
-      eapply (@isequiv_compose _ _ (ap trunctype_type)); typeclasses eauto.
-    - apply _.
-  Defined.
-
-  Global Instance univalent_one_types `{Univalence}
-    : Univalent one_types.
-  Proof.
-    split ; apply _.
-  Defined.
-End OneTypesBiCategory.
+Definition build_bicategory
+           (ob : UU)
+           (mor : ob -> ob -> UU)
+           (cell : ∏ {X Y : ob}, mor X Y -> mor X Y -> UU)
+           (id₁ : ∏ (X : ob), mor X X)
+           (comp : ∏ {X Y Z : ob}, mor X Y -> mor Y Z -> mor X Z)
+           (id₂ : ∏ {X Y : ob} (f : mor X Y), cell f f)
+           (vcomp : ∏ {X Y : ob} {f g h : mor X Y}, cell f g -> cell g h -> cell f h)
+           (lwhisk : ∏ {X Y Z : ob} (f : mor X Y) {g h : mor Y Z},
+                     cell g h -> cell (comp f g) (comp f h))
+           (rwhisk : ∏ {X Y Z : ob} {g h : mor X Y} (f : mor Y Z),
+                     cell g h -> cell (comp g f) (comp h f))
+           (lunitor : ∏ {X Y : ob} (f : mor X Y),
+                      cell (comp (id₁ X) f) f)
+           (lunitor_inv : ∏ {X Y : ob} (f : mor X Y),
+                          cell f (comp (id₁ X) f))
+           (runitor : ∏ {X Y : ob} (f : mor X Y),
+                      cell (comp f (id₁ Y)) f)
+           (runitor_inv : ∏ {X Y : ob} (f : mor X Y),
+                          cell f (comp f (id₁ Y)))
+           (lassocor : ∏ {W X Y Z : ob} (f : mor W X) (g : mor X Y) (h : mor Y Z),
+                       cell (comp f (comp g h)) (comp (comp f g) h))
+           (rassocor : ∏ {W X Y Z : ob} (f : mor W X) (g : mor X Y) (h : mor Y Z),
+                       cell (comp (comp f g) h) (comp f (comp g h)))
+           (vcomp_left : ∏ (X Y : ob) (f g : mor X Y) (α : cell f g),
+                          vcomp (id₂ f) α = α)
+           (vcomp_right : ∏ (X Y : ob) (f g : mor X Y) (α : cell f g),
+                         vcomp α (id₂ g) = α)
+           (vcomp_assoc : ∏ (X Y : ob)
+                            (f g h k : mor X Y)
+                            (α₁ : cell f g) (α₂ : cell g h) (α₃ : cell h k),
+                          vcomp α₁ (vcomp α₂ α₃) = vcomp (vcomp α₁ α₂) α₃)
+           (lwhisk_id : ∏ (X Y Z : ob) (f : mor X Y) (g : mor Y Z),
+                        lwhisk f (id₂ g) = id₂ _)
+           (rwhisk_id : ∏ (X Y Z : ob) (f : mor X Y) (g : mor Y Z),
+                        rwhisk g (id₂ f) = id₂ _)
+           (lwhisk_comp : ∏ (X Y Z : ob)
+                            (f : mor X Y) (g h i : mor Y Z)
+                            (α : cell g h) (β : cell h i),
+                          lwhisk f (vcomp α β) = vcomp (lwhisk f α) (lwhisk f β))
+           (rwhisk_comp : ∏ (X Y Z : ob)
+                            (f g h : mor X Y) (i : mor Y Z)
+                            (α : cell f g) (β : cell g h),
+                          rwhisk i (vcomp α β) = vcomp (rwhisk i α) (rwhisk i β))
+           (lunitor_natural : ∏ (X Y : ob) (f g : mor X Y) (α : cell f g),
+                             vcomp (lwhisk (id₁ _) α) (lunitor g) = vcomp (lunitor f) α)
+           (runitor_natural : ∏ (X Y : ob) (f g : mor X Y) (α : cell f g),
+                              vcomp (rwhisk (id₁ _) α) (runitor g) = vcomp (runitor f) α)
+           (lwhisk_lwhisk : ∏ (W X Y Z : ob)
+                              (f : mor W X) (g : mor X Y) (h i : mor Y Z)
+                              (α : cell h i),
+                            vcomp (lwhisk f (lwhisk g α)) (lassocor f g i)
+                            =
+                            vcomp (lassocor f g h) (lwhisk _ α))
+           (rwhisk_lwhisk : ∏ (W X Y Z : ob)
+                              (f : mor W X) (g h : mor X Y) (i : mor Y Z)
+                              (α : cell g h),
+                            vcomp (lwhisk f (rwhisk i α)) (lassocor f h i)
+                            =
+                            vcomp (lassocor f g i) (rwhisk i (lwhisk f α)))
+           (rwhisk_rwhisk : ∏ (W X Y Z : ob)
+                              (f g : mor W X) (h : mor X Y) (i : mor Y Z)
+                              (α : cell f g),
+                            vcomp (rwhisk _ α) (lassocor _ _ _)
+                            =
+                            vcomp (lassocor f h i) (rwhisk i (rwhisk h α)))
+           (vcomp_whisker : ∏ (X Y Z : ob)
+                              (f g : mor X Y) (h i : mor Y Z)
+                              (α : cell f g) (β : cell h i),
+                            vcomp (rwhisk h α) (lwhisk g β)
+                            =
+                            vcomp (lwhisk f β) (rwhisk i α))
+           (lunitor_left : ∏ (X Y : ob) (f : mor X Y),
+                           vcomp (lunitor f) (lunitor_inv f) = id₂ _)
+           (lunitor_right : ∏ (X Y : ob) (f : mor X Y),
+                            vcomp (lunitor_inv f) (lunitor f) = id₂ _)
+           (runitor_left : ∏ (X Y : ob) (f : mor X Y),
+                           vcomp (runitor f) (runitor_inv f) = id₂ _)
+           (runitor_right : ∏ (X Y : ob) (f : mor X Y),
+                            vcomp (runitor f) (runitor_inv f) = id₂ _)
+           (lassocor_left : ∏ (W X Y Z : ob)
+                              (f : mor W X) (g : mor X Y) (h : mor Y Z),
+                            vcomp (lassocor f g h) (rassocor f g h) = id₂ _)
+           (lassocor_right : ∏ (W X Y Z : ob)
+                               (f : mor W X) (g : mor X Y) (h : mor Y Z),
+                             vcomp (rassocor f g h) (lassocor f g h) = id₂ _)
+           (triangle : ∏ (X Y Z : ob) (f : mor X Y) (g : mor Y Z),
+                       vcomp (lassocor f (id₁ Y) g) (rwhisk g (runitor f))
+                       =
+                       lwhisk f (lunitor g))
+           (pentagon : ∏ (V W X Y Z : ob)
+                         (f : mor V W) (g : mor W X) (h : mor X Y) (k : mor Y Z),
+                       vcomp (lassocor f g (comp h k)) (lassocor (comp f g) h k)
+                       =
+                       vcomp (vcomp (lwhisk f (lassocor g h k)) (lassocor _ _ _))
+                                    (rwhisk k (lassocor _ _ _))
+           )
+  : bicat.
+Proof.
+  use tpair.
+  - use tpair.
+    + use tpair.
+      * use tpair.
+        ** use tpair.
+           *** exact (tpair (λ ob, ob -> ob -> UU) ob mor).
+           *** use tpair.
+               **** exact id₁.
+               **** exact comp.
+        ** exact cell.
+      * use tpair.
+        ** exact id₂.
+        ** repeat (use tpair) ; simpl.
+           *** exact lunitor.
+           *** exact runitor.
+           *** exact lunitor_inv.
+           *** exact runitor_inv.
+           *** exact rassocor.
+           *** exact lassocor.
+           *** exact vcomp.
+           *** exact lwhisk.
+           *** exact rwhisk.
+    + simpl ; unfold prebicat_laws.
